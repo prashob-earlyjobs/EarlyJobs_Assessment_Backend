@@ -15,15 +15,12 @@ const errorHandler = require('./middlewares/errorHandler');
 const authRoutes = require('./routes/authRoutes');
 const assessmentRoutes = require('./routes/assessmentRoutes');
 const resultRoutes = require('./routes/resultRoutes');
-const profileRoutes = require('./routes/profileRoutes');
+// const profileRoutes = require('./routes/profileRoutes');
 
 const app = express();
 
 // Connect to MongoDB
 connectDB();
-
-// Security middleware
-app.use(helmet());
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
     ? ['https://earlyjobs.ai']
@@ -40,6 +37,9 @@ app.use(cors({
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
   maxAge: 86400 // 24 hours in seconds
 }));
+
+// Security middleware
+app.use(helmet());
 
 // Rate limiting
 const limiter = rateLimit({
@@ -70,8 +70,8 @@ app.use(cookieParser());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/assessments', assessmentRoutes);
-app.use('/api/results', resultRoutes);
-app.use('/api/profile', profileRoutes);
+// app.use('/api/results', resultRoutes);
+// app.use('/api/profile', profileRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

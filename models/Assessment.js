@@ -52,6 +52,7 @@ const assessmentSchema = new mongoose.Schema({
     trim: true,
     maxLength: [100, 'Title cannot exceed 100 characters']
   },
+  
   description: {
     type: String,
     maxLength: [500, 'Description cannot exceed 500 characters']
@@ -90,7 +91,7 @@ const assessmentSchema = new mongoose.Schema({
   tags: [String],
   difficulty: {
     type: String,
-    enum: ['easy', 'medium', 'hard'],
+    enum: ["Beginner", "Intermediate", "Advanced"],
     default: 'medium'
   }
 }, {

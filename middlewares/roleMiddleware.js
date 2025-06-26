@@ -1,5 +1,6 @@
 const roleMiddleware = (roles) => {
   return (req, res, next) => {
+    console.log('User role:', req.user ? req.user.role : 'No user');
     if (!req.user) {
       return res.status(401).json({
         success: false,

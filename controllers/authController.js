@@ -2,6 +2,8 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const mongoose = require('mongoose');
+
 const { validationResult } = require("express-validator");
 
 // Enhanced JWT Token Generation with user role and email
@@ -30,11 +32,14 @@ const generateRefreshToken = (userId) => {
 
 // Set cookie options
 const cookieOptions = {
-  expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict'
+  secure: false,        // because localhost is not HTTPS
+  sameSite: 'lax',
+  path: '/',
+  expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
 };
+
+
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -158,6 +163,7 @@ const login = async (req, res) => {
     // Set refresh token in cookie
     res.cookie('refreshToken', refreshToken, cookieOptions);
 
+
     res.json({
       success: true,
       message: "Login successful",
@@ -245,40 +251,146 @@ const getMe = async (req, res) => {
 // @desc    Update user profile
 // @route   PUT /api/auth/profile
 // @access  Private
+
 const updateProfile = async (req, res) => {
   try {
-    const allowedUpdates = ["name", "profile"];
-    const updates = {};
+    const userId = req.user._id;
 
-    Object.keys(req.body).forEach((key) => {
-      if (allowedUpdates.includes(key)) {
-        updates[key] = req.body[key];
+    const allowedTopLevelFields = ['name', 'profile'];
+    const updateData = {};
+
+    // Filter only allowed top-level fields
+    for (const key of Object.keys(req.body)) {
+      if (allowedTopLevelFields.includes(key)) {
+        updateData[key] = req.body[key];
       }
-    });
+    }
 
-    const user = await User.findByIdAndUpdate(req.user._id, updates, {
+    // If profile is being updated, handle nested merging
+    if (updateData.profile) {
+      const existingUser = await User.findById(userId).lean();
+
+      const mergedProfile = {
+        ...existingUser.profile,
+        ...updateData.profile,
+        address: {
+          ...(existingUser.profile?.address || {}),
+          ...(updateData.profile.address || {})
+        },
+        professionalInformation: {
+          ...(existingUser.profile?.professionalInformation || {}),
+          ...(updateData.profile.professionalInformation || {})
+        }
+      };
+
+      // 🛠️ Fix education format if it's present
+      if (
+        updateData.profile?.professionalInformation?.education &&
+        Array.isArray(updateData.profile.professionalInformation.education)
+      ) {
+        mergedProfile.professionalInformation.education = updateData.profile.professionalInformation.education.map(entry => ({
+          _id: entry._id ? new mongoose.Types.ObjectId(entry._id) : new mongoose.Types.ObjectId(),
+          institution: entry.institution,
+          degree: entry.degree,
+          fieldOfStudy: entry.fieldOfStudy || 'N/A', // Optional fallback
+          percentage: Number(entry.percentage),
+          year: Number(entry.year)
+        }));
+      }
+
+      updateData.profile = mergedProfile;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
       new: true,
-      runValidators: true,
+      runValidators: true
     });
 
     res.json({
       success: true,
-      message: "Profile updated successfully",
-      data: { user },
+      message: 'Profile updated successfully',
+      data: { user: updatedUser }
     });
+
   } catch (error) {
+    console.error('Update profile error:', error);
     res.status(500).json({
       success: false,
-      message: "Server error updating profile",
+      message: 'Server error updating profile',
+      error: error.message
+    });
+  }
+};
+
+module.exports = updateProfile;
+
+
+
+const completeProfile = async (req, res) => {
+  console.log("Complete profile request body:", req.body);
+  try {
+    const {
+      skills,
+      bio,
+      resume,
+      PrefJobLocations,
+      PreferredJobRole,
+      dateOfBirth,
+      gender
+    } = req.body;
+
+    const updatedFields = {
+      'profile.preferredJobRole': PreferredJobRole,
+      'profile.dateOfBirth': dateOfBirth,
+      'profile.gender': gender,
+      'profile.skills': skills || [],
+      'profile.bio': bio || '',
+      'profile.resume': resume || null,
+      'profile.prefJobLocations': PrefJobLocations || [],
+    };
+
+    const user = await User.findByIdAndUpdate(req.user._id, { $set: updatedFields }, {
+      new: true,
+      runValidators: true,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Error completing profile:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error completing profile",
       error: error.message,
     });
   }
 };
+const isUserLoggedIn = async(req,res)=>{
+  if(req.user){
+    console.log("User is logged in:", req.user);
+    return res.status(200).json({
+      success: true,
+      message: "User is logged in",
+      user: req.user,
+    });
+  }
+  return res.status(401).json({
+    success: false,
+    message: "User is not logged in",
+  });
+
+
+}
 
 module.exports = {
   register,
   login,
   getMe,
   updateProfile,
+  completeProfile,
+  isUserLoggedIn,
   refreshToken,
 };

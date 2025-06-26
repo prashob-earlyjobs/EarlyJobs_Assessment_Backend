@@ -7,10 +7,10 @@ const { validationResult } = require('express-validator');
 // @access  Private (Candidate)
 const getAssessments = async (req, res) => {
   try {
-    const { category, type, difficulty, page = 1, limit = 10 } = req.query;
+    const { title,category, type, difficulty, page = 1, limit = 10 } = req.query;
     
     const query = { isActive: true };
-    
+    if (title) query.title = { $regex: title, $options: 'i' }; // Case-insensitive search
     if (category) query.category = category;
     if (type) query.type = type;
     if (difficulty) query.difficulty = difficulty;
