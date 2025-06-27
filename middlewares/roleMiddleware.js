@@ -7,7 +7,8 @@ const roleMiddleware = (roles) => {
         message: 'Access denied. Authentication required.'
       });
     }
-
+console.log('Required roles:', roles);
+    console.log('User roles:', req.user.role);
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,

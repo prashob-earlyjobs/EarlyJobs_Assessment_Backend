@@ -50,6 +50,7 @@ const assessmentSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Assessment title is required'],
     trim: true,
+    minLength: [5, 'Title must be at least 5 characters long'],
     maxLength: [100, 'Title cannot exceed 100 characters']
   },
   
@@ -93,6 +94,27 @@ const assessmentSchema = new mongoose.Schema({
     type: String,
     enum: ["Beginner", "Intermediate", "Advanced"],
     default: 'medium'
+  },
+  attempts: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  averageScore: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 100
+  },
+  completionRate: {
+    type: Number,
+    default: 100,
+    min: 0,
+    max: 100
+  },
+  createdDate: {
+    type: Date,
+    default: Date.now()
   }
 }, {
   timestamps: true

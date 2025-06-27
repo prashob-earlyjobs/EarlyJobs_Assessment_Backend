@@ -55,7 +55,7 @@ const register = async (req, res) => {
       });
     }
 
-    const { name, email, mobile, password, role } = req.body;
+    const { name, email, mobile, password, role,referrerId } = req.body;
 
     // Check if user exists
     const userExists = await User.findOne({
@@ -70,14 +70,14 @@ const register = async (req, res) => {
     }
 
     // Create user
-    const user = await User.create({
-      name,
-      email,
-      mobile,
-      password,
-      role: role || "candidate",
-    });
-
+      const user = await User.create({
+        name,
+        email,
+        mobile,
+        password,
+        referrerId,
+        role: role || "candidate",
+      });
     // Generate tokens
     const accessToken = generateToken(user);
     const refreshToken = generateRefreshToken(user._id);
@@ -93,6 +93,7 @@ const register = async (req, res) => {
           _id: user._id,
           name: user.name,
           email: user.email,
+          referrerId: user.referrerId,
           mobile: user.mobile,
           role: user.role,
         },
@@ -381,13 +382,42 @@ const isUserLoggedIn = async(req,res)=>{
     success: false,
     message: "User is not logged in",
   });
-
-
 }
+
+const userLogout = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+    // Clear the refreshToken cookie
+    res.clearCookie('refreshToken', cookieOptions);
+
+    // Return success response
+    res.status(200).json({
+      success: true,
+      message: 'User logged out successfully'
+    });
+  } catch (error) {
+    console.error('Failed to logout user:', error);
+    
+    // Handle any unexpected errors
+    res.status(500).json({
+      success: false,
+      message: 'Server error while logging out',
+      error: error.message
+    });
+  }
+};
+
+module.exports = { userLogout };
 
 module.exports = {
   register,
   login,
+  userLogout,
   getMe,
   updateProfile,
   completeProfile,

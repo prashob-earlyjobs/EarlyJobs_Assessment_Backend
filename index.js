@@ -15,6 +15,7 @@ const errorHandler = require('./middlewares/errorHandler');
 const authRoutes = require('./routes/authRoutes');
 const assessmentRoutes = require('./routes/assessmentRoutes');
 const resultRoutes = require('./routes/resultRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 // const profileRoutes = require('./routes/profileRoutes');
 
 const app = express();
@@ -24,7 +25,7 @@ connectDB();
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
     ? ['https://earlyjobs.ai']
-    : ['http://localhost:8080', 'http://localhost:3000'],
+    : ['http://localhost:8080', 'http://localhost:8081'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: [
@@ -70,6 +71,8 @@ app.use(cookieParser());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/assessments', assessmentRoutes);
+app.use('/api/admin', adminRoutes);
+
 // app.use('/api/results', resultRoutes);
 // app.use('/api/profile', profileRoutes);
 

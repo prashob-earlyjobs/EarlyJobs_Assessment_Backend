@@ -24,7 +24,9 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['candidate', 'recruiter', 'admin'],},
+    enum: ['candidate', 'recruiter','franchise', 'super_admin',"franchise_admin"],
+    default: 'candidate',
+  },
   mobile: {
     type: String,
     required: [true, 'Mobile number is required'],
@@ -34,6 +36,10 @@ const userSchema = new mongoose.Schema({
       'Please enter a valid 10-digit mobile number'
     ]
   },
+  referrerId: {
+    type: String || null,
+    default: null,
+  }, // Optional field for referral tracking
   password: {
     type: String,
     required: [true, 'Password is required'],

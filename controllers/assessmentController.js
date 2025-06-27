@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Assessment = require('../models/Assessment');
 const Result = require('../models/Result');
 const { validationResult } = require('express-validator');
@@ -285,8 +286,161 @@ const generateResultDetails = (assessment, answers, score) => {
   };
 };
 
+const addAssessment = async (req, res) => {
+  try {
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized: User not authenticated'
+      });
+    }
+
+    const {
+      title,
+      description,
+      tags,
+      difficulty,
+      timeLimit,
+      questions,
+      type,
+      category,
+      passingScore
+    } = req.body;
+    console.log('Adding assessment with data:', title,  timeLimit,  type, category);
+
+    if (!title || !type || !category || !timeLimit) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields: title, type, category, and timeLimit are required'
+      });
+    }
+
+    const assessment = new Assessment({
+      title: title.trim(),
+      description: description?.trim() || '',
+      type,
+      category,
+      timeLimit: parseInt(timeLimit),
+      questions: questions || [],
+      passingScore: passingScore || 60,
+      isActive: true,
+      createdBy: req.user._id,
+      tags: tags || [],
+      difficulty: difficulty || 'Intermediate',
+      attempts: 0,
+      averageScore: 0,
+      completionRate: 0,
+      createdDate: new Date()
+    });
+
+    const savedAssessment = await assessment.save();
+
+    return res.status(201).json({
+      success: true,
+      message: 'Assessment created successfully',
+      data: {
+        id: savedAssessment._id,
+        title: savedAssessment.title,
+        description: savedAssessment.description,
+        type: savedAssessment.type,
+        category: savedAssessment.category,
+        timeLimit: savedAssessment.timeLimit,
+        questions: savedAssessment.questions,
+        passingScore: savedAssessment.passingScore,
+        isActive: savedAssessment.isActive,
+        createdBy: savedAssessment.createdBy,
+        tags: savedAssessment.tags,
+        difficulty: savedAssessment.difficulty,
+        attempts: savedAssessment.attempts,
+        averageScore: savedAssessment.averageScore,
+        completionRate: savedAssessment.completionRate,
+        createdDate: savedAssessment.createdDate
+      }
+    });
+
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors
+      });
+    }
+
+    console.error('Error creating assessment:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};
+
+const editAssessment = async (req, res) => {
+  try {
+    const { assessmentId } = req.params;
+    const assessmentData = req.body;
+
+    // Validate assessmentId
+    if (!mongoose.Types.ObjectId.isValid(assessmentId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid assessment ID'
+      });
+    }
+
+    // Find and update the assessment
+    const updatedAssessment = await Assessment.findByIdAndUpdate(
+      assessmentId,
+      { $set: assessmentData },
+      { 
+        new: true, // Return the updated document
+        runValidators: true // Ensure schema validation
+      }
+    );
+
+    // Check if assessment exists
+    if (!updatedAssessment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Assessment not found'
+      });
+    }
+
+    // Return success response
+    res.status(200).json({
+      success: true,
+      message: 'Assessment updated successfully',
+      data: updatedAssessment
+    });
+
+  } catch (error) {
+    console.error('Failed to update assessment:', error);
+    
+    // Handle specific validation errors
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors
+      });
+    }
+
+    // Handle other errors
+    res.status(500).json({
+      success: false,
+      message: 'Server error while updating assessment',
+      error: error.message
+    });
+  }
+};
+
+
 module.exports = {
   getAssessments,
   getAssessment,
-  submitAssessment
+  submitAssessment,
+  addAssessment,
+  editAssessment
 };
