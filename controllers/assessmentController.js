@@ -437,10 +437,56 @@ const editAssessment = async (req, res) => {
 };
 
 
+const getAssessmentsByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Step 1: Fetch all results for the given userId from the Result collection
+    const results = await Result.find({ userId }).populate('assessmentId');
+
+    if (!results || results.length === 0) {
+      return res.status(404).json({ message: 'No results found for this user' });
+    }
+
+    // Step 2: Extract assessmentIds from the results
+    const assessmentIds = results.map(result => result.assessmentId._id);
+
+    // Step 3: Fetch all assessments using the assessmentIds
+    const assessments = await Assessment.find({ _id: { $in: assessmentIds } });
+
+    // Step 4: Combine results with their corresponding assessments
+    const userAssessments = results.map(result => {
+      const assessment = assessments.find(a => a._id.toString() === result.assessmentId._id.toString());
+      return {
+        assessment,
+        result: {
+          score: result.score ,
+          totalPoints: result.totalPoints,
+          maxPoints: result.maxPoints,
+          timeTaken: result.timeTaken,
+          status: result.status,
+          resultDetails: result.resultDetails,
+          feedback: result.feedback,
+          isReviewed: result.isReviewed,
+          createdAt: result.createdAt,
+          updatedAt: result.updatedAt
+        }
+      };
+    });
+
+    return res.status(200).json({ success: true, data: userAssessments });
+  } catch (error) {
+    console.error('Error fetching assessments and results:', error);
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+
 module.exports = {
   getAssessments,
   getAssessment,
   submitAssessment,
   addAssessment,
-  editAssessment
+  editAssessment,
+  getAssessmentsByUser
 };

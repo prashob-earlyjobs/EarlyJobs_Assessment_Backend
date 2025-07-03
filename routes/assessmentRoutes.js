@@ -24,8 +24,9 @@ const submitValidation = [
 ];
 
 // Routes
-router.get('/', authMiddleware, roleMiddleware(['candidate', 'super_admin']), getAssessments);
+router.get('/', authMiddleware, roleMiddleware(['candidate', 'super_admin','franchise_admin']), getAssessments);
 router.get('/:id', authMiddleware, roleMiddleware(['candidate']), getAssessment);
 router.post('/submit', authMiddleware, roleMiddleware(['candidate']), submitValidation, submitAssessment);
+
 
 module.exports = router;

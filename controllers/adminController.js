@@ -354,7 +354,77 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+const getFranchiseUsers = async (req, res) => {
+  try {
+    // Extract query parameters with defaults
+    const { page = 1, limit = 10, role, isActive, search } = req.query;
+    // Extract id from params
+    const { id } = req.params;
 
+    // Validate page and limit
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    if (pageNum < 1 || limitNum < 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'Page and limit must be positive integers',
+      });
+    }
+
+    // Build query object
+    const query = {};
+    // Add franchiserId filter to match the id from params
+    if (id) {
+      query.franchiserId = id;
+    }
+    // Only include role if it's not 'undefined' or falsy
+    if (role && role !== 'undefined') {
+      query.role = role;
+    }
+    // Only include isActive if it's explicitly 'true' or 'false'
+    if (isActive === 'true' || isActive === 'false') {
+      query.isActive = isActive === 'true';
+    }
+    // Include search if it's a non-empty string
+    if (search && search.trim() !== '') {
+      // Sanitize search input to prevent regex-based attacks
+      const sanitizedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.$or = [
+        { name: { $regex: sanitizedSearch, $options: 'i' } },
+        { email: { $regex: sanitizedSearch, $options: 'i' } },
+      ];
+    }
+
+    // Fetch users and total count
+    const users = await User.find(query)
+      .select('-password')
+      .limit(limitNum)
+      .skip((pageNum - 1) * limitNum)
+      .sort({ createdAt: -1 });
+
+    const total = await User.countDocuments(query);
+
+    // Return response
+    res.json({
+      success: true,
+      data: {
+        users,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          pages: Math.ceil(total / limitNum) || 0, // Ensure pages is 0 if total is 0
+        },
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching users',
+      error: error.message,
+    });
+  }
+};
 
 // @desc    Update user status
 // @route   PUT /api/admin/users/:id/status
@@ -389,6 +459,32 @@ const updateUserStatus = async (req, res) => {
     });
   }
 };
+const getFranchiser = async (req, res) => {
+  try {
+    // Extract id from params
+    const { franchiserId } = req.params;
+
+    const franchiser = await User.findById(franchiserId);
+
+    if (!franchiser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Franchiser not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: { franchiser }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching franchiser',
+      error: error.message
+    });
+  }
+};
 
 module.exports = {
   createAssessment,
@@ -397,5 +493,7 @@ module.exports = {
   getAllAssessments,
   getAnalytics,
   getAllUsers,
-  updateUserStatus
+  updateUserStatus,
+  getFranchiseUsers,
+  getFranchiser
 };

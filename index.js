@@ -16,6 +16,7 @@ const authRoutes = require('./routes/authRoutes');
 const assessmentRoutes = require('./routes/assessmentRoutes');
 const resultRoutes = require('./routes/resultRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const webhookRoutes = require('./routes/webhook');
 // const profileRoutes = require('./routes/profileRoutes');
 
 const app = express();
@@ -72,6 +73,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/assessments', assessmentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/webhook', webhookRoutes);
 
 // app.use('/api/results', resultRoutes);
 // app.use('/api/profile', profileRoutes);

@@ -371,7 +371,6 @@ const completeProfile = async (req, res) => {
 };
 const isUserLoggedIn = async(req,res)=>{
   if(req.user){
-    console.log("User is logged in:", req.user);
     return res.status(200).json({
       success: true,
       message: "User is logged in",

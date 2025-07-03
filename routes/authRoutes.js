@@ -32,7 +32,7 @@ const registerValidation = [
     .withMessage('Password must be at least 6 characters long'),
   body('role')
     .optional()
-    .isIn(['candidate', 'recruiter', 'admin'])
+    .isIn(['candidate', 'recruiter', 'super_admin', 'franchise_admin'])
     .withMessage('Invalid role')
 ];
 

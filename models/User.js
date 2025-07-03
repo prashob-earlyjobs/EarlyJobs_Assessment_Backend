@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema({
     type: String || null,
     default: null,
   }, // Optional field for referral tracking
+  franchiserId: {
+    type: mongoose.Schema.Types.ObjectId || null,
+    default: null
+  },
   password: {
     type: String,
     required: [true, 'Password is required'],
