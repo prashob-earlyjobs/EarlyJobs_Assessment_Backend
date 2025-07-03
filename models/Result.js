@@ -31,6 +31,8 @@ const answerSchema = new mongoose.Schema({
     default: 0
   }
 });
+// answers: [answerSchema],
+
 
 const resultSchema = new mongoose.Schema({
   userId: {
@@ -43,7 +45,6 @@ const resultSchema = new mongoose.Schema({
     ref: 'Assessment',
     required: true
   },
-  answers: [answerSchema],
   score: {
     type: Number,
     required: true,

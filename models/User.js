@@ -22,6 +22,11 @@ const userSchema = new mongoose.Schema({
       'Please enter a valid email address'
     ]
   },
+  role: {
+    type: String,
+    enum: ['candidate', 'recruiter','franchise', 'super_admin',"franchise_admin"],
+    default: 'candidate',
+  },
   mobile: {
     type: String,
     required: [true, 'Mobile number is required'],
@@ -30,6 +35,14 @@ const userSchema = new mongoose.Schema({
       /^[0-9]{10}$/,
       'Please enter a valid 10-digit mobile number'
     ]
+  },
+  referrerId: {
+    type: String || null,
+    default: null,
+  }, // Optional field for referral tracking
+  franchiserId: {
+    type: mongoose.Schema.Types.ObjectId || null,
+    default: null
   },
   password: {
     type: String,
@@ -55,11 +68,132 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  
   profile: {
+    dateOfBirth: {
+      type: String,
+      validate: {
+        validator: function (value) {
+          if (!value) return false; // Allow empty value
+          const birthDate = new Date(value);
+          if (isNaN(birthDate.getTime())) return false; // Invalid date string
+          const today = new Date();
+          return birthDate <= today;
+        },
+        message: 'Date of birth cannot be in the future or invalid'
+      }
+    },
+    address:{
+      street: {
+        type: String,
+        trim: true,
+        minLength: [2, 'Street address must be at least 2 characters'],
+        maxLength: [100, 'Street address cannot exceed 100 characters']
+      },
+      city: {
+        type: String,
+        trim: true,
+        minLength: [2, 'City must be at least 2 characters'],
+        maxLength: [50, 'City cannot exceed 50 characters']
+      },
+      state: {
+        type: String,
+        trim: true,
+        minLength: [2, 'State must be at least 2 characters'],
+        maxLength: [50, 'State cannot exceed 50 characters']
+      },
+      country: {
+        type: String,
+        trim: true,
+        minLength: [2, 'Country must be at least 2 characters'],
+        maxLength: [50, 'Country cannot exceed 50 characters']
+      },
+      zipCode: {
+        type: String,
+        trim: true,
+       
+      },
+    },
+    professionalInformation:{
+      currentJobTitle: {
+        type: String,
+        trim: true,
+        minLength: [2, 'Current job title must be at least 2 characters'],
+        maxLength: [100, 'Current job title cannot exceed 100 characters']
+      },
+      experience: {
+        type: Number,
+        min: [0, 'Experience cannot be negative'],
+        max: [25, 'Experience cannot exceed 25 years']
+    },
+    expectedSalaryAnnual: {
+      type: Number,
+      min: [0, 'Expected salary cannot be negative'],
+    },
+    noticePeriod: {
+      type: Number,
+      min: [0, 'Notice period cannot be negative'],
+      max: [365, 'Notice period cannot exceed 365 days (12 months)']
+    },
+    workMode: {
+      type: String,
+      enum: ['Onsite', 'Remote', 'Hybrid'],
+      default: 'Onsite'
+    },
+    education: [{
+      _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        default: () => new mongoose.Types.ObjectId()
+      },
+      institution: {
+        type: String,
+        required: [true, 'Institution name is required'],
+        trim: true,
+        minLength: [2, 'Institution name must be at least 2 characters'],
+        maxLength: [100, 'Institution name cannot exceed 100 characters']
+      },
+      degree: {
+        type: String,
+        required: [true, 'Degree is required'],
+        trim: true,
+        minLength: [2, 'Degree must be at least 2 characters'],
+        maxLength: [100, 'Degree cannot exceed 100 characters']
+      },
+      fieldOfStudy: {
+        type: String,
+        // required: [false, 'Field of study is required'],
+        trim: true,
+        maxLength: [100, 'Field of study cannot exceed 100 characters']
+      },
+      percentage: {
+        type: Number,
+        required: [true, 'Percentage is required'],
+        min: [0, 'Percentage cannot be negative'],
+        max: [100, 'Percentage cannot exceed 100']
+      },
+      year: {
+        type: Number,
+        required: [true, 'Year is required'],
+        min: [1950, 'Year must be after 1950'],
+        max: [new Date().getFullYear(), 'Year cannot be in the future']
+      }
+    }],
+    },
+
+    gender: {
+      type: String,
+      enum: ['Male', 'Female', 'Other'],
+    },
     bio: {
       type: String,
       trim: true,
       maxLength: [500, 'Bio cannot exceed 500 characters']
+    },
+    preferredJobRole: {
+      type: String,
+      trim: true,
+  
     },
     resumeUrl: {
       type: String,
@@ -75,6 +209,12 @@ const userSchema = new mongoose.Schema({
       minLength: [2, 'Skill name must be at least 2 characters'],
       maxLength: [30, 'Skill name cannot exceed 30 characters']
     }],
+    prefJobLocations: [{
+
+      type: String,
+      trim: true,
+     
+    }],
     experience: [{
       title: {
         type: String,
@@ -89,11 +229,6 @@ const userSchema = new mongoose.Schema({
         trim: true,
         minLength: [2, 'Company name must be at least 2 characters'],
         maxLength: [100, 'Company name cannot exceed 100 characters']
-      },
-      location: {
-        type: String,
-        trim: true,
-        maxLength: [100, 'Location cannot exceed 100 characters']
       },
       from: {
         type: Date,
@@ -125,34 +260,7 @@ const userSchema = new mongoose.Schema({
         maxLength: [1000, 'Description cannot exceed 1000 characters']
       }
     }],
-    education: [{
-      institution: {
-        type: String,
-        required: [true, 'Institution name is required'],
-        trim: true,
-        minLength: [2, 'Institution name must be at least 2 characters'],
-        maxLength: [100, 'Institution name cannot exceed 100 characters']
-      },
-      degree: {
-        type: String,
-        required: [true, 'Degree is required'],
-        trim: true,
-        minLength: [2, 'Degree must be at least 2 characters'],
-        maxLength: [100, 'Degree cannot exceed 100 characters']
-      },
-      fieldOfStudy: {
-        type: String,
-        required: [true, 'Field of study is required'],
-        trim: true,
-        maxLength: [100, 'Field of study cannot exceed 100 characters']
-      },
-      year: {
-        type: Number,
-        required: [true, 'Year is required'],
-        min: [1950, 'Year must be after 1950'],
-        max: [new Date().getFullYear(), 'Year cannot be in the future']
-      }
-    }],
+    
     preferences: {
       jobType: {
         type: String,
@@ -183,6 +291,8 @@ const userSchema = new mongoose.Schema({
       }
     }
   },
+ 
+
   isEmailVerified: {
     type: Boolean,
     default: false

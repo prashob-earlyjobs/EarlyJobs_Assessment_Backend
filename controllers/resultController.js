@@ -153,8 +153,87 @@ const getAnalytics = async (req, res) => {
   }
 };
 
+
+const createResult = async (req, res) => {
+  const {
+    userId,
+    assessmentId,
+    answers,
+    score,
+    totalPoints,
+    maxPoints,
+    timeTaken,
+    status,
+    resultDetails,
+    feedback
+  } = req.body;
+
+  // Validate required fields
+  if (!userId || !assessmentId || !score || !timeTaken || !status) {
+    res.status(400);
+    throw new Error('Please provide all required fields');
+  }
+
+  // Check if result already exists for this user and assessment
+  const resultExists = await Result.findOne({ userId, assessmentId });
+  if (resultExists) {
+    res.status(400);
+    throw new Error('Result already exists for this user and assessment');
+  }
+
+  // Check for franchiseId in User model
+  const user = await User.findById(userId).select('franchiserId');
+  if (user && user.franchiserId) {
+    console.log(`User ${userId} has franchiseId: ${user.franchiserId}`);
+  }
+
+  // Create new result
+  const result = await Result.create({
+    userId,
+    assessmentId,
+    answers: answers || [],
+    score,
+    totalPoints: totalPoints || 0,
+    maxPoints: maxPoints || 0,
+    timeTaken,
+    status,
+    resultDetails: resultDetails || {
+      categoryWiseScore: [],
+      strengths: [],
+      weaknesses: [],
+      recommendations: []
+    },
+    feedback: feedback || {
+      recruiterFeedback: '',
+      systemFeedback: '',
+      rating: 0
+    },
+    isReviewed: false
+  });
+
+  if (result) {
+    res.status(201).json({
+      success: true,
+      data: {
+        _id: result._id,
+        userId: result.userId,
+        assessmentId: result.assessmentId,
+        score: result.score,
+        status: result.status,
+        createdAt: result.createdAt
+      }
+    });
+  } else {
+    res.status(400);
+    throw new Error('Invalid result data');
+  }
+};
+
+
+
 module.exports = {
   getMyResults,
   getResult,
-  getAnalytics
+  getAnalytics,
+  createResult
 };

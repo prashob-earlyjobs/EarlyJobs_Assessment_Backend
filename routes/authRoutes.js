@@ -5,7 +5,10 @@ const {
   login,
   getMe,
   updateProfile,
-  refreshToken
+  completeProfile,
+  isUserLoggedIn,
+  refreshToken,
+  userLogout
 } = require('../controllers/authController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
@@ -29,7 +32,7 @@ const registerValidation = [
     .withMessage('Password must be at least 6 characters long'),
   body('role')
     .optional()
-    .isIn(['candidate', 'recruiter', 'admin'])
+    .isIn(['candidate', 'recruiter', 'super_admin', 'franchise_admin'])
     .withMessage('Invalid role')
 ];
 
@@ -47,7 +50,13 @@ const loginValidation = [
 router.post('/register', registerValidation, register);
 router.post('/login', loginValidation, login);
 router.get('/me', authMiddleware, getMe);
-router.put('/profile', authMiddleware, updateProfile);
+router.get('/is-logged-in', authMiddleware, isUserLoggedIn); // Alias for getMe
+router.put('/update-profile', authMiddleware, updateProfile);
+router.put('/complete-profile', authMiddleware, completeProfile); // get from onboarding form details route
 router.post('/refresh-token', refreshToken);
+
+
+router.post('/logout', authMiddleware, userLogout);
+
 
 module.exports = router;

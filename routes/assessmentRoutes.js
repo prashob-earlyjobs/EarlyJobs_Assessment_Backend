@@ -3,7 +3,7 @@ const { body } = require('express-validator');
 const {
   getAssessments,
   getAssessment,
-  submitAssessment
+  submitAssessment,
 } = require('../controllers/assessmentController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const roleMiddleware = require('../middlewares/roleMiddleware');
@@ -24,8 +24,9 @@ const submitValidation = [
 ];
 
 // Routes
-router.get('/', authMiddleware, roleMiddleware(['candidate']), getAssessments);
+router.get('/', authMiddleware, roleMiddleware(['candidate', 'super_admin','franchise_admin']), getAssessments);
 router.get('/:id', authMiddleware, roleMiddleware(['candidate']), getAssessment);
 router.post('/submit', authMiddleware, roleMiddleware(['candidate']), submitValidation, submitAssessment);
+
 
 module.exports = router;
