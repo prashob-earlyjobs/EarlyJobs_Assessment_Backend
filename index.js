@@ -25,10 +25,11 @@ const app = express();
 connectDB();
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? ["https://earlyjobs.ai", "https://www.earlyjobs.ai"]
-        : ["http://localhost:8080", "http://localhost:8081"],
+    origin: [
+      "https://earlyjobs.ai",
+      "https://www.earlyjobs.ai",
+      "https://early-jobs-assessment-frontend-5n6w4951x-earlyjobs-projects.vercel.app",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: [
