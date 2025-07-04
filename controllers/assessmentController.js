@@ -444,9 +444,6 @@ const getAssessmentsByUser = async (req, res) => {
     // Step 1: Fetch all results for the given userId from the Result collection
     const results = await Result.find({ userId }).populate('assessmentId');
 
-    if (!results || results.length === 0) {
-      return res.status(404).json({ message: 'No results found for this user' });
-    }
 
     // Step 2: Extract assessmentIds from the results
     const assessmentIds = results.map(result => result.assessmentId._id);

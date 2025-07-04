@@ -74,6 +74,56 @@ const assessmentSchema = new mongoose.Schema({
     min: [1, 'Time limit must be at least 1 minute']
   },
   questions: [questionSchema],
+  pricing: {
+    type: Number,
+    required: [true, 'Pricing is required'],
+    min: [0, 'Pricing cannot be negative']
+  },
+ pricing: {
+    basePrice:{
+      type: Number,
+      required: [true, 'Base price is required'],
+      min: [0, 'Base price cannot be negative']
+    },
+    discountedPrice:{
+      type: Number,
+      required: [true, 'Discounted price is required'],
+      min: [0, 'Discounted price cannot be negative']
+    } ,
+  },
+  offer: {
+    title: {
+      type: String,
+      required: [true, 'Offer title is required'],
+      trim: true,
+      minLength: [5, 'Offer title must be at least 5 characters long'],
+      maxLength: [25, 'Offer title cannot exceed 100 characters']
+    },
+    type: {
+      type: String,
+      enum: ['percentage', 'flat'],
+      required: [true, 'Offer type is required']
+    },   // or "flat"
+    value: {
+      type: Number,
+      required: [true, 'Offer value is required'],
+      min: [0, 'Offer value cannot be negative'],
+    },
+    validUntil: {
+      type: Date,
+      required: [true, 'Offer expiration date is required'],
+      validate: {
+        validator: function(value) {
+          return value > Date.now();
+        },
+        message: 'Offer expiration date must be in the future'
+      }
+    },
+  },
+  isPremium: {
+    type: Boolean,
+    default: false
+  },
   passingScore: {
     type: Number,
     default: 60,
