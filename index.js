@@ -17,6 +17,10 @@ const assessmentRoutes = require('./routes/assessmentRoutes');
 const resultRoutes = require('./routes/resultRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const webhookRoutes = require('./routes/webhook');
+const createOrder = require('./routes/payment');
+const authMiddleware = require('./middlewares/authMiddleware');
+const tranctions = require('./routes/transactions');
+
 // const profileRoutes = require('./routes/profileRoutes');
 
 const app = express();
@@ -74,6 +78,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/assessments', assessmentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/webhook', webhookRoutes);
+app.use('/api/getOrderIdForPayment',authMiddleware, createOrder);
+app.use('/api/transactions', tranctions);
 
 // app.use('/api/results', resultRoutes);
 // app.use('/api/profile', profileRoutes);

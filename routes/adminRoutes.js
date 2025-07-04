@@ -4,7 +4,9 @@ const {
     getAllUsers,
     updateUserStatus,
     getFranchiseUsers,
-    getFranchiser
+    getFranchiser,
+    getTransactions,
+    getFranchiseTransactionsAndEarnings
   } = require('../controllers/adminController');
   const {
     addAssessment,
@@ -34,5 +36,8 @@ router.post('/addAssessment', authMiddleware,roleMiddleware(['super_admin']), ad
 router.put('/editAssessment/:assessmentId', authMiddleware, roleMiddleware(['super_admin']), editAssessment)
 router.get('/getAssessments/:userId', authMiddleware,roleMiddleware(['super_admin','franchise_admin']),getAssessmentsByUser )
 router.get('/getFranchiser/:franchiserId',authMiddleware,roleMiddleware(['super_admin','franchise_admin']),getFranchiser)
+
+router.get('/getTransactions/',authMiddleware,roleMiddleware(['super_admin']),getTransactions)
+router.get('/franchise/getTransactions/',authMiddleware,roleMiddleware(['franchise_admin']),getFranchiseTransactionsAndEarnings)
 
 module.exports = router;
