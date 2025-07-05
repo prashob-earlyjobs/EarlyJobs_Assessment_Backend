@@ -488,6 +488,11 @@ const getFranchiser = async (req, res) => {
   }
 };
 
+
+
+// @desc    Get all transactions with populated fields, pagination, and total earnings for super_admin
+// @route   GET /api/transactions
+// @access  Private (Super Admin)
 const getTransactions = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
@@ -517,19 +522,28 @@ const getTransactions = async (req, res) => {
     // Fetch franchise names by matching franchiserId with User _id
     const franchiseIds = transactions.map(t => t.franchiserId).filter(id => id);
     const franchiseUsers = await User.find({ _id: { $in: franchiseIds } }).select('name _id');
-    const apiCost=200;
+
     // Map transactions with populated and calculated fields
+    const apiCostPerTransaction = 200;
     const transactionsWithCommission = transactions.map(transaction => {
       const franchiseUser = franchiseUsers.find(u => u._id.toString() === transaction.franchiserId.toString());
-      console.log("franchiseUser",franchiseUser);
       return {
         ...transaction.toObject(),
-        candidateName: transaction.userId?.name || 'Unknown', // Username from User model
-        assessmentTitle: transaction.assessmentId?.title || 'Unknown', // Title from Assessment model
-        franchiseCommission: transaction.transactionAmount ? ((transaction.transactionAmount-apiCost) * 0.70).toFixed(2) : '0.00',
-        franchiseName: franchiseUser ? franchiseUser.name : 'Unknown', // Franchise name from User model
+        candidateName: transaction.userId?.name || 'Unknown',
+        assessmentTitle: transaction.assessmentId?.title || 'Unknown',
+        franchiseCommission: transaction.transactionAmount ? ((transaction.transactionAmount - apiCostPerTransaction) * 0.70).toFixed(2) : '0.00',
+        franchiseName: franchiseUser ? franchiseUser.name : 'Unknown',
       };
     });
+
+    // Calculate total earnings for all franchises
+    const totalTransactions = await Transactions.find();
+    const totalApiCost = apiCostPerTransaction * totalTransactions.length;
+    const totalAmountResult = await Transactions.aggregate([
+      { $group: { _id: null, totalAmount: { $sum: '$transactionAmount' } } },
+    ]);
+    const totalAmount = totalAmountResult.length > 0 ? totalAmountResult[0].totalAmount : 0;
+    const totalCommission = (totalAmount - totalApiCost) * 0.70;
 
     res.json({
       success: true,
@@ -540,6 +554,11 @@ const getTransactions = async (req, res) => {
           limit: limitNum,
           total,
           pages: Math.ceil(total / limitNum) || 0,
+        },
+        earnings: {
+          totalCommission: totalCommission >= 0 ? parseFloat(totalCommission.toFixed(2)) : 0.00,
+          totalAmount,
+          apiCost: totalApiCost,
         },
       },
     });
@@ -552,6 +571,8 @@ const getTransactions = async (req, res) => {
     });
   }
 };
+
+module.exports = { getTransactions };
 
 const getFranchiseTransactionsAndEarnings = async (req, res) => {
   try {
