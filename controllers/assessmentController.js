@@ -87,9 +87,10 @@ const getAssessment = async (req, res) => {
     });
 
     if (existingResult) {
-      return res.status(400).json({
-        success: false,
-        message: 'You have already taken this assessment'
+      return res.status(200).json({
+        success: true,
+        message: 'You have already taken this assessment',
+        data: {assessment}
       });
     }
 
@@ -478,6 +479,40 @@ const getAssessmentsByUser = async (req, res) => {
   }
 };
 
+const getUserStats = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Validate userId
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'User ID is required',
+      });
+    }
+
+    // Get total number of assessments
+    const totalAssessments = await Assessment.countDocuments();
+
+    // Get total number of assessments written by the user
+    const userAssessments = await Result.countDocuments({ userId });
+
+    res.json({
+      success: true,
+      data: {
+        totalAssessments,
+        userAssessments,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching user stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching user stats',
+      error: error.message,
+    });
+  }
+};
 
 module.exports = {
   getAssessments,
@@ -485,5 +520,6 @@ module.exports = {
   submitAssessment,
   addAssessment,
   editAssessment,
-  getAssessmentsByUser
+  getAssessmentsByUser,
+  getUserStats
 };

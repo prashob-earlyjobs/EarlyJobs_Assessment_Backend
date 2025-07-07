@@ -666,6 +666,75 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
     });
   }
 };
+
+
+const addFranchiser = async (req, res) => {
+  const { name, email, password, street, city, state, country, zipCode, mobile } = req.body;
+
+  try {
+    // Validate required fields
+    if (!name || !email || !password || !street || !city || !state || !country || !zipCode || !mobile) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // Check for existing franchiser with the same name, email, or mobile
+    const existingFranchiser = await User.findOne({
+      $or: [
+        { name: { $regex: new RegExp(`^${name}$`, 'i') }, role: 'franchise_admin' },
+        { email: { $regex: new RegExp(`^${email}$`, 'i') } },
+        { mobile },
+      ],
+    });
+
+    if (existingFranchiser) {
+      if (existingFranchiser.name.toLowerCase() === name.toLowerCase() && existingFranchiser.role === 'franchise_admin') {
+        return res.status(400).json({ error: 'Franchiser name already exists' });
+      }
+      if (existingFranchiser.email.toLowerCase() === email.toLowerCase()) {
+        return res.status(400).json({ error: 'Email already exists' });
+      }
+      if (existingFranchiser.mobile === mobile) {
+        return res.status(400).json({ error: 'Contact mobile number already exists' });
+      }
+    }
+
+    // Prepare user data with nested address
+    const newFranchiserData = {
+      name,
+      email,
+      password, // Will be hashed in pre-save middleware
+      role: 'franchise_admin',
+      authProvider: 'local',
+      mobile,
+      profile: {
+        address: {
+          street,
+          city,
+          state,
+          country,
+          zipCode,
+        },
+      },
+    };
+
+    // Create new franchiser
+    const franchiser = await User.create(newFranchiserData);
+
+    res.status(201).json({ franchiser: franchiser.toJSON() });
+  } catch (error) {
+    console.error('Error creating franchiser:', error);
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ error: error.message });
+    }
+    if (error.code === 11000) { // Duplicate key error (e.g., email uniqueness)
+      return res.status(400).json({ error: 'Email already exists' });
+    }
+    res.status(500).json({ error: 'Failed to create franchiser' });
+  }
+};
+
+module.exports = { addFranchiser };
+
 module.exports = {
   createAssessment,
   updateAssessment,
@@ -677,5 +746,6 @@ module.exports = {
   getFranchiseUsers,
   getFranchiser,
   getTransactions,
+  addFranchiser,
   getFranchiseTransactionsAndEarnings
 };
