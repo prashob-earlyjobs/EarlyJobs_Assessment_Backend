@@ -33,6 +33,7 @@ app.use(
   cors({
     origin: [
       "https://earlyjobs.ai",
+      "http://localhost:8080",
       "https://www.earlyjobs.ai",
       "https://early-jobs-assessment-frontend-5n6w4951x-earlyjobs-projects.vercel.app",
     ],
