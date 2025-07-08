@@ -8,7 +8,8 @@ const {
   completeProfile,
   isUserLoggedIn,
   refreshToken,
-  userLogout
+  userLogout,
+  verifyFranchiseId
 } = require('../controllers/authController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
@@ -54,6 +55,7 @@ router.get('/is-logged-in', authMiddleware, isUserLoggedIn); // Alias for getMe
 router.put('/update-profile', authMiddleware, updateProfile);
 router.put('/complete-profile', authMiddleware, completeProfile); // get from onboarding form details route
 router.post('/refresh-token', refreshToken);
+router.get('/verifyFranchiseId/:franchiseId',verifyFranchiseId );
 
 
 router.post('/logout', authMiddleware, userLogout);

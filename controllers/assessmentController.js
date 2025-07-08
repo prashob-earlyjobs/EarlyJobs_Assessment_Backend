@@ -305,15 +305,31 @@ const addAssessment = async (req, res) => {
       questions,
       type,
       category,
-      passingScore
+      passingScore,
+      assessmentId,
+      pricing,
+      offer,
+      isPremium
     } = req.body;
-    console.log('Adding assessment with data:', title,  timeLimit,  type, category);
 
-    if (!title || !type || !category || !timeLimit) {
+    console.log('Adding assessment with data:', title, timeLimit, type, category, pricing, offer, isPremium);
+
+    if (!title || !type || !category || !timeLimit || !pricing?.basePrice || !pricing?.discountedPrice || !offer?.title || !offer?.type || !offer?.value || !offer?.validUntil) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required fields: title, type, category, and timeLimit are required'
+        message: 'Missing required fields: title, type, category, timeLimit, pricing (basePrice, discountedPrice), and offer (title, type, value, validUntil) are required'
       });
+    }
+
+    // Check if assessmentId already exists
+    if (assessmentId) {
+      const existingAssessment = await Assessment.findOne({ assessmentId });
+      if (existingAssessment) {
+        return res.status(400).json({
+          success: false,
+          message: 'Assessment with this ID already exists'
+        });
+      }
     }
 
     const assessment = new Assessment({
@@ -331,8 +347,34 @@ const addAssessment = async (req, res) => {
       attempts: 0,
       averageScore: 0,
       completionRate: 0,
-      createdDate: new Date()
+      createdDate: new Date(),
+      assessmentId: assessmentId || null, // Optional field from API
+      pricing: {
+        basePrice: parseFloat(pricing.basePrice),
+        discountedPrice: parseFloat(pricing.discountedPrice),
+      },
+      offer: {
+        title: offer.title.trim(),
+        type: offer.type,
+        value: parseFloat(offer.value),
+        validUntil: new Date(offer.validUntil),
+      },
+      isPremium: !!isPremium, // Ensure boolean value
     });
+
+    if (parseFloat(pricing.discountedPrice) >= parseFloat(pricing.basePrice)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Discounted price must be less than base price'
+      });
+    }
+
+    if (assessment.offer.validUntil <= new Date()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Offer expiration date must be in the future'
+      });
+    }
 
     const savedAssessment = await assessment.save();
 
@@ -341,6 +383,7 @@ const addAssessment = async (req, res) => {
       message: 'Assessment created successfully',
       data: {
         id: savedAssessment._id,
+        assessmentId: savedAssessment.assessmentId,
         title: savedAssessment.title,
         description: savedAssessment.description,
         type: savedAssessment.type,
@@ -355,7 +398,10 @@ const addAssessment = async (req, res) => {
         attempts: savedAssessment.attempts,
         averageScore: savedAssessment.averageScore,
         completionRate: savedAssessment.completionRate,
-        createdDate: savedAssessment.createdDate
+        createdDate: savedAssessment.createdDate,
+        pricing: savedAssessment.pricing,
+        offer: savedAssessment.offer,
+        isPremium: savedAssessment.isPremium,
       }
     });
 
