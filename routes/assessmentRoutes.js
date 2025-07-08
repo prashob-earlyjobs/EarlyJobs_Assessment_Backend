@@ -5,7 +5,8 @@ const {
   getAssessment,
   submitAssessment,
   getAssessmentsByUser,
-  getUserStats
+  getUserStats,
+  inviteCandidateToInterview
 } = require('../controllers/assessmentController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const roleMiddleware = require('../middlewares/roleMiddleware');
@@ -37,10 +38,8 @@ router.post('/getAssessmentLink/:assessmentId', authMiddleware, async (req, res)
   const body = [
     req.body
   ]
-  
   try {
     const response = await callVeloxhireApi(`/assessment/${req.params.assessmentId}/interviews`,'POST',body);
-
     res.json({
       success: true,
       data:{...data[0],publicLink:`https://candidate.veloxhire.ai/interview/${response[0].interviewId}`}
