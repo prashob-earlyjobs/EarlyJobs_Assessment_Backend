@@ -411,14 +411,34 @@ const userLogout = async (req, res) => {
   }
 };
 
-module.exports = { userLogout };
 
+const verifyFranchiseId = async (req, res) => {
+  try {
+    const {franchiseId} = req.params;
+
+    // Query users with role 'franchise_admin'
+    const franchiseAdmins = await User.find({ role: 'franchise_admin' });
+
+    // Check if any franchise admin has the matching franchiseId
+    const isValidFranchiseId = franchiseAdmins.some(admin => admin.franchiseId === franchiseId);
+    console.log("isValidFranchiseId",isValidFranchiseId);
+    if (isValidFranchiseId) {
+      return res.status(200).json({ success: true, message: 'Franchise ID is valid' });
+    } else {
+      return res.status(200).json({ success: false, message: 'Invalid Franchise ID' });
+    }
+  } catch (error) {
+    console.error('Error verifying franchise ID:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
 module.exports = {
   register,
   login,
   userLogout,
   getMe,
   updateProfile,
+  verifyFranchiseId,
   completeProfile,
   isUserLoggedIn,
   refreshToken,

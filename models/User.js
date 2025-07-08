@@ -68,7 +68,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
-  
+  franchiseId:{
+    type: String || null,
+    default: null,
+    unique: true,
+    sparse: true 
+  },
+
+inviteLink: {
+    type: String,
+    unique: true,
+    sparse: true // Allows null values and maintains uniqueness for non-null values
+  },
   profile: {
     dateOfBirth: {
       type: String,

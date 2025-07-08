@@ -53,7 +53,11 @@ const assessmentSchema = new mongoose.Schema({
     minLength: [5, 'Title must be at least 5 characters long'],
     maxLength: [100, 'Title cannot exceed 100 characters']
   },
-  
+  assessmentId: {
+    type: String,
+    required: [true, 'Assessment ID is required'],
+    unique: true
+  },
   description: {
     type: String,
     maxLength: [500, 'Description cannot exceed 500 characters']
