@@ -40,9 +40,10 @@ router.post('/getAssessmentLink/:assessmentId', authMiddleware, async (req, res)
   ]
   try {
     const response = await callVeloxhireApi(`/assessment/${req.params.assessmentId}/interviews`,'POST',body);
+    if(response.length === 0) return res.status(400).json({ message: "You are already interviewed" });
     res.json({
       success: true,
-      data:{...data[0],publicLink:`https://candidate.veloxhire.ai/interview/${response[0].interviewId}`}
+      data:{...response[0],publicLink:`https://candidate.veloxhire.ai/interview/${response[0].interviewId}`}
     })
   } catch (error) {
     console.error("Error calling Veloxhire API:", error.message);
