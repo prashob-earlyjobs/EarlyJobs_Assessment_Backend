@@ -46,7 +46,6 @@ const callVeloxhireApi = async (endpoint, method = 'GET', data = {}) => {
   }
 
   const res = await axios(config);
-  console.log("res.data",res.data);
   return res.data;
    
 };
