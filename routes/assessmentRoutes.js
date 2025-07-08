@@ -5,7 +5,8 @@ const {
   getAssessment,
   submitAssessment,
   getAssessmentsByUser,
-  getUserStats
+  getUserStats,
+  inviteCandidateToInterview
 } = require('../controllers/assessmentController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const roleMiddleware = require('../middlewares/roleMiddleware');
@@ -31,5 +32,7 @@ router.get('/:id', authMiddleware, roleMiddleware(['candidate']), getAssessment)
 router.post('/submit', authMiddleware, roleMiddleware(['candidate']), submitValidation, submitAssessment);
 router.get('/getAssessments/:userId', authMiddleware,getAssessmentsByUser )
 router.get('/getUserStats/:userId', authMiddleware,getUserStats )
+
+
 
 module.exports = router;

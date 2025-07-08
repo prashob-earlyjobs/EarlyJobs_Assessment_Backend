@@ -21,6 +21,7 @@ const webhookRoutes = require('./routes/webhook');
 const createOrder = require('./routes/payment');
 const authMiddleware = require('./middlewares/authMiddleware');
 const tranctions = require('./routes/transactions');
+const offerRoutes = require('./routes/offerRoutes');
 
 
 // const profileRoutes = require('./routes/profileRoutes');
@@ -87,6 +88,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/webhook', webhookRoutes);
 app.use('/api/getOrderIdForPayment',authMiddleware, createOrder);
 app.use('/api/transactions', tranctions);
+app.use('/api/offers', offerRoutes);
 
 
 // app.use('/api/results', resultRoutes);
