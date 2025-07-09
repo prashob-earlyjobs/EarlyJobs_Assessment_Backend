@@ -68,12 +68,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
-  franchiseId:{
-    type: String || null,
+  franchiseId: {
+    type: String,
     default: null,
     unique: true,
-    sparse: true 
-  },
+    sparse: true
+  },  
   assessmentsPaid: [{
     assessmentId: { type: String, required: true },
     assessmentIdVelox: { type: String, required: true },
