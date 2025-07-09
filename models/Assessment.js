@@ -2,48 +2,6 @@
 // models/Assessment.js
 const mongoose = require('mongoose');
 
-const questionSchema = new mongoose.Schema({
-  questionText: {
-    type: String,
-    required: true
-  },
-  type: {
-    type: String,
-    enum: ['mcq', 'coding', 'video'],
-    required: true
-  },
-  // MCQ specific fields
-  options: [{
-    text: String,
-    isCorrect: Boolean
-  }],
-  // Coding specific fields
-  codeTemplate: String,
-  testCases: [{
-    input: String,
-    expectedOutput: String,
-    isHidden: {
-      type: Boolean,
-      default: false
-    }
-  }],
-  // Video specific fields
-  videoPrompt: String,
-  maxDuration: {
-    type: Number,
-    default: 120 // seconds
-  },
-  // Common fields
-  points: {
-    type: Number,
-    default: 1
-  },
-  difficulty: {
-    type: String,
-    enum: ['easy', 'medium', 'hard'],
-    default: 'medium'
-  }
-});
 
 const assessmentSchema = new mongoose.Schema({
   title: {
@@ -77,7 +35,6 @@ const assessmentSchema = new mongoose.Schema({
     required: [true, 'Time limit is required'],
     min: [1, 'Time limit must be at least 1 minute']
   },
-  questions: [questionSchema],
   pricing: {
     type: Number,
     required: [true, 'Pricing is required'],
