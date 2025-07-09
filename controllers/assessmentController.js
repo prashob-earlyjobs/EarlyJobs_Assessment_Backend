@@ -542,6 +542,7 @@ const getUserStats = async (req, res) => {
   }
 };
 
+
 // @desc    Invite candidate to interview
 // @route   POST /api/assessments/:id/interviews
 // @access  Private (Admin)
@@ -580,6 +581,7 @@ exports.inviteCandidateToInterview = async (req, res) => {
     });
   }
 };
+
 
 const storeAssessmentDetails = async (req, res) => {
   const { userId } = req.params;
