@@ -101,7 +101,6 @@ const register = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Registration error:", error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -328,7 +327,6 @@ module.exports = updateProfile;
 
 
 const completeProfile = async (req, res) => {
-  console.log("Complete profile request body:", req.body);
   try {
     const {
       skills,
@@ -361,7 +359,6 @@ const completeProfile = async (req, res) => {
       user,
     });
   } catch (error) {
-    console.error("Error completing profile:", error);
     return res.status(500).json({
       success: false,
       message: "Server error completing profile",
@@ -400,7 +397,6 @@ const userLogout = async (req, res) => {
       message: 'User logged out successfully'
     });
   } catch (error) {
-    console.error('Failed to logout user:', error);
     
     // Handle any unexpected errors
     res.status(500).json({
@@ -421,14 +417,12 @@ const verifyFranchiseId = async (req, res) => {
 
     // Check if any franchise admin has the matching franchiseId
     const isValidFranchiseId = franchiseAdmins.some(admin => admin.franchiseId === franchiseId);
-    console.log("isValidFranchiseId",isValidFranchiseId);
     if (isValidFranchiseId) {
       return res.status(200).json({ success: true, message: 'Franchise ID is valid' });
     } else {
       return res.status(200).json({ success: false, message: 'Invalid Franchise ID' });
     }
   } catch (error) {
-    console.error('Error verifying franchise ID:', error);
     return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };

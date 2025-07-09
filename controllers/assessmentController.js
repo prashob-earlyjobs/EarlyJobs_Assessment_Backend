@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Assessment = require('../models/Assessment');
 const Result = require('../models/Result');
 const { validationResult } = require('express-validator');
+const User = require('../models/User');
 const axios = require('axios');
 
 // @desc    Get all available assessments for candidates
@@ -313,7 +314,6 @@ const addAssessment = async (req, res) => {
       isPremium
     } = req.body;
 
-    console.log('Adding assessment with data:', title, timeLimit, type, category, pricing, offer, isPremium);
 
     if (!title || !type || !category || !timeLimit || !pricing?.basePrice || !pricing?.discountedPrice || !offer?.title || !offer?.type || !offer?.value || !offer?.validUntil) {
       return res.status(400).json({
@@ -416,7 +416,6 @@ const addAssessment = async (req, res) => {
       });
     }
 
-    console.error('Error creating assessment:', error);
     return res.status(500).json({
       success: false,
       message: 'Internal server error'
@@ -463,7 +462,6 @@ const editAssessment = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Failed to update assessment:', error);
     
     // Handle specific validation errors
     if (error.name === 'ValidationError') {
@@ -485,46 +483,30 @@ const editAssessment = async (req, res) => {
 };
 
 
+
+
 const getAssessmentsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    // Step 1: Fetch all results for the given userId from the Result collection
-    const results = await Result.find({ userId }).populate('assessmentId');
+    // Fetch user data to get assessmentsPaid
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
 
+    // Extract assessmentId from assessmentsPaid
+    const assessmentIds = user.assessmentsPaid.map(assessment => assessment.assessmentId);
 
-    // Step 2: Extract assessmentIds from the results
-    const assessmentIds = results.map(result => result.assessmentId._id);
-
-    // Step 3: Fetch all assessments using the assessmentIds
+    // Fetch assessments from the Assessment collection
     const assessments = await Assessment.find({ _id: { $in: assessmentIds } });
 
-    // Step 4: Combine results with their corresponding assessments
-    const userAssessments = results.map(result => {
-      const assessment = assessments.find(a => a._id.toString() === result.assessmentId._id.toString());
-      return {
-        assessment,
-        result: {
-          score: result.score ,
-          totalPoints: result.totalPoints,
-          maxPoints: result.maxPoints,
-          timeTaken: result.timeTaken,
-          status: result.status,
-          resultDetails: result.resultDetails,
-          feedback: result.feedback,
-          isReviewed: result.isReviewed,
-          createdAt: result.createdAt,
-          updatedAt: result.updatedAt
-        }
-      };
-    });
-
-    return res.status(200).json({ success: true, data: userAssessments });
+    return res.status(200).json({ success: true, data: assessments });
   } catch (error) {
-    console.error('Error fetching assessments and results:', error);
     return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
 
 const getUserStats = async (req, res) => {
   try {
@@ -552,7 +534,6 @@ const getUserStats = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching user stats:', error);
     res.status(500).json({
       success: false,
       message: 'Error fetching user stats',
@@ -592,12 +573,98 @@ exports.inviteCandidateToInterview = async (req, res) => {
       data: response.data
     });
   } catch (error) {
-    console.error("Invite candidate error:", error?.response?.data || error.message);
     return res.status(500).json({
       success: false,
       message: "Server error while inviting candidate",
       error: error?.response?.data || error.message
     });
+  }
+};
+
+const storeAssessmentDetails = async (req, res) => {
+  const { userId } = req.params;
+  const {assessmentId,assessmentIdVelox,assessmentLink,interviewId,candidateId,linkExpiryTime} = req.body;
+
+  try {
+    const detailsToStore = {
+      assessmentId: assessmentId,
+      assessmentIdVelox: assessmentIdVelox,
+      assessmentLink: assessmentLink,
+      interviewId: interviewId || null,
+      candidateId: candidateId,
+      linkExpiryTime: linkExpiryTime
+    };
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $push: { assessmentsPaid: detailsToStore } },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    return res.status(200).json({ success: true, data: updatedUser.assessmentsPaid });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Failed to store assessment details', error: error.message });
+  }
+};
+
+const matchAssessmentsDetails = async (req, res) => {
+  const { userId, assessmentId } = req.params;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const assessment = user.assessmentsPaid.find(
+      (item) => item.assessmentIdVelox === assessmentId
+    );
+
+    if (!assessment) {
+      return res.status(404).json({ success: false, message: 'Assessment not found for this user' });
+    }
+    const currentDate = new Date(); // 02:53 PM IST, July 09, 2025 (UTC: 2025-07-09T09:23:00Z)
+    const linkExpiryTime = assessment.linkExpiryTime;
+
+    // Debug the raw linkExpiryTime value
+
+    // Validate and create expiryDate
+    let expiryDate;
+    if (linkExpiryTime && typeof linkExpiryTime === 'string' && !isNaN(Date.parse(linkExpiryTime))) {
+      expiryDate = new Date(linkExpiryTime);
+    } else if (linkExpiryTime instanceof Date && !isNaN(linkExpiryTime.getTime())) {
+      expiryDate = linkExpiryTime;
+    } else {
+      return res.status(400).json({ success: false, message: 'Invalid or missing expiry time for assessment' });
+    }
+
+    // Log for debugging
+
+    if (expiryDate < currentDate) {
+      return res.status(400).json({ success: false, message: 'Assessment link has expired' });
+    }
+
+    return res.status(200).json({ success: true, data: assessment });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+  }
+};
+
+const getPaidAssessments = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    const paidAssessments = user.assessmentsPaid;
+    return res.status(200).json({ success: true, data: paidAssessments });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
 };
 
@@ -608,5 +675,8 @@ module.exports = {
   addAssessment,
   editAssessment,
   getAssessmentsByUser,
-  getUserStats
+  getUserStats,
+  storeAssessmentDetails,
+  matchAssessmentsDetails,
+  getPaidAssessments
 };
