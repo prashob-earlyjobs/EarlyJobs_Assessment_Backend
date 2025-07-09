@@ -2,18 +2,18 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const { validationResult } = require("express-validator");
 
 // Enhanced JWT Token Generation with user role and email
 const generateToken = (user) => {
   return jwt.sign(
-    { 
+    {
       id: user._id,
       email: user.email,
-      role: user.role 
-    }, 
+      role: user.role,
+    },
     process.env.JWT_SECRET,
     {
       expiresIn: process.env.JWT_EXPIRE,
@@ -23,23 +23,19 @@ const generateToken = (user) => {
 
 // Generate refresh token
 const generateRefreshToken = (userId) => {
-  return jwt.sign(
-    { id: userId },
-    process.env.JWT_REFRESH_SECRET,
-    { expiresIn: process.env.JWT_REFRESH_EXPIRE }
-  );
+  return jwt.sign({ id: userId }, process.env.JWT_REFRESH_SECRET, {
+    expiresIn: process.env.JWT_REFRESH_EXPIRE,
+  });
 };
 
 // Set cookie options
 const cookieOptions = {
   httpOnly: true,
-  secure: false,        // because localhost is not HTTPS
-  sameSite: 'lax',
-  path: '/',
+  secure: false, // because localhost is not HTTPS
+  sameSite: "lax",
+  path: "/",
   expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
 };
-
-
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -55,8 +51,9 @@ const register = async (req, res) => {
       });
     }
 
-    const { name, email, mobile, password, role,referrerId } = req.body;
-    
+
+    const { name, email, mobile, password, role, referrerId } = req.body;
+
 
     // Check if user exists
     const userExists = await User.findOne({
@@ -81,20 +78,20 @@ const register = async (req, res) => {
     }
 
     // Create user
-      const user = await User.create({
-        name,
-        email,
-        mobile,
-        password,
-        referrerId,
-        role: role || "candidate",
-      });
+    const user = await User.create({
+      name,
+      email,
+      mobile,
+      password,
+      referrerId,
+      role: role || "candidate",
+    });
     // Generate tokens
     const accessToken = generateToken(user);
     const refreshToken = generateRefreshToken(user._id);
 
     // Set refresh token in cookie
-    res.cookie('refreshToken', refreshToken, cookieOptions);
+    res.cookie("refreshToken", refreshToken, cookieOptions);
 
     res.status(201).json({
       success: true,
@@ -173,8 +170,7 @@ const login = async (req, res) => {
     const refreshToken = generateRefreshToken(user._id);
 
     // Set refresh token in cookie
-    res.cookie('refreshToken', refreshToken, cookieOptions);
-
+    res.cookie("refreshToken", refreshToken, cookieOptions);
 
     res.json({
       success: true,
@@ -268,7 +264,7 @@ const updateProfile = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    const allowedTopLevelFields = ['name', 'profile'];
+    const allowedTopLevelFields = ["name", "profile", "avatar", "resumeUrl"];
     const updateData = {};
 
     // Filter only allowed top-level fields
@@ -287,12 +283,12 @@ const updateProfile = async (req, res) => {
         ...updateData.profile,
         address: {
           ...(existingUser.profile?.address || {}),
-          ...(updateData.profile.address || {})
+          ...(updateData.profile.address || {}),
         },
         professionalInformation: {
           ...(existingUser.profile?.professionalInformation || {}),
-          ...(updateData.profile.professionalInformation || {})
-        }
+          ...(updateData.profile.professionalInformation || {}),
+        },
       };
 
       // 🛠️ Fix education format if it's present
@@ -300,14 +296,17 @@ const updateProfile = async (req, res) => {
         updateData.profile?.professionalInformation?.education &&
         Array.isArray(updateData.profile.professionalInformation.education)
       ) {
-        mergedProfile.professionalInformation.education = updateData.profile.professionalInformation.education.map(entry => ({
-          _id: entry._id ? new mongoose.Types.ObjectId(entry._id) : new mongoose.Types.ObjectId(),
-          institution: entry.institution,
-          degree: entry.degree,
-          fieldOfStudy: entry.fieldOfStudy || 'N/A', // Optional fallback
-          percentage: Number(entry.percentage),
-          year: Number(entry.year)
-        }));
+        mergedProfile.professionalInformation.education =
+          updateData.profile.professionalInformation.education.map((entry) => ({
+            _id: entry._id
+              ? new mongoose.Types.ObjectId(entry._id)
+              : new mongoose.Types.ObjectId(),
+            institution: entry.institution,
+            degree: entry.degree,
+            fieldOfStudy: entry.fieldOfStudy || "N/A", // Optional fallback
+            percentage: Number(entry.percentage),
+            year: Number(entry.year),
+          }));
       }
 
       updateData.profile = mergedProfile;
@@ -315,28 +314,25 @@ const updateProfile = async (req, res) => {
 
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
       new: true,
-      runValidators: true
+      runValidators: true,
     });
 
     res.json({
       success: true,
-      message: 'Profile updated successfully',
-      data: { user: updatedUser }
+      message: "Profile updated successfully for " + updatedUser.name,
+      data: { user: updatedUser },
     });
-
   } catch (error) {
-    console.error('Update profile error:', error);
+    console.error("Update profile error:", error);
     res.status(500).json({
       success: false,
-      message: 'Server error updating profile',
-      error: error.message
+      message: "Server error updating profile",
+      error: error.message,
     });
   }
 };
 
 module.exports = updateProfile;
-
-
 
 const completeProfile = async (req, res) => {
   try {
@@ -347,23 +343,27 @@ const completeProfile = async (req, res) => {
       PrefJobLocations,
       PreferredJobRole,
       dateOfBirth,
-      gender
+      gender,
     } = req.body;
 
     const updatedFields = {
-      'profile.preferredJobRole': PreferredJobRole,
-      'profile.dateOfBirth': dateOfBirth,
-      'profile.gender': gender,
-      'profile.skills': skills || [],
-      'profile.bio': bio || '',
-      'profile.resume': resume || null,
-      'profile.prefJobLocations': PrefJobLocations || [],
+      "profile.preferredJobRole": PreferredJobRole,
+      "profile.dateOfBirth": dateOfBirth,
+      "profile.gender": gender,
+      "profile.skills": skills || [],
+      "profile.bio": bio || "",
+      "profile.resume": resume || null,
+      "profile.prefJobLocations": PrefJobLocations || [],
     };
 
-    const user = await User.findByIdAndUpdate(req.user._id, { $set: updatedFields }, {
-      new: true,
-      runValidators: true,
-    });
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: updatedFields },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     return res.status(200).json({
       success: true,
@@ -378,8 +378,8 @@ const completeProfile = async (req, res) => {
     });
   }
 };
-const isUserLoggedIn = async(req,res)=>{
-  if(req.user){
+const isUserLoggedIn = async (req, res) => {
+  if (req.user) {
     return res.status(200).json({
       success: true,
       message: "User is logged in",
@@ -390,52 +390,59 @@ const isUserLoggedIn = async(req,res)=>{
     success: false,
     message: "User is not logged in",
   });
-}
+};
 
 const userLogout = async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        message: 'User not authenticated'
+        message: "User not authenticated",
       });
     }
     // Clear the refreshToken cookie
-    res.clearCookie('refreshToken', cookieOptions);
+    res.clearCookie("refreshToken", cookieOptions);
 
     // Return success response
     res.status(200).json({
       success: true,
-      message: 'User logged out successfully'
+      message: "User logged out successfully",
     });
   } catch (error) {
-    
+
     // Handle any unexpected errors
     res.status(500).json({
       success: false,
-      message: 'Server error while logging out',
-      error: error.message
+      message: "Server error while logging out",
+      error: error.message,
     });
   }
 };
 
-
 const verifyFranchiseId = async (req, res) => {
   try {
-    const {franchiseId} = req.params;
+    const { franchiseId } = req.params;
 
     // Query users with role 'franchise_admin'
-    const franchiseAdmins = await User.find({ role: 'franchise_admin' });
+    const franchiseAdmins = await User.find({ role: "franchise_admin" });
 
     // Check if any franchise admin has the matching franchiseId
+
     const isValidFranchiseId = franchiseAdmins.some(admin => admin.franchiseId === franchiseId);
+
     if (isValidFranchiseId) {
-      return res.status(200).json({ success: true, message: 'Franchise ID is valid' });
+      return res
+        .status(200)
+        .json({ success: true, message: "Franchise ID is valid" });
     } else {
-      return res.status(200).json({ success: false, message: 'Invalid Franchise ID' });
+      return res
+        .status(200)
+        .json({ success: false, message: "Invalid Franchise ID" });
     }
   } catch (error) {
+
     return res.status(500).json({ success: false, message: 'Internal server error' });
+
   }
 };
 module.exports = {
