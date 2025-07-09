@@ -361,7 +361,7 @@ const getFranchiseUsers = async (req, res) => {
     // Extract query parameters with defaults
     const { page = 1, limit = 10, role, isActive, search } = req.query;
     // Extract id from params
-    const { id } = req.params;
+    const { franchiseId } = req.params;
 
     // Validate page and limit
     const pageNum = parseInt(page) || 1;
@@ -376,8 +376,9 @@ const getFranchiseUsers = async (req, res) => {
     // Build query object
     const query = {};
     // Add franchiserId filter to match the id from params
-    if (id) {
-      query.franchiserId = id;
+    if (franchiseId) {
+      console.log("franchiseId",franchiseId);
+      query.referrerId = franchiseId;
     }
     // Only include role if it's not 'undefined' or falsy
     if (role && role !== 'undefined') {
@@ -403,7 +404,7 @@ const getFranchiseUsers = async (req, res) => {
       .limit(limitNum)
       .skip((pageNum - 1) * limitNum)
       .sort({ createdAt: -1 });
-
+    console.log("users", users);
     const total = await User.countDocuments(query);
 
     // Return response
@@ -578,8 +579,6 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
   try {
     const { _id } = req.user;
     const franchiserId = _id;
-    console.log("franchiserId", _id);
-    console.log("franchiserId", req.user);
     const { page = 1, limit = 10 } = req.query;
 
     // Validate franchiserId
