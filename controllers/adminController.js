@@ -669,11 +669,11 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
 
 
 const addFranchiser = async (req, res) => {
-  const { name, email, password, street, city, state, country, zipCode, mobile } = req.body;
+  const { name, email, password, street, city, state, country, zipCode, mobile,franchiseId, } = req.body;
 
   try {
     // Validate required fields
-    if (!name || !email || !password || !street || !city || !state || !country || !zipCode || !mobile) {
+    if (!name || !email || !password || !street || !city || !state || !country || !zipCode || !mobile || !franchiseId ) {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
@@ -683,6 +683,7 @@ const addFranchiser = async (req, res) => {
         { name: { $regex: new RegExp(`^${name}$`, 'i') }, role: 'franchise_admin' },
         { email: { $regex: new RegExp(`^${email}$`, 'i') } },
         { mobile },
+        { franchiseId },
       ],
     });
 
@@ -706,6 +707,7 @@ const addFranchiser = async (req, res) => {
       role: 'franchise_admin',
       authProvider: 'local',
       mobile,
+      franchiseId,
       profile: {
         address: {
           street,

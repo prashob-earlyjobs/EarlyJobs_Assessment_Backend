@@ -15,6 +15,8 @@ const {
     getAssessmentsByUser
   } = require('../controllers/assessmentController');
 
+  const {callVeloxhireApi} = require('../controllers/veloxhireController');
+
 
   const roleMiddleware = require('../middlewares/roleMiddleware');
 const authMiddleware = require('../middlewares/authMiddleware');
@@ -41,4 +43,41 @@ router.get('/getTransactions/',authMiddleware,roleMiddleware(['super_admin']),ge
 router.get('/franchise/getTransactions/',authMiddleware,roleMiddleware(['franchise_admin']),getFranchiseTransactionsAndEarnings)
 
 router.post('/addFranchiser', authMiddleware,roleMiddleware(['super_admin']), addFranchiser)
+router.get('/getAssessmentsVelox', authMiddleware,roleMiddleware(['super_admin']),  async (req, res) => {
+  try {
+    const data = await callVeloxhireApi('/assessment');
+    console.log(data);
+    res.json(data);
+  } catch (error) {
+    console.error("Error calling Veloxhire API:", error.message);
+    res.status(500).json({ message: "Failed to fetch assessment data" });
+  }
+})
+
+router.get('/getCandidatesForAssessment/:assessmentId', authMiddleware,roleMiddleware(['super_admin']),  async (req, res) => {
+  try {
+    const data = await callVeloxhireApi(`/assessment/${req.params.assessmentId}/interviews`);
+    console.log(data);
+    res.json({
+      success: true,
+      data
+    })
+  } catch (error) {
+    console.error("Error calling Veloxhire API:", error.message);
+    res.status(500).json({ message: "Failed to fetch assessment data" });
+  }
+})
+router.get('/getResultForCandidateAssessment/:interviewId', authMiddleware,roleMiddleware(['super_admin']),  async (req, res) => {
+  try {
+    const data = await callVeloxhireApi(`/report/new/${req.params.interviewId}`);
+    console.log(data);
+    res.json({
+      success: true,
+      data
+    })
+  } catch (error) {
+    console.error("Error calling Veloxhire API:", error.message);
+    res.status(500).json({ message: "Failed to fetch assessment data" });
+  }
+})
 module.exports = router;
