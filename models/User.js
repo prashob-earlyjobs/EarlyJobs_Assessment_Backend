@@ -74,7 +74,15 @@ const userSchema = new mongoose.Schema({
     unique: true,
     sparse: true 
   },
-
+  assessmentsPaid: [{
+    assessmentId: { type: String, required: true },
+    assessmentIdVelox: { type: String, required: true },
+    assessmentLink: { type: String, required: true },
+    interviewId: { type: String, required: true },
+    candidateId: { type: String, required: true },
+    linkExpiryTime: { type: Date, required: true },
+    createdAt: { type: Date, default: Date.now }
+  }],
 inviteLink: {
     type: String,
     unique: true,

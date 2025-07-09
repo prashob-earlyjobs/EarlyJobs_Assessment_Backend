@@ -6,7 +6,9 @@ const {
   submitAssessment,
   getAssessmentsByUser,
   getUserStats,
-  inviteCandidateToInterview
+  storeAssessmentDetails,
+  matchAssessmentsDetails,
+  getPaidAssessments
 } = require('../controllers/assessmentController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const roleMiddleware = require('../middlewares/roleMiddleware');
@@ -50,4 +52,8 @@ router.post('/getAssessmentLink/:assessmentId', authMiddleware, async (req, res)
     res.status(500).json({ message: "Failed to fetch assessment data" });
   }
 });
+
+router.post('/storeAssessmentDetails/:userId', authMiddleware,storeAssessmentDetails )
+router.get('/matchAssessmentsDetails/:userId/:assessmentId', authMiddleware,matchAssessmentsDetails )
+router.get('/getPaidAssessments/:userId', authMiddleware,getPaidAssessments )
 module.exports = router;

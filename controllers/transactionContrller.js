@@ -16,7 +16,6 @@ const addTransaction = async (req, res) => {
       franchiserId,
       referrerId
     } = req.body;
-console.log("ergergrthrht",userId,assessmentId,transactionId,transactionAmount,transactionStatus,pricing);
     // Validate required fields
     if (!userId || !assessmentId || !transactionId || !transactionAmount || !transactionStatus || !pricing) {
       return res.status(400).json({ message: 'Missing required fields' });

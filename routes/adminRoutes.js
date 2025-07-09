@@ -33,7 +33,7 @@ const router = express.Router();
 
 router.get('/getUsers', authMiddleware,roleMiddleware(['super_admin']),getAllUsers )
 router.put('/users/:id/status', authMiddleware, roleMiddleware(['super_admin']),updateUserStatus)
-router.get('/getUsersForFranchise/:id', authMiddleware,roleMiddleware(['franchise_admin']),getFranchiseUsers )
+router.get('/getUsersForFranchise/:franchiseId', authMiddleware,roleMiddleware(['franchise_admin']),getFranchiseUsers )
 
 router.post('/addAssessment', authMiddleware,roleMiddleware(['super_admin']), addAssessment)
 router.put('/editAssessment/:assessmentId', authMiddleware, roleMiddleware(['super_admin']), editAssessment)
@@ -46,7 +46,7 @@ router.post('/addFranchiser', authMiddleware,roleMiddleware(['super_admin']), ad
 router.get('/getAssessmentsVelox', authMiddleware,roleMiddleware(['super_admin']),  async (req, res) => {
   try {
     const data = await callVeloxhireApi('/assessment');
-    console.log(data);
+    
     res.json(data);
   } catch (error) {
     console.error("Error calling Veloxhire API:", error.message);
@@ -57,7 +57,7 @@ router.get('/getAssessmentsVelox', authMiddleware,roleMiddleware(['super_admin']
 router.get('/getCandidatesForAssessment/:assessmentId', authMiddleware,roleMiddleware(['super_admin']),  async (req, res) => {
   try {
     const data = await callVeloxhireApi(`/assessment/${req.params.assessmentId}/interviews`);
-    console.log(data);
+    
     res.json({
       success: true,
       data
@@ -67,17 +67,28 @@ router.get('/getCandidatesForAssessment/:assessmentId', authMiddleware,roleMiddl
     res.status(500).json({ message: "Failed to fetch assessment data" });
   }
 })
-router.get('/getResultForCandidateAssessment/:interviewId', authMiddleware,roleMiddleware(['super_admin']),  async (req, res) => {
+router.get('/getResultForCandidateAssessment/:interviewId', authMiddleware,roleMiddleware(['candidate','super_admin']),  async (req, res) => {
   try {
     const data = await callVeloxhireApi(`/report/new/${req.params.interviewId}`);
-    console.log(data);
+    
     res.json({
       success: true,
       data
     })
   } catch (error) {
-    console.error("Error calling Veloxhire API:", error.message);
-    res.status(500).json({ message: "Failed to fetch assessment data" });
+    if(error.response.data)
+       return res.json({
+      success: false,
+      message: error.response.data
+    })
+    else{
+
+      res.json({
+        success: false,
+        message: "Something went wrong"
+      })
+    }
+
   }
 })
 module.exports = router;
