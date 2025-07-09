@@ -22,6 +22,7 @@ const createOrder = require('./routes/payment');
 const authMiddleware = require('./middlewares/authMiddleware');
 const tranctions = require('./routes/transactions');
 const offerRoutes = require('./routes/offerRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 
 // const profileRoutes = require('./routes/profileRoutes');
@@ -89,6 +90,7 @@ app.use('/api/webhook', webhookRoutes);
 app.use('/api/getOrderIdForPayment',authMiddleware, createOrder);
 app.use('/api/transactions', tranctions);
 app.use('/api/offers', offerRoutes);
+app.use('/api/upload', uploadRoutes);
 
 
 // app.use('/api/results', resultRoutes);

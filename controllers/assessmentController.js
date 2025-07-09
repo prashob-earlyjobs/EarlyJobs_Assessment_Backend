@@ -515,45 +515,6 @@ const getUserStats = async (req, res) => {
   }
 };
 
-// @desc    Invite candidate to interview
-// @route   POST /api/assessments/:id/interviews
-// @access  Private (Admin)
-exports.inviteCandidateToInterview = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const inviteData = req.body;
-
-    // Extract Bearer token from incoming request
-    const authHeader = req.headers.authorization;
-    let bearerToken = '';
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      bearerToken = authHeader;
-    }
-
-    // Call the external API with the same data and Bearer token
-    const apiUrl = `https://api.veloxhire.ai/api/assessment/${id}/interviews`;
-
-    const response = await axios.post(apiUrl, [inviteData], {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': bearerToken
-      }
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: "Candidate invited to interview successfully",
-      data: response.data
-    });
-  } catch (error) {
-    console.error("Invite candidate error:", error?.response?.data || error.message);
-    return res.status(500).json({
-      success: false,
-      message: "Server error while inviting candidate",
-      error: error?.response?.data || error.message
-    });
-  }
-};
 
 module.exports = {
   getAssessments,
