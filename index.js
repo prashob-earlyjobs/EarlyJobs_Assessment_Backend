@@ -13,17 +13,16 @@ const errorHandler = require("./middlewares/errorHandler");
 
 // Route imports
 
-const authRoutes = require('./routes/authRoutes');
-const assessmentRoutes = require('./routes/assessmentRoutes');
-const resultRoutes = require('./routes/resultRoutes');
-const adminRoutes = require('./routes/adminRoutes');
-const webhookRoutes = require('./routes/webhook');
-const createOrder = require('./routes/payment');
-const authMiddleware = require('./middlewares/authMiddleware');
-const tranctions = require('./routes/transactions');
-const offerRoutes = require('./routes/offerRoutes');
-const uploadRoutes = require('./routes/uploadRoutes');
-
+const authRoutes = require("./routes/authRoutes");
+const assessmentRoutes = require("./routes/assessmentRoutes");
+const resultRoutes = require("./routes/resultRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const webhookRoutes = require("./routes/webhook");
+const createOrder = require("./routes/payment");
+const authMiddleware = require("./middlewares/authMiddleware");
+const tranctions = require("./routes/transactions");
+const offerRoutes = require("./routes/offerRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
 
 // const profileRoutes = require('./routes/profileRoutes');
 
@@ -38,6 +37,8 @@ app.use(
       "http://localhost:8080",
       "https://www.earlyjobs.ai",
       "https://early-jobs-assessment-frontend-5n6w4951x-earlyjobs-projects.vercel.app",
+      "https://www.earlyjobs.in",
+      "https://earlyjobs.in",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
@@ -83,15 +84,14 @@ if (process.env.NODE_ENV === "development") {
 app.use(cookieParser());
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/assessments', assessmentRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/webhook', webhookRoutes);
-app.use('/api/getOrderIdForPayment',authMiddleware, createOrder);
-app.use('/api/transactions', tranctions);
-app.use('/api/offers', offerRoutes);
-app.use('/api/upload', uploadRoutes);
-
+app.use("/api/auth", authRoutes);
+app.use("/api/assessments", assessmentRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/webhook", webhookRoutes);
+app.use("/api/getOrderIdForPayment", authMiddleware, createOrder);
+app.use("/api/transactions", tranctions);
+app.use("/api/offers", offerRoutes);
+app.use("/api/upload", uploadRoutes);
 
 // app.use('/api/results', resultRoutes);
 // app.use('/api/profile', profileRoutes);
