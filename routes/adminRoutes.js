@@ -8,6 +8,7 @@ const {
   getTransactions,
   getFranchiseTransactionsAndEarnings,
   addFranchiser,
+  getFranchises,
 } = require("../controllers/adminController");
 const {
   addAssessment,
@@ -82,6 +83,12 @@ router.post(
   authMiddleware,
   roleMiddleware(["super_admin"]),
   addFranchiser
+);
+router.get(
+  "/getFranchises",
+  authMiddleware,
+  roleMiddleware(["super_admin"]),
+  getFranchises
 );
 router.get(
   "/getAssessmentsVelox",

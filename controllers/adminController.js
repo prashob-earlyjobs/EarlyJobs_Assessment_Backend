@@ -1,9 +1,9 @@
-const Assessment = require('../models/Assessment');
-const User = require('../models/User');
-const Transactions = require('../models/transactions');
-const Result = require('../models/Result');
+const Assessment = require("../models/Assessment");
+const User = require("../models/User");
+const Transactions = require("../models/transactions");
+const Result = require("../models/Result");
 
-const { validationResult } = require('express-validator');
+const { validationResult } = require("express-validator");
 
 // @desc    Create new assessment
 // @route   POST /api/admin/assessments
@@ -14,26 +14,26 @@ const createAssessment = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: 'Validation errors',
-        errors: errors.array()
+        message: "Validation errors",
+        errors: errors.array(),
       });
     }
 
     const assessment = await Assessment.create({
       ...req.body,
-      createdBy: req.user._id
+      createdBy: req.user._id,
     });
 
     res.status(201).json({
       success: true,
-      message: 'Assessment created successfully',
-      data: { assessment }
+      message: "Assessment created successfully",
+      data: { assessment },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error creating assessment',
-      error: error.message
+      message: "Error creating assessment",
+      error: error.message,
     });
   }
 };
@@ -52,20 +52,20 @@ const updateAssessment = async (req, res) => {
     if (!assessment) {
       return res.status(404).json({
         success: false,
-        message: 'Assessment not found'
+        message: "Assessment not found",
       });
     }
 
     res.json({
       success: true,
-      message: 'Assessment updated successfully',
-      data: { assessment }
+      message: "Assessment updated successfully",
+      data: { assessment },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error updating assessment',
-      error: error.message
+      message: "Error updating assessment",
+      error: error.message,
     });
   }
 };
@@ -80,21 +80,23 @@ const deleteAssessment = async (req, res) => {
     if (!assessment) {
       return res.status(404).json({
         success: false,
-        message: 'Assessment not found'
+        message: "Assessment not found",
       });
     }
 
     // Check if assessment has been taken by candidates
-    const resultCount = await Result.countDocuments({ assessmentId: assessment._id });
-    
+    const resultCount = await Result.countDocuments({
+      assessmentId: assessment._id,
+    });
+
     if (resultCount > 0) {
       // Soft delete - just deactivate
       assessment.isActive = false;
       await assessment.save();
-      
+
       return res.json({
         success: true,
-        message: 'Assessment deactivated successfully (has existing results)'
+        message: "Assessment deactivated successfully (has existing results)",
       });
     }
 
@@ -103,13 +105,13 @@ const deleteAssessment = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Assessment deleted successfully'
+      message: "Assessment deleted successfully",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error deleting assessment',
-      error: error.message
+      message: "Error deleting assessment",
+      error: error.message,
     });
   }
 };
@@ -120,14 +122,14 @@ const deleteAssessment = async (req, res) => {
 const getAllAssessments = async (req, res) => {
   try {
     const { page = 1, limit = 10, category, type, isActive } = req.query;
-    
+
     const query = {};
     if (category) query.category = category;
     if (type) query.type = type;
-    if (isActive !== undefined) query.isActive = isActive === 'true';
+    if (isActive !== undefined) query.isActive = isActive === "true";
 
     const assessments = await Assessment.find(query)
-      .populate('createdBy', 'name email')
+      .populate("createdBy", "name email")
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .sort({ createdAt: -1 });
@@ -135,18 +137,20 @@ const getAllAssessments = async (req, res) => {
     // Add usage statistics
     const assessmentsWithStats = await Promise.all(
       assessments.map(async (assessment) => {
-        const resultCount = await Result.countDocuments({ assessmentId: assessment._id });
+        const resultCount = await Result.countDocuments({
+          assessmentId: assessment._id,
+        });
         const averageScore = await Result.aggregate([
           { $match: { assessmentId: assessment._id } },
-          { $group: { _id: null, avgScore: { $avg: '$score' } } }
+          { $group: { _id: null, avgScore: { $avg: "$score" } } },
         ]);
 
         return {
           ...assessment.toObject(),
           statistics: {
             totalAttempts: resultCount,
-            averageScore: averageScore[0]?.avgScore || 0
-          }
+            averageScore: averageScore[0]?.avgScore || 0,
+          },
         };
       })
     );
@@ -161,15 +165,15 @@ const getAllAssessments = async (req, res) => {
           page: parseInt(page),
           limit: parseInt(limit),
           total,
-          pages: Math.ceil(total / limit)
-        }
-      }
+          pages: Math.ceil(total / limit),
+        },
+      },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching assessments',
-      error: error.message
+      message: "Error fetching assessments",
+      error: error.message,
     });
   }
 };
@@ -181,19 +185,21 @@ const getAnalytics = async (req, res) => {
   try {
     // User statistics
     const totalUsers = await User.countDocuments();
-    const candidateCount = await User.countDocuments({ role: 'candidate' });
-    const recruiterCount = await User.countDocuments({ role: 'recruiter' });
+    const candidateCount = await User.countDocuments({ role: "candidate" });
+    const recruiterCount = await User.countDocuments({ role: "recruiter" });
     const activeUsers = await User.countDocuments({ isActive: true });
 
     // Assessment statistics
     const totalAssessments = await Assessment.countDocuments();
-    const activeAssessments = await Assessment.countDocuments({ isActive: true });
+    const activeAssessments = await Assessment.countDocuments({
+      isActive: true,
+    });
 
     // Result statistics
     const totalResults = await Result.countDocuments();
-    const passedResults = await Result.countDocuments({ status: 'pass' });
+    const passedResults = await Result.countDocuments({ status: "pass" });
     const averageScore = await Result.aggregate([
-      { $group: { _id: null, avgScore: { $avg: '$score' } } }
+      { $group: { _id: null, avgScore: { $avg: "$score" } } },
     ]);
 
     // Recent activity (last 30 days)
@@ -201,50 +207,50 @@ const getAnalytics = async (req, res) => {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const recentRegistrations = await User.countDocuments({
-      createdAt: { $gte: thirtyDaysAgo }
+      createdAt: { $gte: thirtyDaysAgo },
     });
 
     const recentAssessments = await Result.countDocuments({
-      createdAt: { $gte: thirtyDaysAgo }
+      createdAt: { $gte: thirtyDaysAgo },
     });
 
     // Category-wise performance
     const categoryPerformance = await Result.aggregate([
       {
         $lookup: {
-          from: 'assessments',
-          localField: 'assessmentId',
-          foreignField: '_id',
-          as: 'assessment'
-        }
+          from: "assessments",
+          localField: "assessmentId",
+          foreignField: "_id",
+          as: "assessment",
+        },
       },
-      { $unwind: '$assessment' },
+      { $unwind: "$assessment" },
       {
         $group: {
-          _id: '$assessment.category',
+          _id: "$assessment.category",
           totalAttempts: { $sum: 1 },
-          averageScore: { $avg: '$score' },
+          averageScore: { $avg: "$score" },
           passRate: {
-            $avg: { $cond: [{ $eq: ['$status', 'pass'] }, 1, 0] }
-          }
-        }
-      }
+            $avg: { $cond: [{ $eq: ["$status", "pass"] }, 1, 0] },
+          },
+        },
+      },
     ]);
 
     // Daily activity for the last 7 days
     const dailyActivity = await Result.aggregate([
       {
         $match: {
-          createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
-        }
+          createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+        },
       },
       {
         $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-          assessmentsTaken: { $sum: 1 }
-        }
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          assessmentsTaken: { $sum: 1 },
+        },
       },
-      { $sort: { _id: 1 } }
+      { $sort: { _id: 1 } },
     ]);
 
     res.json({
@@ -255,34 +261,34 @@ const getAnalytics = async (req, res) => {
           candidateCount,
           recruiterCount,
           activeUsers,
-          recentRegistrations
+          recentRegistrations,
         },
         assessmentStatistics: {
           totalAssessments,
           activeAssessments,
           totalResults,
-          recentAssessments
+          recentAssessments,
         },
         performanceMetrics: {
           averageScore: averageScore[0]?.avgScore || 0,
           passRate: totalResults > 0 ? (passedResults / totalResults) * 100 : 0,
-          categoryPerformance: categoryPerformance.map(cat => ({
+          categoryPerformance: categoryPerformance.map((cat) => ({
             category: cat._id,
             totalAttempts: cat.totalAttempts,
             averageScore: Math.round(cat.averageScore),
-            passRate: Math.round(cat.passRate * 100)
-          }))
+            passRate: Math.round(cat.passRate * 100),
+          })),
         },
         activityTrends: {
-          dailyActivity
-        }
-      }
+          dailyActivity,
+        },
+      },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching analytics',
-      error: error.message
+      message: "Error fetching analytics",
+      error: error.message,
     });
   }
 };
@@ -301,33 +307,33 @@ const getAllUsers = async (req, res) => {
     if (pageNum < 1 || limitNum < 1) {
       return res.status(400).json({
         success: false,
-        message: 'Page and limit must be positive integers',
+        message: "Page and limit must be positive integers",
       });
     }
 
     // Build query object
     const query = {};
     // Only include role if it's not 'undefined' or falsy
-    if (role && role !== 'undefined') {
+    if (role && role !== "undefined") {
       query.role = role;
     }
     // Only include isActive if it's explicitly 'true' or 'false'
-    if (isActive === 'true' || isActive === 'false') {
-      query.isActive = isActive === 'true';
+    if (isActive === "true" || isActive === "false") {
+      query.isActive = isActive === "true";
     }
     // Include search if it's a non-empty string
-    if (search && search.trim() !== '') {
+    if (search && search.trim() !== "") {
       // Sanitize search input to prevent regex-based attacks
-      const sanitizedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const sanitizedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       query.$or = [
-        { name: { $regex: sanitizedSearch, $options: 'i' } },
-        { email: { $regex: sanitizedSearch, $options: 'i' } },
+        { name: { $regex: sanitizedSearch, $options: "i" } },
+        { email: { $regex: sanitizedSearch, $options: "i" } },
       ];
     }
 
     // Fetch users and total count
     const users = await User.find(query)
-      .select('-password')
+      .select("-password")
       .limit(limitNum)
       .skip((pageNum - 1) * limitNum)
       .sort({ createdAt: -1 });
@@ -350,7 +356,7 @@ const getAllUsers = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching users',
+      message: "Error fetching users",
       error: error.message,
     });
   }
@@ -369,7 +375,7 @@ const getFranchiseUsers = async (req, res) => {
     if (pageNum < 1 || limitNum < 1) {
       return res.status(400).json({
         success: false,
-        message: 'Page and limit must be positive integers',
+        message: "Page and limit must be positive integers",
       });
     }
 
@@ -377,30 +383,30 @@ const getFranchiseUsers = async (req, res) => {
     const query = {};
     // Add franchiserId filter to match the id from params
     if (franchiseId) {
-      console.log("franchiseId",franchiseId);
+      console.log("franchiseId", franchiseId);
       query.referrerId = franchiseId;
     }
     // Only include role if it's not 'undefined' or falsy
-    if (role && role !== 'undefined') {
+    if (role && role !== "undefined") {
       query.role = role;
     }
     // Only include isActive if it's explicitly 'true' or 'false'
-    if (isActive === 'true' || isActive === 'false') {
-      query.isActive = isActive === 'true';
+    if (isActive === "true" || isActive === "false") {
+      query.isActive = isActive === "true";
     }
     // Include search if it's a non-empty string
-    if (search && search.trim() !== '') {
+    if (search && search.trim() !== "") {
       // Sanitize search input to prevent regex-based attacks
-      const sanitizedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const sanitizedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       query.$or = [
-        { name: { $regex: sanitizedSearch, $options: 'i' } },
-        { email: { $regex: sanitizedSearch, $options: 'i' } },
+        { name: { $regex: sanitizedSearch, $options: "i" } },
+        { email: { $regex: sanitizedSearch, $options: "i" } },
       ];
     }
 
     // Fetch users and total count
     const users = await User.find(query)
-      .select('-password')
+      .select("-password")
       .limit(limitNum)
       .skip((pageNum - 1) * limitNum)
       .sort({ createdAt: -1 });
@@ -423,7 +429,7 @@ const getFranchiseUsers = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching users',
+      message: "Error fetching users",
       error: error.message,
     });
   }
@@ -440,25 +446,25 @@ const updateUserStatus = async (req, res) => {
       req.params.id,
       { isActive },
       { new: true }
-    ).select('-password');
+    ).select("-password");
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
     res.json({
       success: true,
-      message: `User ${isActive ? 'activated' : 'deactivated'} successfully`,
-      data: { user }
+      message: `User ${isActive ? "activated" : "deactivated"} successfully`,
+      data: { user },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error updating user status',
-      error: error.message
+      message: "Error updating user status",
+      error: error.message,
     });
   }
 };
@@ -472,24 +478,22 @@ const getFranchiser = async (req, res) => {
     if (!franchiser) {
       return res.status(404).json({
         success: false,
-        message: 'Franchiser not found'
+        message: "Franchiser not found",
       });
     }
 
     res.json({
       success: true,
-      data: { franchiser }
+      data: { franchiser },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching franchiser',
-      error: error.message
+      message: "Error fetching franchiser",
+      error: error.message,
     });
   }
 };
-
-
 
 // @desc    Get all transactions with populated fields, pagination, and total earnings for super_admin
 // @route   GET /api/transactions
@@ -504,7 +508,7 @@ const getTransactions = async (req, res) => {
     if (pageNum < 1 || limitNum < 1) {
       return res.status(400).json({
         success: false,
-        message: 'Page and limit must be positive integers',
+        message: "Page and limit must be positive integers",
       });
     }
 
@@ -513,27 +517,40 @@ const getTransactions = async (req, res) => {
       .limit(limitNum)
       .skip((pageNum - 1) * limitNum)
       .sort({ createdAt: -1 })
-      .populate('userId', 'name -_id') // Populate candidateName (username) from User model
-      .populate('assessmentId', 'title -_id') // Populate assessmentTitle from Assessment model
-      .select('transactionId createdAt assessmentId userId transactionAmount franchiserId');
+      .populate("userId", "name -_id") // Populate candidateName (username) from User model
+      .populate("assessmentId", "title -_id") // Populate assessmentTitle from Assessment model
+      .select(
+        "transactionId createdAt assessmentId userId transactionAmount franchiserId"
+      );
 
     // Get total count for pagination
     const total = await Transactions.countDocuments();
 
     // Fetch franchise names by matching franchiserId with User _id
-    const franchiseIds = transactions.map(t => t.franchiserId).filter(id => id);
-    const franchiseUsers = await User.find({ _id: { $in: franchiseIds } }).select('name _id');
-
+    const franchiseIds = transactions
+      .map((t) => t.franchiserId)
+      .filter((id) => id);
+    const franchiseUsers = await User.find({
+      _id: { $in: franchiseIds },
+    }).select("name _id");
+    console.log("transactions", transactions);
     // Map transactions with populated and calculated fields
     const apiCostPerTransaction = 200;
-    const transactionsWithCommission = transactions.map(transaction => {
-      const franchiseUser = franchiseUsers.find(u => u._id.toString() === transaction.franchiserId.toString());
+    const transactionsWithCommission = transactions.map((transaction) => {
+      const franchiseUser = franchiseUsers.find(
+        (u) => u._id === transaction.franchiserId
+      );
       return {
         ...transaction.toObject(),
-        candidateName: transaction.userId?.name || 'Unknown',
-        assessmentTitle: transaction.assessmentId?.title || 'Unknown',
-        franchiseCommission: transaction.transactionAmount ? ((transaction.transactionAmount - apiCostPerTransaction) * 0.70).toFixed(2) : '0.00',
-        franchiseName: franchiseUser ? franchiseUser.name : 'Unknown',
+        candidateName: transaction.userId?.name || "Unknown",
+        assessmentTitle: transaction.assessmentId?.title || "Unknown",
+        franchiseCommission: transaction.transactionAmount
+          ? (
+              (transaction.transactionAmount - apiCostPerTransaction) *
+              0.7
+            ).toFixed(2)
+          : "0.00",
+        franchiseName: franchiseUser ? franchiseUser.name : "Unknown",
       };
     });
 
@@ -541,10 +558,11 @@ const getTransactions = async (req, res) => {
     const totalTransactions = await Transactions.find();
     const totalApiCost = apiCostPerTransaction * totalTransactions.length;
     const totalAmountResult = await Transactions.aggregate([
-      { $group: { _id: null, totalAmount: { $sum: '$transactionAmount' } } },
+      { $group: { _id: null, totalAmount: { $sum: "$transactionAmount" } } },
     ]);
-    const totalAmount = totalAmountResult.length > 0 ? totalAmountResult[0].totalAmount : 0;
-    const totalCommission = (totalAmount - totalApiCost) * 0.70;
+    const totalAmount =
+      totalAmountResult.length > 0 ? totalAmountResult[0].totalAmount : 0;
+    const totalCommission = (totalAmount - totalApiCost) * 0.7;
 
     res.json({
       success: true,
@@ -557,17 +575,18 @@ const getTransactions = async (req, res) => {
           pages: Math.ceil(total / limitNum) || 0,
         },
         earnings: {
-          totalCommission: totalCommission >= 0 ? parseFloat(totalCommission.toFixed(2)) : 0.00,
+          totalCommission:
+            totalCommission >= 0 ? parseFloat(totalCommission.toFixed(2)) : 0.0,
           totalAmount,
           apiCost: totalApiCost,
         },
       },
     });
   } catch (error) {
-    console.error('Error fetching transactions:', error);
+    console.error("Error fetching transactions:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching transactions',
+      message: "Error fetching transactions",
       error: error.message,
     });
   }
@@ -583,7 +602,9 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
 
     // Validate franchiserId
     if (!franchiserId) {
-      return res.status(400).json({ success: false, message: 'Franchiser ID is required' });
+      return res
+        .status(400)
+        .json({ success: false, message: "Franchiser ID is required" });
     }
 
     // Validate page and limit
@@ -592,7 +613,7 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
     if (pageNum < 1 || limitNum < 1) {
       return res.status(400).json({
         success: false,
-        message: 'Page and limit must be positive integers',
+        message: "Page and limit must be positive integers",
       });
     }
 
@@ -603,9 +624,11 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
       .limit(limitNum)
       .skip((pageNum - 1) * limitNum)
       .sort({ createdAt: -1 })
-      .populate('userId', 'name -_id') // Populate candidateName from User model
-      .populate('assessmentId', 'title -_id') // Populate assessmentTitle from Assessment model
-      .select('transactionId createdAt assessmentId userId transactionAmount franchiserId');
+      .populate("userId", "name -_id") // Populate candidateName from User model
+      .populate("assessmentId", "title -_id") // Populate assessmentTitle from Assessment model
+      .select(
+        "transactionId createdAt assessmentId userId transactionAmount franchiserId"
+      );
 
     // Get total count for pagination
     const total = await Transactions.countDocuments({
@@ -613,19 +636,27 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
     });
 
     // Fetch franchise names by matching franchiserId with User _id
-    const franchiseIds = transactions.map(t => t.franchiserId).filter(id => id);
-    const franchiseUsers = await User.find({ _id: { $in: franchiseIds } }).select('name _id');
+    const franchiseIds = transactions
+      .map((t) => t.franchiserId)
+      .filter((id) => id);
+    const franchiseUsers = await User.find({
+      _id: { $in: franchiseIds },
+    }).select("name _id");
 
     // Map transactions with populated and calculated fields
-    const transactionsWithCommission = transactions.map(transaction => {
-      const franchiseUser = franchiseUsers.find(u => u._id.toString() === transaction.franchiserId.toString());
+    const transactionsWithCommission = transactions.map((transaction) => {
+      const franchiseUser = franchiseUsers.find(
+        (u) => u._id.toString() === transaction.franchiserId.toString()
+      );
       const apiCost = 200; // Fixed API cost per transaction
       return {
         ...transaction.toObject(),
-        candidateName: transaction.userId?.name || 'Unknown',
-        assessmentTitle: transaction.assessmentId?.title || 'Unknown',
-        franchiseCommission: transaction.transactionAmount ? ((transaction.transactionAmount - apiCost) * 0.70).toFixed(2) : '0.00',
-        franchiseName: franchiseUser ? franchiseUser.name : 'Unknown',
+        candidateName: transaction.userId?.name || "Unknown",
+        assessmentTitle: transaction.assessmentId?.title || "Unknown",
+        franchiseCommission: transaction.transactionAmount
+          ? ((transaction.transactionAmount - apiCost) * 0.7).toFixed(2)
+          : "0.00",
+        franchiseName: franchiseUser ? franchiseUser.name : "Unknown",
       };
     });
 
@@ -634,10 +665,11 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
     const apiCostTotal = 200 * totalTransactions.length; // API cost scaled by transaction count
     const totalAmountResult = await Transactions.aggregate([
       { $match: { franchiserId } },
-      { $group: { _id: null, totalAmount: { $sum: '$transactionAmount' } } },
+      { $group: { _id: null, totalAmount: { $sum: "$transactionAmount" } } },
     ]);
-    const totalAmount = totalAmountResult.length > 0 ? totalAmountResult[0].totalAmount : 0;
-    const totalCommission = (totalAmount - apiCostTotal) * 0.70;
+    const totalAmount =
+      totalAmountResult.length > 0 ? totalAmountResult[0].totalAmount : 0;
+    const totalCommission = (totalAmount - apiCostTotal) * 0.7;
 
     res.json({
       success: true,
@@ -650,51 +682,83 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
           pages: Math.ceil(total / limitNum) || 0,
         },
         earnings: {
-          totalCommission: totalCommission >= 0 ? parseFloat(totalCommission.toFixed(2)) : 0.00,
+          totalCommission:
+            totalCommission >= 0 ? parseFloat(totalCommission.toFixed(2)) : 0.0,
           totalAmount,
           apiCost: apiCostTotal,
         },
       },
     });
   } catch (error) {
-    console.error('Error fetching transactions and earnings:', error);
+    console.error("Error fetching transactions and earnings:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching transactions and earnings',
+      message: "Error fetching transactions and earnings",
       error: error.message,
     });
   }
 };
 
-
 const addFranchiser = async (req, res) => {
-  const { name, email, password, street, city, state, country, zipCode, mobile,franchiseId, } = req.body;
+  const {
+    name,
+    email,
+    password,
+    street,
+    city,
+    state,
+    country,
+    zipCode,
+    mobile,
+    franchiseId,
+  } = req.body;
 
   try {
     // Validate required fields
-    if (!name || !email || !password || !street || !city || !state || !country || !zipCode || !mobile || !franchiseId ) {
-      return res.status(400).json({ error: 'All fields are required' });
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !street ||
+      !city ||
+      !state ||
+      !country ||
+      !zipCode ||
+      !mobile ||
+      !franchiseId
+    ) {
+      return res.status(400).json({ error: "All fields are required" });
     }
 
     // Check for existing franchiser with the same name, email, or mobile
     const existingFranchiser = await User.findOne({
       $or: [
-        { name: { $regex: new RegExp(`^${name}$`, 'i') }, role: 'franchise_admin' },
-        { email: { $regex: new RegExp(`^${email}$`, 'i') } },
+        {
+          name: { $regex: new RegExp(`^${name}$`, "i") },
+          role: "franchise_admin",
+        },
+        { email: { $regex: new RegExp(`^${email}$`, "i") } },
         { mobile },
         { franchiseId },
       ],
     });
 
     if (existingFranchiser) {
-      if (existingFranchiser.name.toLowerCase() === name.toLowerCase() && existingFranchiser.role === 'franchise_admin') {
-        return res.status(400).json({ error: 'Franchiser name already exists' });
+      if (
+        existingFranchiser.name.toLowerCase() === name.toLowerCase() &&
+        existingFranchiser.role === "franchise_admin"
+      ) {
+        return res
+          .status(400)
+          .json({ error: "Franchiser name already exists" });
       }
       if (existingFranchiser.email.toLowerCase() === email.toLowerCase()) {
-        return res.status(400).json({ error: 'Email already exists' });
+        return res.status(400).json({ error: "Email already exists" });
       }
       if (existingFranchiser.mobile === mobile) {
-        return res.status(400).json({ error: 'Contact mobile number already exists' });
+        return res
+          .status(400)
+          .json({ error: "Contact mobile number already exists" });
       }
     }
 
@@ -703,8 +767,8 @@ const addFranchiser = async (req, res) => {
       name,
       email,
       password, // Will be hashed in pre-save middleware
-      role: 'franchise_admin',
-      authProvider: 'local',
+      role: "franchise_admin",
+      authProvider: "local",
       mobile,
       franchiseId,
       profile: {
@@ -723,19 +787,59 @@ const addFranchiser = async (req, res) => {
 
     res.status(201).json({ franchiser: franchiser.toJSON() });
   } catch (error) {
-    console.error('Error creating franchiser:', error);
-    if (error.name === 'ValidationError') {
+    console.error("Error creating franchiser:", error);
+    if (error.name === "ValidationError") {
       return res.status(400).json({ error: error.message });
     }
-    if (error.code === 11000) { // Duplicate key error (e.g., email uniqueness)
-      return res.status(400).json({ error: 'Email already exists' });
+    if (error.code === 11000) {
+      // Duplicate key error (e.g., email uniqueness)
+      return res.status(400).json({ error: "Email already exists" });
     }
-    res.status(500).json({ error: 'Failed to create franchiser' });
+    res.status(500).json({ error: "Failed to create franchiser" });
   }
 };
 
-module.exports = { addFranchiser };
+const getFranchises = async (req, res) => {
+  try {
+    const franchises = await User.find({ role: "franchise_admin" }).select(
+      "_id name email mobile createdAt franchiseId isActive profile.address.street profile.address.city profile.address.state profile.address.country profile.address.zipCode"
+    );
+    console.log("franchises", franchises);
+    const franchiseData = await Promise.all(
+      franchises.map(async (franchise) => {
+        // Calculate activeUsers (users with matching referrerId)
+        const activeUsers = await User.countDocuments({
+          referrerId: franchise.franchiseId,
+        });
 
+        return {
+          name: franchise.name,
+          contactEmail: franchise.email,
+          contactPhone: franchise.mobile || "+1-555-0789", // Default if not provided
+          activeUsers,
+          location: {
+            street: franchise.profile.address.street,
+            city: franchise.profile.address.city,
+            state: franchise.profile.address.state,
+            country: franchise.profile.address.country,
+            zipCode: franchise.profile.address.zipCode,
+          },
+          joinDate: franchise.createdAt
+            ? franchise.createdAt.toISOString().split("T")[0]
+            : "2024-03-10",
+          status: franchise.isActive || "inactive",
+        };
+      })
+    );
+
+    res.json(franchiseData);
+  } catch (error) {
+    console.error("Error fetching franchises:", error);
+    res
+      .status(500)
+      .json({ error: "Failed to fetch franchises", details: error.message });
+  }
+};
 module.exports = {
   createAssessment,
   updateAssessment,
@@ -746,7 +850,8 @@ module.exports = {
   updateUserStatus,
   getFranchiseUsers,
   getFranchiser,
+  getFranchises,
   getTransactions,
   addFranchiser,
-  getFranchiseTransactionsAndEarnings
+  getFranchiseTransactionsAndEarnings,
 };
