@@ -98,7 +98,7 @@ router.get(
     try {
       const data = await callVeloxhireApi("/assessment");
 
-      res.json(data);
+      res.json(data.data);
     } catch (error) {
       console.error("Error calling Veloxhire API:", error.message);
       res.status(500).json({ message: "Failed to fetch assessment data" });
@@ -118,7 +118,7 @@ router.get(
 
       res.json({
         success: true,
-        data,
+        data: data.data,
       });
     } catch (error) {
       console.error("Error calling Veloxhire API:", error.message);
@@ -138,7 +138,7 @@ router.get(
 
       res.json({
         success: true,
-        data,
+        data: data.data,
       });
     } catch (error) {
       res.json({
