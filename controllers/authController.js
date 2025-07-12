@@ -592,8 +592,11 @@ const generateAndSendOtp = async (req, res) => {
   const userExists = await User.findOne({
     $or: [{ mobile: phoneNumber }, { email }],
   });
+  const userExistsforpasswordchange = await User.findOne({
+    $and: [{ mobile: phoneNumber }, { email }],
+  });
   if (tochangePassword) {
-    if (!userExists) {
+    if (!userExistsforpasswordchange) {
       return res.status(400).json({
         success: false,
         message: "User does not exist with this mobile number or email",
@@ -627,12 +630,20 @@ const generateAndSendOtp = async (req, res) => {
       .status(500)
       .json({ success: false, message: smsResponse.message });
   }
-
-  res.json({
-    success: true,
-    message: "OTP sent successfully",
-    id: smsResponse.id,
-  });
+  if (tochangePassword) {
+    res.json({
+      success: true,
+      message: "OTP sent successfully",
+      id: smsResponse.id,
+      user: userExistsforpasswordchange,
+    });
+  } else {
+    res.json({
+      success: true,
+      message: "OTP sent successfully",
+      id: smsResponse.id,
+    });
+  }
 };
 
 // Endpoint to verify OTP
