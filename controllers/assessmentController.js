@@ -1,26 +1,33 @@
-const mongoose = require('mongoose');
-const Assessment = require('../models/Assessment');
-const Result = require('../models/Result');
-const { validationResult } = require('express-validator');
-const User = require('../models/User');
-const axios = require('axios');
+const mongoose = require("mongoose");
+const Assessment = require("../models/Assessment");
+const Result = require("../models/Result");
+const { validationResult } = require("express-validator");
+const User = require("../models/User");
+const axios = require("axios");
 
 // @desc    Get all available assessments for candidates
 // @route   GET /api/assessments
 // @access  Private (Candidate)
 const getAssessments = async (req, res) => {
   try {
-    const { title,category, type, difficulty, page = 1, limit = 10 } = req.query;
-    
+    const {
+      title,
+      category,
+      type,
+      difficulty,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
     const query = { isActive: true };
-    if (title) query.title = { $regex: title, $options: 'i' }; // Case-insensitive search
+    if (title) query.title = { $regex: title, $options: "i" }; // Case-insensitive search
     if (category) query.category = category;
     if (type) query.type = type;
     if (difficulty) query.difficulty = difficulty;
 
     const assessments = await Assessment.find(query)
-      .select('-questions.options.isCorrect -questions.testCases')
-      .populate('createdBy', 'name')
+      .select("-questions.options.isCorrect -questions.testCases")
+      .populate("createdBy", "name")
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .sort({ createdAt: -1 });
@@ -28,14 +35,16 @@ const getAssessments = async (req, res) => {
     const total = await Assessment.countDocuments(query);
 
     // Check which assessments user has already taken
-    const takenAssessments = await Result.find({ 
+    const takenAssessments = await Result.find({
       userId: req.user._id,
-      assessmentId: { $in: assessments.map(a => a._id) }
-    }).select('assessmentId');
+      assessmentId: { $in: assessments.map((a) => a._id) },
+    }).select("assessmentId");
 
-    const assessmentsWithStatus = assessments.map(assessment => ({
+    const assessmentsWithStatus = assessments.map((assessment) => ({
       ...assessment.toObject(),
-      isTaken: takenAssessments.some(ta => ta.assessmentId.toString() === assessment._id.toString())
+      isTaken: takenAssessments.some(
+        (ta) => ta.assessmentId.toString() === assessment._id.toString()
+      ),
     }));
 
     res.json({
@@ -46,15 +55,15 @@ const getAssessments = async (req, res) => {
           page: parseInt(page),
           limit: parseInt(limit),
           total,
-          pages: Math.ceil(total / limit)
-        }
-      }
+          pages: Math.ceil(total / limit),
+        },
+      },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching assessments',
-      error: error.message
+      message: "Error fetching assessments",
+      error: error.message,
     });
   }
 };
@@ -65,46 +74,48 @@ const getAssessments = async (req, res) => {
 const getAssessment = async (req, res) => {
   try {
     const assessment = await Assessment.findById(req.params.id)
-      .select('-questions.options.isCorrect -questions.testCases.expectedOutput')
-      .populate('createdBy', 'name');
+      .select(
+        "-questions.options.isCorrect -questions.testCases.expectedOutput"
+      )
+      .populate("createdBy", "name");
 
     if (!assessment) {
       return res.status(404).json({
         success: false,
-        message: 'Assessment not found'
+        message: "Assessment not found",
       });
     }
 
     if (!assessment.isActive) {
       return res.status(400).json({
         success: false,
-        message: 'Assessment is not active'
+        message: "Assessment is not active",
       });
     }
 
     // Check if user has already taken this assessment
     const existingResult = await Result.findOne({
       userId: req.user._id,
-      assessmentId: assessment._id
+      assessmentId: assessment._id,
     });
 
     if (existingResult) {
       return res.status(200).json({
         success: true,
-        message: 'You have already taken this assessment',
-        data: {assessment}
+        message: "You have already taken this assessment",
+        data: { assessment },
       });
     }
 
     res.json({
       success: true,
-      data: { assessment }
+      data: { assessment },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching assessment',
-      error: error.message
+      message: "Error fetching assessment",
+      error: error.message,
     });
   }
 };
@@ -118,8 +129,8 @@ const submitAssessment = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        message: 'Validation errors',
-        errors: errors.array()
+        message: "Validation errors",
+        errors: errors.array(),
       });
     }
 
@@ -130,28 +141,31 @@ const submitAssessment = async (req, res) => {
     if (!assessment || !assessment.isActive) {
       return res.status(404).json({
         success: false,
-        message: 'Assessment not found or inactive'
+        message: "Assessment not found or inactive",
       });
     }
 
     // Check if user has already submitted
     const existingResult = await Result.findOne({
       userId: req.user._id,
-      assessmentId
+      assessmentId,
     });
 
     if (existingResult) {
       return res.status(400).json({
         success: false,
-        message: 'Assessment already submitted'
+        message: "Assessment already submitted",
       });
     }
 
     // Calculate score
-    const { score, totalPoints, maxPoints, processedAnswers } = calculateScore(assessment, answers);
+    const { score, totalPoints, maxPoints, processedAnswers } = calculateScore(
+      assessment,
+      answers
+    );
 
     // Determine pass/fail status
-    const status = score >= assessment.passingScore ? 'pass' : 'fail';
+    const status = score >= assessment.passingScore ? "pass" : "fail";
 
     // Create result
     const result = await Result.create({
@@ -163,27 +177,27 @@ const submitAssessment = async (req, res) => {
       maxPoints,
       timeTaken,
       status,
-      resultDetails: generateResultDetails(assessment, processedAnswers, score)
+      resultDetails: generateResultDetails(assessment, processedAnswers, score),
     });
 
     res.status(201).json({
       success: true,
-      message: 'Assessment submitted successfully',
+      message: "Assessment submitted successfully",
       data: {
         result: {
           _id: result._id,
           score: result.score,
           status: result.status,
           timeTaken: result.timeTaken,
-          resultDetails: result.resultDetails
-        }
-      }
+          resultDetails: result.resultDetails,
+        },
+      },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error submitting assessment',
-      error: error.message
+      message: "Error submitting assessment",
+      error: error.message,
     });
   }
 };
@@ -195,7 +209,7 @@ const calculateScore = (assessment, userAnswers) => {
   const processedAnswers = [];
 
   assessment.questions.forEach((question, index) => {
-    const userAnswer = userAnswers.find(a => a.questionIndex === index);
+    const userAnswer = userAnswers.find((a) => a.questionIndex === index);
     maxPoints += question.points;
 
     let isCorrect = false;
@@ -203,16 +217,19 @@ const calculateScore = (assessment, userAnswers) => {
 
     if (userAnswer) {
       switch (question.type) {
-        case 'mcq':
-          isCorrect = question.options[userAnswer.selectedOption]?.isCorrect || false;
+        case "mcq":
+          isCorrect =
+            question.options[userAnswer.selectedOption]?.isCorrect || false;
           pointsEarned = isCorrect ? question.points : 0;
           break;
-        case 'coding':
+        case "coding":
           // Simplified coding evaluation - in production, you'd run the code
-          pointsEarned = userAnswer.testCasesPassed / userAnswer.totalTestCases * question.points;
+          pointsEarned =
+            (userAnswer.testCasesPassed / userAnswer.totalTestCases) *
+            question.points;
           isCorrect = pointsEarned > 0;
           break;
-        case 'video':
+        case "video":
           // Video questions are typically manually reviewed
           pointsEarned = 0; // Will be updated after manual review
           isCorrect = false;
@@ -227,7 +244,7 @@ const calculateScore = (assessment, userAnswers) => {
       type: question.type,
       ...userAnswer,
       isCorrect,
-      pointsEarned
+      pointsEarned,
     });
   });
 
@@ -244,26 +261,39 @@ const generateResultDetails = (assessment, answers, score) => {
   const recommendations = [];
 
   // Calculate category-wise performance
-  const categories = [...new Set(assessment.questions.map(q => q.difficulty))];
-  
-  categories.forEach(category => {
-    const categoryQuestions = assessment.questions.filter(q => q.difficulty === category);
-    const categoryAnswers = answers.filter(a => {
-      const question = assessment.questions.find(q => q._id.toString() === a.questionId.toString());
+  const categories = [
+    ...new Set(assessment.questions.map((q) => q.difficulty)),
+  ];
+
+  categories.forEach((category) => {
+    const categoryQuestions = assessment.questions.filter(
+      (q) => q.difficulty === category
+    );
+    const categoryAnswers = answers.filter((a) => {
+      const question = assessment.questions.find(
+        (q) => q._id.toString() === a.questionId.toString()
+      );
       return question && question.difficulty === category;
     });
-    
-    const categoryScore = categoryAnswers.reduce((sum, ans) => sum + ans.pointsEarned, 0);
-    const maxCategoryScore = categoryQuestions.reduce((sum, q) => sum + q.points, 0);
-    
+
+    const categoryScore = categoryAnswers.reduce(
+      (sum, ans) => sum + ans.pointsEarned,
+      0
+    );
+    const maxCategoryScore = categoryQuestions.reduce(
+      (sum, q) => sum + q.points,
+      0
+    );
+
     categoryWiseScore.push({
       category,
       score: categoryScore,
-      maxScore: maxCategoryScore
+      maxScore: maxCategoryScore,
     });
 
     // Determine strengths and weaknesses
-    const categoryPercentage = maxCategoryScore > 0 ? (categoryScore / maxCategoryScore) * 100 : 0;
+    const categoryPercentage =
+      maxCategoryScore > 0 ? (categoryScore / maxCategoryScore) * 100 : 0;
     if (categoryPercentage >= 70) {
       strengths.push(`Strong performance in ${category} questions`);
     } else if (categoryPercentage < 50) {
@@ -274,18 +304,24 @@ const generateResultDetails = (assessment, answers, score) => {
 
   // Overall recommendations based on score
   if (score >= 80) {
-    recommendations.push('Excellent performance! You\'re ready for advanced challenges.');
+    recommendations.push(
+      "Excellent performance! You're ready for advanced challenges."
+    );
   } else if (score >= 60) {
-    recommendations.push('Good performance. Focus on weak areas for improvement.');
+    recommendations.push(
+      "Good performance. Focus on weak areas for improvement."
+    );
   } else {
-    recommendations.push('Consider revisiting fundamental concepts before retaking.');
+    recommendations.push(
+      "Consider revisiting fundamental concepts before retaking."
+    );
   }
 
   return {
     categoryWiseScore,
     strengths,
     weaknesses,
-    recommendations
+    recommendations,
   };
 };
 
@@ -294,7 +330,7 @@ const addAssessment = async (req, res) => {
     if (!req.user || !req.user._id) {
       return res.status(401).json({
         success: false,
-        message: 'Unauthorized: User not authenticated'
+        message: "Unauthorized: User not authenticated",
       });
     }
 
@@ -311,14 +347,25 @@ const addAssessment = async (req, res) => {
       assessmentId,
       pricing,
       offer,
-      isPremium
+      isPremium,
     } = req.body;
 
-
-    if (!title || !type || !category || !timeLimit || !pricing?.basePrice || !pricing?.discountedPrice || !offer?.title || !offer?.type || !offer?.value || !offer?.validUntil) {
+    if (
+      !title ||
+      !type ||
+      !category ||
+      !timeLimit ||
+      !pricing?.basePrice ||
+      !pricing?.discountedPrice ||
+      !offer?.title ||
+      !offer?.type ||
+      !offer?.value ||
+      !offer?.validUntil
+    ) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required fields: title, type, category, timeLimit, pricing (basePrice, discountedPrice), and offer (title, type, value, validUntil) are required'
+        message:
+          "Missing required fields: title, type, category, timeLimit, pricing (basePrice, discountedPrice), and offer (title, type, value, validUntil) are required",
       });
     }
 
@@ -328,23 +375,23 @@ const addAssessment = async (req, res) => {
       if (existingAssessment) {
         return res.status(400).json({
           success: false,
-          message: 'Assessment with this ID already exists'
+          message: "Assessment with this ID already exists",
         });
       }
     }
 
     const assessment = new Assessment({
       title: title.trim(),
-      description: description?.trim() || '',
+      description: description?.trim() || "",
       type,
       category,
       timeLimit: parseInt(timeLimit),
-      questions: questions || [],
+      // questions: questions || [],
       passingScore: passingScore || 60,
       isActive: true,
       createdBy: req.user._id,
       tags: tags || [],
-      difficulty: difficulty || 'Intermediate',
+      difficulty: difficulty || "Intermediate",
       attempts: 0,
       averageScore: 0,
       completionRate: 0,
@@ -366,14 +413,14 @@ const addAssessment = async (req, res) => {
     if (parseFloat(pricing.discountedPrice) >= parseFloat(pricing.basePrice)) {
       return res.status(400).json({
         success: false,
-        message: 'Discounted price must be less than base price'
+        message: "Discounted price must be less than base price",
       });
     }
 
     if (assessment.offer.validUntil <= new Date()) {
       return res.status(400).json({
         success: false,
-        message: 'Offer expiration date must be in the future'
+        message: "Offer expiration date must be in the future",
       });
     }
 
@@ -381,7 +428,7 @@ const addAssessment = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: 'Assessment created successfully',
+      message: "Assessment created successfully",
       data: {
         id: savedAssessment._id,
         assessmentId: savedAssessment.assessmentId,
@@ -390,7 +437,7 @@ const addAssessment = async (req, res) => {
         type: savedAssessment.type,
         category: savedAssessment.category,
         timeLimit: savedAssessment.timeLimit,
-        questions: savedAssessment.questions,
+        // questions: savedAssessment.questions,
         passingScore: savedAssessment.passingScore,
         isActive: savedAssessment.isActive,
         createdBy: savedAssessment.createdBy,
@@ -403,22 +450,21 @@ const addAssessment = async (req, res) => {
         pricing: savedAssessment.pricing,
         offer: savedAssessment.offer,
         isPremium: savedAssessment.isPremium,
-      }
+      },
     });
-
   } catch (error) {
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map(err => err.message);
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map((err) => err.message);
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors
+        message: "Validation failed",
+        errors,
       });
     }
 
     return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: "Internal server error",
     });
   }
 };
@@ -432,7 +478,7 @@ const editAssessment = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(assessmentId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid assessment ID'
+        message: "Invalid assessment ID",
       });
     }
 
@@ -440,9 +486,9 @@ const editAssessment = async (req, res) => {
     const updatedAssessment = await Assessment.findByIdAndUpdate(
       assessmentId,
       { $set: assessmentData },
-      { 
+      {
         new: true, // Return the updated document
-        runValidators: true // Ensure schema validation
+        runValidators: true, // Ensure schema validation
       }
     );
 
@@ -450,40 +496,35 @@ const editAssessment = async (req, res) => {
     if (!updatedAssessment) {
       return res.status(404).json({
         success: false,
-        message: 'Assessment not found'
+        message: "Assessment not found",
       });
     }
 
     // Return success response
     res.status(200).json({
       success: true,
-      message: 'Assessment updated successfully',
-      data: updatedAssessment
+      message: "Assessment updated successfully",
+      data: updatedAssessment,
     });
-
   } catch (error) {
-    
     // Handle specific validation errors
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map(err => err.message);
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map((err) => err.message);
       return res.status(400).json({
         success: false,
-        message: 'Validation failed',
-        errors
+        message: "Validation failed",
+        errors,
       });
     }
 
     // Handle other errors
     res.status(500).json({
       success: false,
-      message: 'Server error while updating assessment',
-      error: error.message
+      message: "Server error while updating assessment",
+      error: error.message,
     });
   }
 };
-
-
-
 
 const getAssessmentsByUser = async (req, res) => {
   try {
@@ -492,21 +533,26 @@ const getAssessmentsByUser = async (req, res) => {
     // Fetch user data to get assessmentsPaid
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     // Extract assessmentId from assessmentsPaid
-    const assessmentIds = user.assessmentsPaid.map(assessment => assessment.assessmentId);
+    const assessmentIds = user.assessmentsPaid.map(
+      (assessment) => assessment.assessmentId
+    );
 
     // Fetch assessments from the Assessment collection
     const assessments = await Assessment.find({ _id: { $in: assessmentIds } });
 
     return res.status(200).json({ success: true, data: assessments });
   } catch (error) {
-    return res.status(500).json({ message: 'Internal server error', error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 };
-
 
 const getUserStats = async (req, res) => {
   try {
@@ -516,7 +562,7 @@ const getUserStats = async (req, res) => {
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: 'User ID is required',
+        message: "User ID is required",
       });
     }
 
@@ -536,12 +582,11 @@ const getUserStats = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching user stats',
+      message: "Error fetching user stats",
       error: error.message,
     });
   }
 };
-
 
 // @desc    Invite candidate to interview
 // @route   POST /api/assessments/:id/interviews
@@ -553,8 +598,8 @@ exports.inviteCandidateToInterview = async (req, res) => {
 
     // Extract Bearer token from incoming request
     const authHeader = req.headers.authorization;
-    let bearerToken = '';
-    if (authHeader && authHeader.startsWith('Bearer ')) {
+    let bearerToken = "";
+    if (authHeader && authHeader.startsWith("Bearer ")) {
       bearerToken = authHeader;
     }
 
@@ -563,29 +608,35 @@ exports.inviteCandidateToInterview = async (req, res) => {
 
     const response = await axios.post(apiUrl, [inviteData], {
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': bearerToken
-      }
+        "Content-Type": "application/json",
+        Authorization: bearerToken,
+      },
     });
 
     return res.status(200).json({
       success: true,
       message: "Candidate invited to interview successfully",
-      data: response.data
+      data: response.data,
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Server error while inviting candidate",
-      error: error?.response?.data || error.message
+      error: error?.response?.data || error.message,
     });
   }
 };
 
-
 const storeAssessmentDetails = async (req, res) => {
   const { userId } = req.params;
-  const {assessmentId,assessmentIdVelox,assessmentLink,interviewId,candidateId,linkExpiryTime} = req.body;
+  const {
+    assessmentId,
+    assessmentIdVelox,
+    assessmentLink,
+    interviewId,
+    candidateId,
+    linkExpiryTime,
+  } = req.body;
 
   try {
     const detailsToStore = {
@@ -594,7 +645,7 @@ const storeAssessmentDetails = async (req, res) => {
       assessmentLink: assessmentLink,
       interviewId: interviewId || null,
       candidateId: candidateId,
-      linkExpiryTime: linkExpiryTime
+      linkExpiryTime: linkExpiryTime,
     };
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -604,12 +655,22 @@ const storeAssessmentDetails = async (req, res) => {
     );
 
     if (!updatedUser) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
-    return res.status(200).json({ success: true, data: updatedUser.assessmentsPaid });
+    return res
+      .status(200)
+      .json({ success: true, data: updatedUser.assessmentsPaid });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Failed to store assessment details', error: error.message });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: "Failed to store assessment details",
+        error: error.message,
+      });
   }
 };
 
@@ -619,7 +680,9 @@ const matchAssessmentsDetails = async (req, res) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     const assessment = user.assessmentsPaid.find(
@@ -627,7 +690,12 @@ const matchAssessmentsDetails = async (req, res) => {
     );
 
     if (!assessment) {
-      return res.status(404).json({ success: false, message: 'Assessment not found for this user' });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "Assessment not found for this user",
+        });
     }
     const currentDate = new Date(); // 02:53 PM IST, July 09, 2025 (UTC: 2025-07-09T09:23:00Z)
     const linkExpiryTime = assessment.linkExpiryTime;
@@ -636,23 +704,43 @@ const matchAssessmentsDetails = async (req, res) => {
 
     // Validate and create expiryDate
     let expiryDate;
-    if (linkExpiryTime && typeof linkExpiryTime === 'string' && !isNaN(Date.parse(linkExpiryTime))) {
+    if (
+      linkExpiryTime &&
+      typeof linkExpiryTime === "string" &&
+      !isNaN(Date.parse(linkExpiryTime))
+    ) {
       expiryDate = new Date(linkExpiryTime);
-    } else if (linkExpiryTime instanceof Date && !isNaN(linkExpiryTime.getTime())) {
+    } else if (
+      linkExpiryTime instanceof Date &&
+      !isNaN(linkExpiryTime.getTime())
+    ) {
       expiryDate = linkExpiryTime;
     } else {
-      return res.status(400).json({ success: false, message: 'Invalid or missing expiry time for assessment' });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Invalid or missing expiry time for assessment",
+        });
     }
 
     // Log for debugging
 
     if (expiryDate < currentDate) {
-      return res.status(400).json({ success: false, message: 'Assessment link has expired' });
+      return res
+        .status(400)
+        .json({ success: false, message: "Assessment link has expired" });
     }
 
     return res.status(200).json({ success: true, data: assessment });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: "Internal server error",
+        error: error.message,
+      });
   }
 };
 
@@ -661,12 +749,20 @@ const getPaidAssessments = async (req, res) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
     const paidAssessments = user.assessmentsPaid;
     return res.status(200).json({ success: true, data: paidAssessments });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: "Internal server error",
+        error: error.message,
+      });
   }
 };
 
@@ -680,5 +776,5 @@ module.exports = {
   getUserStats,
   storeAssessmentDetails,
   matchAssessmentsDetails,
-  getPaidAssessments
+  getPaidAssessments,
 };
