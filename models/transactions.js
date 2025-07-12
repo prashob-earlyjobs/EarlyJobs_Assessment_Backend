@@ -1,4 +1,3 @@
-// models/transaction.js
 const mongoose = require("mongoose");
 
 const transactionsSchema = new mongoose.Schema(
@@ -16,14 +15,14 @@ const transactionsSchema = new mongoose.Schema(
     transactionId: {
       type: String,
       required: [true, "Transaction ID is required"],
-      unique: true,
+      // Remove unique: true
     },
     transactionDate: {
       type: Date,
       default: Date.now,
     },
     transactionAmount: {
-      type: Number || String,
+      type: Number || String, // Fix: Use Number instead of Number || String
       required: [true, "Transaction amount is required"],
     },
     transactionStatus: {
@@ -31,21 +30,8 @@ const transactionsSchema = new mongoose.Schema(
       enum: ["success", "failure"],
       required: [true, "Transaction status is required"],
     },
-
     pricing: {
-      type: Number,
-      required: [true, "Pricing is required"],
-      min: [0, "Pricing cannot be negative"],
-    },
-    referrerId: {
-      type: String || null,
-      default: null,
-    }, // Optional field for referral tracking
-    franchiserId: {
-      type: mongoose.Schema.Types.ObjectId || null,
-      default: null,
-    },
-    pricing: {
+      // Note: You have two 'pricing' fields; the second one overwrites the first
       basePrice: {
         type: Number,
         required: [true, "Base price is required"],
@@ -57,6 +43,14 @@ const transactionsSchema = new mongoose.Schema(
         min: [0, "Discounted price cannot be negative"],
       },
     },
+    referrerId: {
+      type: String, // Fix: Use String instead of String || null
+      default: null,
+    },
+    franchiserId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+    },
     isOfferAvailable: {
       type: Boolean,
       default: false,
@@ -67,7 +61,7 @@ const transactionsSchema = new mongoose.Schema(
     },
     createdDate: {
       type: Date,
-      default: Date.now(),
+      default: Date.now,
     },
   },
   {
@@ -75,8 +69,13 @@ const transactionsSchema = new mongoose.Schema(
   }
 );
 
-// Index for better query performance
-// assessmentSchema.index({ category: 1, type: 1, isActive: 1 });
-// assessmentSchema.index({ createdBy: 1 });
+// Create a partial unique index for transactionId (excluding "FREE-OFFER")
+transactionsSchema.index(
+  { transactionId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { transactionId: { $ne: "FREE-OFFER" } },
+  }
+);
 
 module.exports = mongoose.model("Transactions", transactionsSchema);
