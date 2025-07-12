@@ -10,6 +10,7 @@ const {
   refreshToken,
   userLogout,
   verifyFranchiseId,
+  resetPassword,
   generateAndSendOtp,
   verifyOtp,
 } = require("../controllers/authController");
@@ -56,6 +57,7 @@ router.put("/update-profile", authMiddleware, updateProfile);
 router.put("/complete-profile", authMiddleware, completeProfile); // get from onboarding form details route
 router.post("/refresh-token", refreshToken);
 router.get("/verifyFranchiseId/:franchiseId", verifyFranchiseId);
+router.patch("/reset-password/:userId", resetPassword);
 
 router.post("/send-otp", generateAndSendOtp);
 router.post("/verify-otp", verifyOtp);

@@ -333,7 +333,47 @@ const updateProfile = async (req, res) => {
   }
 };
 
-module.exports = updateProfile;
+const resetPassword = async (req, res) => {
+  const { userId } = req.params;
+  const { newPassword } = req.body;
+
+  try {
+    const user = await User.findById(userId).select("+password"); // Include password field
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Assign the new password and let Mongoose run validations
+    user.password = newPassword;
+
+    await user.save({ validateBeforeSave: true });
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successfully",
+    });
+  } catch (error) {
+    // Catch mongoose validation errors
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map((val) => val.message);
+      return res.status(400).json({
+        success: false,
+        message: "Password validation failed",
+        errors: messages,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error resetting password",
+      error: error.message,
+    });
+  }
+};
 
 const completeProfile = async (req, res) => {
   try {
@@ -548,11 +588,21 @@ const sendOtpEmail = async (email, otp) => {
 
 // Endpoint to generate and send OTP
 const generateAndSendOtp = async (req, res) => {
-  const { phoneNumber, email } = req.body;
+  const { phoneNumber, email, tochangePassword } = req.body;
   const userExists = await User.findOne({
     $or: [{ mobile: phoneNumber }, { email }],
   });
-  if (userExists) {
+  const userExistsforpasswordchange = await User.findOne({
+    $and: [{ mobile: phoneNumber }, { email }],
+  });
+  if (tochangePassword) {
+    if (!userExistsforpasswordchange) {
+      return res.status(400).json({
+        success: false,
+        message: "User does not exist with this mobile number or email",
+      });
+    }
+  } else if (userExists) {
     return res.status(400).json({
       success: false,
       message: "User already exists with this mobile number or email",
@@ -580,12 +630,20 @@ const generateAndSendOtp = async (req, res) => {
       .status(500)
       .json({ success: false, message: smsResponse.message });
   }
-
-  res.json({
-    success: true,
-    message: "OTP sent successfully",
-    id: smsResponse.id,
-  });
+  if (tochangePassword) {
+    res.json({
+      success: true,
+      message: "OTP sent successfully",
+      id: smsResponse.id,
+      user: userExistsforpasswordchange,
+    });
+  } else {
+    res.json({
+      success: true,
+      message: "OTP sent successfully",
+      id: smsResponse.id,
+    });
+  }
 };
 
 // Endpoint to verify OTP
@@ -631,5 +689,6 @@ module.exports = {
   isUserLoggedIn,
   refreshToken,
   generateAndSendOtp,
+  resetPassword,
   verifyOtp,
 };
