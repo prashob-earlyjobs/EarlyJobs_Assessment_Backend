@@ -10,6 +10,7 @@ const crypto = require("crypto");
 const router = express.Router();
 
 const { validationResult } = require("express-validator");
+const OTP = require("../models/otpmodel");
 
 // Enhanced JWT Token Generation with user role and email
 const generateToken = (user) => {
@@ -587,6 +588,7 @@ const sendOtpEmail = async (email, otp) => {
 };
 
 // Endpoint to generate and send OTP
+// Endpoint to generate and send OTP
 const generateAndSendOtp = async (req, res) => {
   const { phoneNumber, email, tochangePassword } = req.body;
   const userExists = await User.findOne({
@@ -616,16 +618,19 @@ const generateAndSendOtp = async (req, res) => {
   }
 
   const otp = generateOtp();
-  const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes expiration
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
-  // Store OTP with phone number and expiration
-  otpStore.set(phoneNumber, { otp, expiresAt });
+  // Store OTP in database
+  await OTP.create({
+    phoneNumber,
+    otp,
+    expiresAt,
+  });
 
   const smsResponse = await sendOtpSms(phoneNumber, otp);
-  const emailResponse = await sendOtpEmail(email, otp);
-  console.log("smsResponse:", smsResponse, "emailResponse:", emailResponse);
+  // const emailResponse = await sendOtpEmail(email, otp);
 
-  if (!smsResponse.success || !emailResponse) {
+  if (!smsResponse.success) {
     return res
       .status(500)
       .json({ success: false, message: smsResponse.message });
@@ -650,31 +655,24 @@ const generateAndSendOtp = async (req, res) => {
 const verifyOtp = async (req, res) => {
   const { phoneNumber, otp } = req.body;
 
-  if (!phoneNumber || !otp) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Phone number and OTP are required" });
+  const storedOtp = await OTP.findOne({
+    phoneNumber,
+    otp,
+    isUsed: false,
+    expiresAt: { $gt: new Date() },
+  });
+
+  if (!storedOtp) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid or expired OTP",
+    });
   }
 
-  const storedOtpData = otpStore.get(phoneNumber);
+  // Mark OTP as used
+  storedOtp.isUsed = true;
+  await storedOtp.save();
 
-  if (!storedOtpData) {
-    return res
-      .status(400)
-      .json({ success: false, message: "No OTP found for this phone number" });
-  }
-
-  if (Date.now() > storedOtpData.expiresAt) {
-    otpStore.delete(phoneNumber);
-    return res.status(400).json({ success: false, message: "OTP has expired" });
-  }
-
-  if (storedOtpData.otp !== otp) {
-    return res.status(400).json({ success: false, message: "Invalid OTP" });
-  }
-
-  // OTP is valid, clear it from store
-  otpStore.delete(phoneNumber);
   res.json({ success: true, message: "OTP verified successfully" });
 };
 
