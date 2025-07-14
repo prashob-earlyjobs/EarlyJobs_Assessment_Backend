@@ -596,8 +596,8 @@ module.exports = { getTransactions };
 
 const getFranchiseTransactionsAndEarnings = async (req, res) => {
   try {
-    const { _id } = req.user;
-    const franchiserId = _id;
+    const { franchiseId } = req.user;
+    const franchiserId = franchiseId;
     const { page = 1, limit = 10 } = req.query;
 
     // Validate franchiserId
@@ -617,9 +617,10 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
       });
     }
 
+    console.log("franchiserId", franchiserId);
     // Query transactions where franchiserId matches or userId matches franchiserId
     const transactions = await Transactions.find({
-      $or: [{ franchiserId }, { userId: franchiserId }],
+      $or: [{ referrerId: franchiserId }],
     })
       .limit(limitNum)
       .skip((pageNum - 1) * limitNum)
@@ -627,28 +628,32 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
       .populate("userId", "name -_id") // Populate candidateName from User model
       .populate("assessmentId", "title -_id") // Populate assessmentTitle from Assessment model
       .select(
-        "transactionId createdAt assessmentId userId transactionAmount franchiserId"
+        "transactionId createdAt assessmentId userId transactionAmount franchiserId referrerId"
       );
 
     // Get total count for pagination
     const total = await Transactions.countDocuments({
-      $or: [{ franchiserId }, { userId: franchiserId }],
+      $or: [{ referrerId: franchiserId }],
     });
+    console.log("transactions", transactions, "total", total);
 
     // Fetch franchise names by matching franchiserId with User _id
     const franchiseIds = transactions
-      .map((t) => t.franchiserId)
+      .map((t) => t.referrerId)
       .filter((id) => id);
     const franchiseUsers = await User.find({
-      _id: { $in: franchiseIds },
-    }).select("name _id");
+      referrerId: { $in: franchiseIds },
+    }).select("name _id referrerId");
+
+    console.log("franchiseUsers", franchiseUsers, "franchiseIds", franchiseIds);
 
     // Map transactions with populated and calculated fields
     const transactionsWithCommission = transactions.map((transaction) => {
       const franchiseUser = franchiseUsers.find(
-        (u) => u._id.toString() === transaction.franchiserId.toString()
+        (u) => u.referrerId === transaction.referrerId
       );
-      const apiCost = 200; // Fixed API cost per transaction
+      const apiCost = 307; // Fixed API cost per transaction
+
       return {
         ...transaction.toObject(),
         candidateName: transaction.userId?.name || "Unknown",
@@ -659,17 +664,28 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
         franchiseName: franchiseUser ? franchiseUser.name : "Unknown",
       };
     });
-
+    console.log("transactionsWithCommission", transactionsWithCommission);
     // Calculate total earnings (70% of total transaction amounts minus API cost)
-    const totalTransactions = await Transactions.find({ franchiserId });
-    const apiCostTotal = 200 * totalTransactions.length; // API cost scaled by transaction count
+    const totalTransactions = await Transactions.find({
+      referrerId: franchiserId,
+    });
+    const apiCostTotal = 307 * totalTransactions.length; // API cost scaled by transaction count
     const totalAmountResult = await Transactions.aggregate([
-      { $match: { franchiserId } },
+      { $match: { referrerId: franchiserId } },
       { $group: { _id: null, totalAmount: { $sum: "$transactionAmount" } } },
     ]);
     const totalAmount =
       totalAmountResult.length > 0 ? totalAmountResult[0].totalAmount : 0;
     const totalCommission = (totalAmount - apiCostTotal) * 0.7;
+
+    console.log(
+      "totalCommission",
+      totalCommission,
+      "totalAmount",
+      totalAmount,
+      "apiCostTotal",
+      apiCostTotal
+    );
 
     res.json({
       success: true,

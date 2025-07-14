@@ -30,8 +30,51 @@ const getAccessToken = async () => {
   return cachedToken;
 };
 
-const callVeloxhireApi = async (endpoint, method = "GET", data = {}) => {
+let cachedCandidateToken = null;
+let candidateTokenExpiry = null;
+
+const getCandidateToken = async () => {
+  // Reuse if not expired
+  if (
+    cachedCandidateToken &&
+    candidateTokenExpiry &&
+    new Date() < candidateTokenExpiry
+  ) {
+    return cachedCandidateToken;
+  }
+
+  const response = await axios.post(
+    "https://identity.veloxhire.ai/connect/token",
+    new URLSearchParams({
+      grant_type: "client_credentials",
+      client_id: "veloxhire.app.candidate.EarlyJobs.production",
+      client_secret: "LpveN2xzQTd1gLC4Yw8k",
+      scope: "veloxhireapi.production",
+    }),
+    {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    }
+  );
+
+  // Cache token and expiry
+  cachedCandidateToken = response.data.access_token;
+  candidateTokenExpiry = new Date(
+    Date.now() + (response.data.expires_in - 60) * 1000
+  ); // subtract 60s as buffer
+
+  return cachedCandidateToken;
+};
+
+const callVeloxhireApi = async (
+  endpoint,
+  method = "GET",
+  data = {},
+  isGetAssessmentLink = false
+) => {
   const token = await getAccessToken();
+  console.log("token", token);
 
   const config = {
     method,
@@ -46,11 +89,11 @@ const callVeloxhireApi = async (endpoint, method = "GET", data = {}) => {
   }
 
   const res = await axios(config);
+  console.log("res", res.data);
   return {
     success: true,
     data: res.data,
-    access_token: token,
   };
 };
 
-module.exports = { callVeloxhireApi };
+module.exports = { callVeloxhireApi, getCandidateToken };

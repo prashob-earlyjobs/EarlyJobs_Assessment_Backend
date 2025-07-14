@@ -25,6 +25,10 @@ const transactionsSchema = new mongoose.Schema(
       type: Number || String, // Fix: Use Number instead of Number || String
       required: [true, "Transaction amount is required"],
     },
+    offerCode: {
+      type: String,
+      default: null,
+    },
     transactionStatus: {
       type: String,
       enum: ["success", "failure"],
