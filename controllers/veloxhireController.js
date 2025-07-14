@@ -1,22 +1,24 @@
 const axios = require("axios");
+require("dotenv").config(); // load env variables
 
 let cachedToken = null;
 let tokenExpiry = null;
 
 const getAccessToken = async () => {
-  // If token exists and not expired, reuse it
   if (cachedToken && tokenExpiry && new Date() < tokenExpiry) {
     return cachedToken;
   }
 
+  const params = new URLSearchParams({
+    grant_type: "client_credentials",
+    client_id: process.env.VELOX_CLIENT_ID,
+    client_secret: process.env.VELOX_CLIENT_SECRET,
+    scope: process.env.VELOX_SCOPE,
+  });
+
   const response = await axios.post(
     "https://identity.veloxhire.ai/connect/token",
-    new URLSearchParams({
-      grant_type: "client_credentials",
-      client_id: "veloxhire.app.EarlyJobs.production",
-      client_secret: "BpusD4lzGSg2hED3Mn9f",
-      scope: "veloxhireapi.production",
-    }),
+    params,
     {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -25,7 +27,7 @@ const getAccessToken = async () => {
   );
 
   cachedToken = response.data.access_token;
-  tokenExpiry = new Date(Date.now() + (response.data.expires_in - 60) * 1000); // subtract 60 sec for buffer
+  tokenExpiry = new Date(Date.now() + (response.data.expires_in - 60) * 1000);
 
   return cachedToken;
 };
@@ -34,7 +36,6 @@ let cachedCandidateToken = null;
 let candidateTokenExpiry = null;
 
 const getCandidateToken = async () => {
-  // Reuse if not expired
   if (
     cachedCandidateToken &&
     candidateTokenExpiry &&
@@ -43,14 +44,16 @@ const getCandidateToken = async () => {
     return cachedCandidateToken;
   }
 
+  const params = new URLSearchParams({
+    grant_type: "client_credentials",
+    client_id: process.env.CANDIDATE_CLIENT_ID,
+    client_secret: process.env.CANDIDATE_CLIENT_SECRET,
+    scope: process.env.VELOX_SCOPE,
+  });
+
   const response = await axios.post(
     "https://identity.veloxhire.ai/connect/token",
-    new URLSearchParams({
-      grant_type: "client_credentials",
-      client_id: "veloxhire.app.candidate.EarlyJobs.production",
-      client_secret: "LpveN2xzQTd1gLC4Yw8k",
-      scope: "veloxhireapi.production",
-    }),
+    params,
     {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -58,11 +61,10 @@ const getCandidateToken = async () => {
     }
   );
 
-  // Cache token and expiry
   cachedCandidateToken = response.data.access_token;
   candidateTokenExpiry = new Date(
     Date.now() + (response.data.expires_in - 60) * 1000
-  ); // subtract 60s as buffer
+  );
 
   return cachedCandidateToken;
 };
