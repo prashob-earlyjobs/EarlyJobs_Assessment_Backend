@@ -12,6 +12,7 @@ const addTransaction = async (req, res) => {
       pricing,
       isOfferAvailable,
       isPremium,
+      offerCode,
       franchiserId,
       referrerId,
     } = req.body;
@@ -51,7 +52,7 @@ const addTransaction = async (req, res) => {
     }
 
     // Create new transaction
-    const transaction = new Transactions({
+    const transaction = await Transactions.create({
       userId,
       assessmentId,
       transactionId,
@@ -61,6 +62,7 @@ const addTransaction = async (req, res) => {
         basePrice: pricing.basePrice,
         discountedPrice: pricing.discountedPrice,
       },
+      offerCode,
       isOfferAvailable: isOfferAvailable || false,
       isPremium: isPremium || false,
       franchiserId: franchiserId || null,
@@ -73,12 +75,10 @@ const addTransaction = async (req, res) => {
     res.status(201).json(savedTransaction);
   } catch (error) {
     console.error("Error adding transaction:", error);
-    res
-      .status(500)
-      .json({
-        message: "Server error while adding transaction",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Server error while adding transaction",
+      error: error.message,
+    });
   }
 };
 const getTransactions = async (req, res) => {

@@ -39,6 +39,8 @@ app.use(
       "https://early-jobs-assessment-frontend-5n6w4951x-earlyjobs-projects.vercel.app",
       "https://www.earlyjobs.in",
       "https://earlyjobs.in",
+      "https://franchise.earlyjobs.in",
+      "https://www.franchise.earlyjobs.in",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
