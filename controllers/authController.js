@@ -266,7 +266,7 @@ const updateProfile = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    const allowedTopLevelFields = ["name", "profile", "avatar", "resumeUrl"];
+    const allowedTopLevelFields = ["name", "profile", "avatar"];
     const updateData = {};
 
     // Filter only allowed top-level fields
@@ -283,6 +283,7 @@ const updateProfile = async (req, res) => {
       const mergedProfile = {
         ...existingUser.profile,
         ...updateData.profile,
+
         address: {
           ...(existingUser.profile?.address || {}),
           ...(updateData.profile.address || {}),
