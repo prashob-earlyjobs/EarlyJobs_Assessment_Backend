@@ -591,7 +591,7 @@ const sendOtpEmail = async (email, otp) => {
 // Endpoint to generate and send OTP
 // Endpoint to generate and send OTP
 const generateAndSendOtp = async (req, res) => {
-  const { phoneNumber, email, tochangePassword } = req.body;
+  const { phoneNumber, email, franchiseId = "", tochangePassword } = req.body;
   const userExists = await User.findOne({
     $or: [{ mobile: phoneNumber }, { email }],
   });
@@ -617,7 +617,20 @@ const generateAndSendOtp = async (req, res) => {
       .status(400)
       .json({ success: false, message: "Invalid phone number" });
   }
+  if (franchiseId !== "") {
+    const franchiseAdmins = await User.find({ role: "franchise_admin" });
 
+    // Check if any franchise admin has the matching franchiseId
+
+    const isValidFranchiseId = franchiseAdmins.some(
+      (admin) => admin.franchiseId === franchiseId
+    );
+    if (!isValidFranchiseId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Franchise ID" });
+    }
+  }
   const otp = generateOtp();
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
@@ -632,21 +645,25 @@ const generateAndSendOtp = async (req, res) => {
   // const emailResponse = await sendOtpEmail(email, otp);
 
   if (!smsResponse.success) {
-    return res
-      .status(500)
-      .json({ success: false, message: smsResponse.message });
+    return res.status(500).json({
+      success: false,
+      message: smsResponse.message,
+      // emailRes: emailResponse,
+    });
   }
   if (tochangePassword) {
     res.json({
       success: true,
       message: "OTP sent successfully",
       id: smsResponse.id,
+      // emailRes: emailResponse,
       user: userExistsforpasswordchange,
     });
   } else {
     res.json({
       success: true,
       message: "OTP sent successfully",
+      // emailRes: emailResponse,
       id: smsResponse.id,
     });
   }
