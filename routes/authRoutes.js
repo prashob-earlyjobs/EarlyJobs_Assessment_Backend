@@ -41,10 +41,19 @@ const registerValidation = [
 ];
 
 const loginValidation = [
-  body("email")
-    .isEmail()
-    .normalizeEmail()
-    .withMessage("Please provide a valid email"),
+  body("emailormobile")
+    .trim()
+    .notEmpty()
+    .withMessage("Email or mobile number is required")
+    .custom((value) => {
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      const isMobile = /^\d{10}$/.test(value); // Accepts mobile numbers with 5 or more digits
+      if (!isEmail && !isMobile) {
+        throw new Error("Please provide a valid email or mobile number");
+      }
+      return true;
+    }),
+
   body("password").notEmpty().withMessage("Password is required"),
 ];
 

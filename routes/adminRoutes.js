@@ -148,4 +148,38 @@ router.get(
     }
   }
 );
+router.get("/getRecording/:interviewId", authMiddleware, async (req, res) => {
+  try {
+    const data = await callVeloxhireApi(
+      `/report/new/${req.params.interviewId}/recording`
+    );
+    console.log("data", data);
+    res.json({
+      success: true,
+      data: data.data,
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: "Something went wrong please try again later",
+    });
+  }
+});
+router.get("/getTranscript/:interviewId", authMiddleware, async (req, res) => {
+  try {
+    const data = await callVeloxhireApi(
+      `/report/new/${req.params.interviewId}/enhanceSpeechTranscript`
+    );
+    console.log("data", data);
+    res.json({
+      success: true,
+      data: data.data,
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: "Something went wrong please try again later",
+    });
+  }
+});
 module.exports = router;
