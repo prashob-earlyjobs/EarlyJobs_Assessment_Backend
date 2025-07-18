@@ -91,7 +91,6 @@ const callVeloxhireApi = async (
   }
 
   const res = await axios(config);
-  console.log("res", res.data);
   return {
     success: true,
     data: res.data,

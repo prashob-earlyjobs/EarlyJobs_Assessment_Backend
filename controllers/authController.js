@@ -134,10 +134,15 @@ const login = async (req, res) => {
       });
     }
 
-    const { email, password } = req.body;
+    const { emailormobile, password } = req.body;
 
-    // Check for user
-    const user = await User.findOne({ email }).select("+password");
+    // Determine if it's email or mobile
+    const isMobile = !isNaN(Number(emailormobile)) && emailormobile.length >= 5;
+
+    // Find user by email or mobile
+    const user = await User.findOne(
+      isMobile ? { mobile: emailormobile } : { email: emailormobile }
+    ).select("+password");
 
     if (!user) {
       return res.status(401).json({
@@ -174,6 +179,7 @@ const login = async (req, res) => {
     // Set refresh token in cookie
     res.cookie("refreshToken", refreshToken, cookieOptions);
 
+    // Return success response
     res.json({
       success: true,
       message: "Login successful",
