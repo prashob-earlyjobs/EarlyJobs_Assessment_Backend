@@ -76,7 +76,6 @@ const callVeloxhireApi = async (
   isGetAssessmentLink = false
 ) => {
   const token = await getAccessToken();
-  console.log("token", token);
 
   const config = {
     method,

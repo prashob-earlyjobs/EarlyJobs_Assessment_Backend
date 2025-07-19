@@ -33,12 +33,7 @@ router.get(
   roleMiddleware(["candidate", "super_admin", "franchise_admin"]),
   getAssessments
 );
-router.get(
-  "/:id",
-  authMiddleware,
-  roleMiddleware(["candidate"]),
-  getAssessment
-);
+router.get("/:id", authMiddleware, getAssessment);
 router.post(
   "/submit",
   authMiddleware,
