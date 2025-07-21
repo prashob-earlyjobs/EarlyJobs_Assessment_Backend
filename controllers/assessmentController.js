@@ -35,22 +35,11 @@ const getAssessments = async (req, res) => {
     const total = await Assessment.countDocuments(query);
 
     // Check which assessments user has already taken
-    const takenAssessments = await Result.find({
-      userId: req.user._id,
-      assessmentId: { $in: assessments.map((a) => a._id) },
-    }).select("assessmentId");
-
-    const assessmentsWithStatus = assessments.map((assessment) => ({
-      ...assessment.toObject(),
-      isTaken: takenAssessments.some(
-        (ta) => ta.assessmentId.toString() === assessment._id.toString()
-      ),
-    }));
 
     res.json({
       success: true,
       data: {
-        assessments: assessmentsWithStatus,
+        assessments: assessments,
         pagination: {
           page: parseInt(page),
           limit: parseInt(limit),
@@ -94,18 +83,6 @@ const getAssessment = async (req, res) => {
     }
 
     // Check if user has already taken this assessment
-    const existingResult = await Result.findOne({
-      userId: req.user._id,
-      assessmentId: assessment._id,
-    });
-
-    if (existingResult) {
-      return res.status(200).json({
-        success: true,
-        message: "You have already taken this assessment",
-        data: { assessment },
-      });
-    }
 
     res.json({
       success: true,
@@ -664,13 +641,11 @@ const storeAssessmentDetails = async (req, res) => {
       .status(200)
       .json({ success: true, data: updatedUser.assessmentsPaid });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to store assessment details",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Failed to store assessment details",
+      error: error.message,
+    });
   }
 };
 
@@ -690,12 +665,10 @@ const matchAssessmentsDetails = async (req, res) => {
     );
 
     if (!assessment) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "Assessment not found for this user",
-        });
+      return res.status(404).json({
+        success: false,
+        message: "Assessment not found for this user",
+      });
     }
     const currentDate = new Date(); // 02:53 PM IST, July 09, 2025 (UTC: 2025-07-09T09:23:00Z)
     const linkExpiryTime = assessment.linkExpiryTime;
@@ -716,12 +689,10 @@ const matchAssessmentsDetails = async (req, res) => {
     ) {
       expiryDate = linkExpiryTime;
     } else {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Invalid or missing expiry time for assessment",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or missing expiry time for assessment",
+      });
     }
 
     // Log for debugging
@@ -734,13 +705,11 @@ const matchAssessmentsDetails = async (req, res) => {
 
     return res.status(200).json({ success: true, data: assessment });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Internal server error",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 };
 
@@ -756,13 +725,11 @@ const getPaidAssessments = async (req, res) => {
     const paidAssessments = user.assessmentsPaid;
     return res.status(200).json({ success: true, data: paidAssessments });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Internal server error",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 };
 
