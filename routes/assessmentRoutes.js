@@ -30,15 +30,10 @@ const submitValidation = [
 router.get(
   "/",
   authMiddleware,
-  roleMiddleware(["candidate", "super_admin", "franchise_admin"]),
+  // roleMiddleware(["candidate", "super_admin", "franchise_admin"]),
   getAssessments
 );
-router.get(
-  "/:id",
-  authMiddleware,
-  roleMiddleware(["candidate"]),
-  getAssessment
-);
+router.get("/:id", getAssessment);
 router.post(
   "/submit",
   authMiddleware,
