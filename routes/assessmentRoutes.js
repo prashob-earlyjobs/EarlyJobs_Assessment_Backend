@@ -29,7 +29,7 @@ const submitValidation = [
 // Routes
 router.get(
   "/",
-  authMiddleware,
+  // authMiddleware,
   // roleMiddleware(["candidate", "super_admin", "franchise_admin"]),
   getAssessments
 );
