@@ -546,56 +546,70 @@ const sendOtpSms = async (phoneNumber, otp) => {
 
 const sendOtpEmail = async (email, otp) => {
   const emailContent = `
-    <p>Hi,</p>
-    <p>Your verification code for EarlyJobs.in is <strong>${otp}</strong>.</p>
-    <p>This code expires in 5 minutes. Please use it to complete your account creation.</p>
-    <p><strong>Important:</strong> This email contains confidential information. Do not forward or share this code with anyone.</p>
-    <p>If you received this email by mistake or without your consent, please contact <a href="mailto:hr@earlyjobs.in">hr@earlyjobs.in</a> immediately.</p>
-    <p>Thank you,<br>Regards,<br>EarlyJobs.in Team<br>Victaman Enterprises</p>
-  `;
-  const encodedContent = encodeURIComponent(emailContent);
+    <!DOCTYPE html>
+    <html>
+    <body>
+      <p>Hello,</p>
+      <p>Your verification code for EarlyJobs.ai is <strong>${otp}</strong>.</p>
+      <p>This code expires in 5 minutes. Please use it to complete your account creation.</p>
+      <p><strong>Important:</strong> This email contains confidential information. Do not forward or share this code with anyone.</p>
+      <p>If you received this email by mistake or without your consent, please contact <a href="mailto:info@earlyjobs.ai">info@earlyjobs.ai</a> immediately.</p>
+      <p>Thank you,<br>Regards,<br>EarlyJobs Team.
+    </body>
+    </html>`;
+
   const queryParameters = {
     method: "EMS_POST_CAMPAIGN",
     userid: EMAIL_USER_ID,
     password: EMAIL_PASSWORD,
     v: "1.1",
-    contentType: "text/html",
+    content_type: "text/html",
     name: "EarlyJobs OTP Verification",
     fromEmailId: "no-reply@earlyjobs.in",
-    subject: "Your EarlyJobs.in Verification Code",
+    subject: "Your EarlyJobs.ai Verification Code",
     recipients: `${email},hr@earlyjobs.in,no-reply@earlyjobs.in`,
-    content: encodedContent,
+    content: emailContent, // Send raw HTML content
     replyToEmailID: "no-reply@earlyjobs.in",
   };
 
   try {
     const response = await axios.get(EMAIL_API_URL, {
       params: queryParameters,
+      paramsSerializer: (params) => {
+        // Custom serializer to avoid encoding HTML content
+        const searchParams = new URLSearchParams();
+        for (const [key, value] of Object.entries(params)) {
+          searchParams.append(key, value);
+        }
+        return searchParams.toString();
+      },
     });
-    console.log("Email API response:", response);
-    if (response.data.response?.status === "success") {
+    console.log("Email API response:", response.data);
+    // Parse the plain text response
+    const [status, campaignId, message] = response.data
+      .split(" | ")
+      .map((s) => s.trim());
+    if (status === "success") {
       return {
         success: true,
         message: "OTP email sent successfully",
-        id: response.data.response.id,
+        id: campaignId,
       };
     } else {
       return {
         success: false,
-        message: `Email API error: ${response.data.response?.details || response.data?.message || "Unknown error"}`,
+        message: `Email API error: ${message || "Unknown error"}`,
       };
     }
   } catch (error) {
     const errorMessage = error.response
-      ? `Email API error: HTTP ${error.response.status} - ${error.response.data?.message || error.response.data?.details || error.message}`
+      ? `Email API error: HTTP ${error.response.status} - ${error.response.data?.message || error.response.data || error.message}`
       : `Email API error: ${error.message}`;
     console.error(errorMessage);
     return { success: false, message: errorMessage };
   }
 };
 
-// Endpoint to generate and send OTP
-// Endpoint to generate and send OTP
 const generateAndSendOtp = async (req, res) => {
   const { phoneNumber, email, franchiseId = "", tochangePassword } = req.body;
   const userExists = await User.findOne({
@@ -648,13 +662,15 @@ const generateAndSendOtp = async (req, res) => {
   });
 
   const smsResponse = await sendOtpSms(phoneNumber, otp);
-  // const emailResponse = await sendOtpEmail(email, otp);
+  const emailResponse = await sendOtpEmail(email, otp);
+  console.log("emailResponse", emailResponse);
+  console.log("emailResponseMSG", emailResponse.message);
 
   if (!smsResponse.success) {
     return res.status(500).json({
       success: false,
       message: smsResponse.message,
-      // emailRes: emailResponse,
+      emailRes: emailResponse.message,
     });
   }
   if (tochangePassword) {
@@ -662,7 +678,7 @@ const generateAndSendOtp = async (req, res) => {
       success: true,
       message: "OTP sent successfully",
       id: smsResponse.id,
-      // emailRes: emailResponse,
+      emailRes: emailResponse,
       user: userExistsforpasswordchange,
     });
   } else {
