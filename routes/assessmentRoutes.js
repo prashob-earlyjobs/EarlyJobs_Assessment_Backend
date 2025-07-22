@@ -9,6 +9,7 @@ const {
   storeAssessmentDetails,
   matchAssessmentsDetails,
   getPaidAssessments,
+  getShortIdForUrl,
 } = require("../controllers/assessmentController");
 const authMiddleware = require("../middlewares/authMiddleware");
 const roleMiddleware = require("../middlewares/roleMiddleware");
@@ -33,7 +34,6 @@ router.get(
   // roleMiddleware(["candidate", "super_admin", "franchise_admin"]),
   getAssessments
 );
-router.get("/:id", getAssessment);
 router.post(
   "/submit",
   authMiddleware,
@@ -89,4 +89,11 @@ router.get(
   matchAssessmentsDetails
 );
 router.get("/getPaidAssessments/:userId", authMiddleware, getPaidAssessments);
+router.get(
+  "/getShortIdForUrl",
+  authMiddleware,
+  roleMiddleware(["super_admin"]),
+  getShortIdForUrl
+);
+router.get("/:id", getAssessment);
 module.exports = router;

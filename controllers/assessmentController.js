@@ -61,8 +61,15 @@ const getAssessments = async (req, res) => {
 // @route   GET /api/assessments/:id
 // @access  Private (Candidate)
 const getAssessment = async (req, res) => {
+  const id = req.params.id;
+
+  const isValidObjectId = mongoose.Types.ObjectId.isValid(id);
   try {
-    const assessment = await Assessment.findById(req.params.id)
+    const assessment = await Assessment.findOne(
+      isValidObjectId
+        ? { $or: [{ _id: id }, { shortId: id }] }
+        : { shortId: id }
+    )
       .select(
         "-questions.options.isCorrect -questions.testCases.expectedOutput"
       )
@@ -87,6 +94,31 @@ const getAssessment = async (req, res) => {
     res.json({
       success: true,
       data: { assessment },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching assessment",
+      error: error.message,
+    });
+  }
+};
+const getShortIdForUrl = async (req, res) => {
+  try {
+    const totalAssessments = await Assessment.countDocuments();
+    console.log("totalAssessments", totalAssessments);
+
+    const formattedId = "EJA" + String(totalAssessments + 1).padStart(4, "0");
+    console.log(
+      "formattedId",
+      formattedId,
+      "totalAssessments",
+      totalAssessments
+    );
+
+    res.status(200).json({
+      success: true,
+      shortId: formattedId,
     });
   } catch (error) {
     res.status(500).json({
@@ -324,6 +356,7 @@ const addAssessment = async (req, res) => {
       assessmentId,
       pricing,
       offer,
+      shortId,
       isPremium,
     } = req.body;
 
@@ -337,7 +370,8 @@ const addAssessment = async (req, res) => {
       !offer?.title ||
       !offer?.type ||
       !offer?.value ||
-      !offer?.validUntil
+      !offer?.validUntil ||
+      !shortId
     ) {
       return res.status(400).json({
         success: false,
@@ -364,6 +398,7 @@ const addAssessment = async (req, res) => {
       category,
       timeLimit: parseInt(timeLimit),
       // questions: questions || [],
+      shortId,
       passingScore: passingScore || 60,
       isActive: true,
       createdBy: req.user._id,
@@ -414,6 +449,7 @@ const addAssessment = async (req, res) => {
         type: savedAssessment.type,
         category: savedAssessment.category,
         timeLimit: savedAssessment.timeLimit,
+        shortId: savedAssessment.shortId,
         // questions: savedAssessment.questions,
         passingScore: savedAssessment.passingScore,
         isActive: savedAssessment.isActive,
@@ -744,4 +780,5 @@ module.exports = {
   storeAssessmentDetails,
   matchAssessmentsDetails,
   getPaidAssessments,
+  getShortIdForUrl,
 };
