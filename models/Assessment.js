@@ -15,6 +15,11 @@ const assessmentSchema = new mongoose.Schema(
       required: [true, "Assessment ID is required"],
       unique: true,
     },
+    shortId: {
+      type: String,
+      required: [true, "Short ID is required"],
+      unique: true,
+    },
     description: {
       type: String,
       maxLength: [500, "Description cannot exceed 500 characters"],
