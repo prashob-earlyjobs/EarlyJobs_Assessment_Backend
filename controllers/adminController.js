@@ -520,7 +520,7 @@ const getTransactions = async (req, res) => {
       .populate("userId", "name -_id") // Populate candidateName (username) from User model
       .populate("assessmentId", "title -_id") // Populate assessmentTitle from Assessment model
       .select(
-        "transactionId createdAt assessmentId userId transactionAmount franchiserId"
+        "transactionId createdAt assessmentId userId transactionAmount franchiserId offerCode"
       );
 
     // Get total count for pagination
@@ -628,7 +628,7 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
       .populate("userId", "name -_id") // Populate candidateName from User model
       .populate("assessmentId", "title -_id") // Populate assessmentTitle from Assessment model
       .select(
-        "transactionId createdAt assessmentId userId transactionAmount franchiserId referrerId"
+        "transactionId createdAt assessmentId userId transactionAmount franchiserId referrerId offerCode"
       );
 
     // Get total count for pagination
