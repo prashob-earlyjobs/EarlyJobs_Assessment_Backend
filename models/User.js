@@ -89,6 +89,23 @@ const userSchema = new mongoose.Schema(
       sparse: true, // Allows null values and maintains uniqueness for non-null values
     },
     profile: {
+      college: {
+        university: {
+          type: String,
+        },
+        college: {
+          type: String,
+        },
+        college_type: {
+          type: String,
+        },
+        state: {
+          type: String,
+        },
+        district: {
+          type: String,
+        },
+      },
       dateOfBirth: {
         type: String,
         validate: {

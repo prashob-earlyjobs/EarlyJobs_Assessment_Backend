@@ -13,6 +13,7 @@ const {
   resetPassword,
   generateAndSendOtp,
   verifyOtp,
+  getColleges,
 } = require("../controllers/authController");
 const authMiddleware = require("../middlewares/authMiddleware");
 
@@ -67,6 +68,7 @@ router.put("/complete-profile", authMiddleware, completeProfile); // get from on
 router.post("/refresh-token", refreshToken);
 router.get("/verifyFranchiseId/:franchiseId", verifyFranchiseId);
 router.patch("/reset-password/:userId", resetPassword);
+router.get("/colleges", authMiddleware, getColleges);
 
 router.post("/send-otp", generateAndSendOtp);
 router.post("/verify-otp", verifyOtp);
