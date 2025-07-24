@@ -2,6 +2,7 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const collegesList = require("../data/colleges");
 const mongoose = require("mongoose");
 
 const express = require("express");
@@ -389,6 +390,7 @@ const completeProfile = async (req, res) => {
       skills,
       bio,
       resume,
+      college,
       PrefJobLocations,
       PreferredJobRole,
       dateOfBirth,
@@ -402,6 +404,7 @@ const completeProfile = async (req, res) => {
       "profile.skills": skills || [],
       "profile.bio": bio || "",
       "profile.resume": resume || null,
+      "profile.college": college || null,
       "profile.prefJobLocations": PrefJobLocations || [],
     };
 
@@ -716,6 +719,42 @@ const verifyOtp = async (req, res) => {
   res.json({ success: true, message: "OTP verified successfully" });
 };
 
+const getColleges = async (req, res) => {
+  console.log("23swedrtfyguhij");
+  try {
+    // Extract the search query from the request
+    const { search } = req.query;
+
+    // If no search query is provided, return the first 10 colleges
+    if (!search) {
+      const cleanedCollegesList = collegesList.map((item) => ({
+        ...item,
+        university: item.university.replace(/\(Id: U-[^)]+\)/g, "").trim(),
+        college: item.college.replace(/\(Id: C-[^)]+\)/g, "").trim(),
+      }));
+      return res.status(200).json(cleanedCollegesList.slice(0, 10));
+    }
+
+    // Filter colleges where the college name includes the search query (case-insensitive)
+    const filteredColleges = collegesList
+      .filter((college) =>
+        college.college.toLowerCase().includes(search.toLowerCase())
+      )
+      .slice(0, 20); // Limit to first 20 results
+    const cleanedCollegesList = filteredColleges.map((item) => ({
+      ...item,
+      university: item.university.replace(/\(Id: U-[^)]+\)/g, "").trim(),
+      college: item.college.replace(/\(Id: C-[^)]+\)/g, "").trim(),
+    }));
+    // Return the filtered colleges
+    return res.status(200).json(cleanedCollegesList);
+  } catch (error) {
+    // Handle any unexpected errors
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
 module.exports = {
   register,
   login,
@@ -729,4 +768,5 @@ module.exports = {
   generateAndSendOtp,
   resetPassword,
   verifyOtp,
+  getColleges,
 };
