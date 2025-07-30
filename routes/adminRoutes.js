@@ -129,7 +129,7 @@ router.get(
 router.get(
   "/getResultForCandidateAssessment/:interviewId",
   authMiddleware,
-  roleMiddleware(["candidate", "super_admin"]),
+  roleMiddleware(["candidate", "super_admin", "franchise_admin"]),
   async (req, res) => {
     try {
       const data = await callVeloxhireApi(
