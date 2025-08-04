@@ -734,9 +734,13 @@ const matchAssessmentsDetails = async (req, res) => {
     // Log for debugging
 
     if (expiryDate < currentDate) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Assessment link has expired" });
+      return res.status(404).json({
+        success: false,
+        message: "Assessment not found for this user",
+      });
+      // return res
+      //   .status(400)
+      //   .json({ success: false, message: "Assessment link has expired" });
     }
 
     return res.status(200).json({ success: true, data: assessment });

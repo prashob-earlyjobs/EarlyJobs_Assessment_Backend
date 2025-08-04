@@ -613,6 +613,37 @@ const sendOtpEmail = async (email, otp) => {
   }
 };
 
+const sendOtpMobileSms = async (phoneNumber, otp) => {
+  const params = {
+    method: "SendMessage",
+    send_to: `91${phoneNumber}`,
+    msg: `Your OTP is ${otp}. It is valid for 5 minutes. Please do not share it with anyone. www.earlyjobs.ai`,
+    msg_type: "TEXT",
+    userid: "2000258460",
+    auth_scheme: "plain",
+    password: "$c9bZcmp",
+    v: "1.1",
+    format: "text",
+  };
+
+  try {
+    const response = await axios.get(
+      "https://enterprise.smsgupshup.com/GatewayAPI/rest",
+      {
+        params,
+      }
+    );
+
+    if (response.data.toLowerCase().includes("success")) {
+      return { success: true, message: "SMS OTP sent successfully" };
+    } else {
+      return { success: false, message: response.data };
+    }
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+};
+
 const generateAndSendOtp = async (req, res) => {
   const { phoneNumber, email, franchiseId = "", tochangePassword } = req.body;
   const userExists = await User.findOne({
@@ -664,16 +695,19 @@ const generateAndSendOtp = async (req, res) => {
     expiresAt,
   });
 
-  const smsResponse = await sendOtpSms(phoneNumber, otp);
-  const emailResponse = await sendOtpEmail(email, otp);
-  console.log("emailResponse", emailResponse);
-  console.log("emailResponseMSG", emailResponse.message);
+  // const smsResponse = await sendOtpSms(phoneNumber, otp);
+  // const emailResponse = await sendOtpEmail(email, otp);
+  const mobileResponse = await sendOtpMobileSms(phoneNumber, otp);
+  // console.log("emailResponse", emailResponse);
+  // console.log("emailResponseMSG", emailResponse.message);
+  console.log("mobileResponse", mobileResponse);
 
-  if (!smsResponse.success) {
+  if (!mobileResponse.success) {
     return res.status(500).json({
       success: false,
-      message: smsResponse.message,
-      emailRes: emailResponse.message,
+      message: "Error sending OTP via SMS",
+      // message: smsResponse.message,
+      // emailRes: emailResponse.message,
     });
   }
   if (tochangePassword) {
@@ -681,7 +715,7 @@ const generateAndSendOtp = async (req, res) => {
       success: true,
       message: "OTP sent successfully",
       id: smsResponse.id,
-      emailRes: emailResponse,
+      // emailRes: emailResponse,
       user: userExistsforpasswordchange,
     });
   } else {
@@ -689,7 +723,7 @@ const generateAndSendOtp = async (req, res) => {
       success: true,
       message: "OTP sent successfully",
       // emailRes: emailResponse,
-      id: smsResponse.id,
+      // id: smsResponse.id,
     });
   }
 };

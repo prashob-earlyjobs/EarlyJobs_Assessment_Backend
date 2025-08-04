@@ -88,12 +88,19 @@ const callVeloxhireApi = async (
   if (method === "POST" || method === "PUT") {
     config.data = data;
   }
-
-  const res = await axios(config);
-  return {
-    success: true,
-    data: res.data,
-  };
+  try {
+    const res = await axios(config);
+    return {
+      success: true,
+      data: res.data,
+    };
+  } catch (error) {
+    console.log("error", error);
+    return {
+      success: false,
+      message: "Something went wrong please try again later",
+    };
+  }
 };
 
 module.exports = { callVeloxhireApi, getCandidateToken };
