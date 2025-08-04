@@ -42,6 +42,8 @@ app.use(
       "https://franchise.earlyjobs.in",
       "https://www.franchise.earlyjobs.in",
       "http://localhost:3000",
+      "https://nextjs.earlyjobs.ai",
+      "https://dev.earlyjobs.ai"
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
