@@ -109,7 +109,7 @@ router.get(
 router.get(
   "/getCandidatesForAssessment/:assessmentId",
   authMiddleware,
-  roleMiddleware(["super_admin"]),
+  roleMiddleware(["super_admin", "ADMIN"]),
   async (req, res) => {
     try {
       const data = await callVeloxhireApi(
@@ -129,7 +129,7 @@ router.get(
 router.get(
   "/getResultForCandidateAssessment/:interviewId",
   authMiddleware,
-  roleMiddleware(["candidate", "super_admin", "franchise_admin"]),
+  roleMiddleware(["candidate", "super_admin", "franchise_admin", "ADMIN"]),
   async (req, res) => {
     try {
       const data = await callVeloxhireApi(
@@ -153,7 +153,6 @@ router.get("/getRecording/:interviewId", authMiddleware, async (req, res) => {
     const data = await callVeloxhireApi(
       `/report/new/${req.params.interviewId}/recording`
     );
-    console.log("data", data);
     res.json({
       success: true,
       data: data.data,
@@ -170,7 +169,6 @@ router.get("/getTranscript/:interviewId", authMiddleware, async (req, res) => {
     const data = await callVeloxhireApi(
       `/report/new/${req.params.interviewId}/enhanceSpeechTranscript`
     );
-    console.log("data", data);
     res.json({
       success: true,
       data: data.data,
