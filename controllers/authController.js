@@ -695,8 +695,8 @@ const generateAndSendOtp = async (req, res) => {
     expiresAt,
   });
 
-  // const smsResponse = await sendOtpSms(phoneNumber, otp);
-  // const emailResponse = await sendOtpEmail(email, otp);
+  const smsResponse = await sendOtpSms(phoneNumber, otp);
+  const emailResponse = await sendOtpEmail(email, otp);
   const mobileResponse = await sendOtpMobileSms(phoneNumber, otp);
   // console.log("emailResponse", emailResponse);
   // console.log("emailResponseMSG", emailResponse.message);
