@@ -22,7 +22,7 @@ router.get("/resumes", authMiddleware, async (req, res) => {
 
 router.post("/resumes", authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.id
+    const userId = req.user.id || req.user._id;
     const resumeData = req.body
 
     const resume = new Resume({ created_by: userId, ...resumeData })
@@ -76,7 +76,7 @@ router.delete("/resumes/:id", authMiddleware, async (req, res) => {
   }
 });
 
-// ATS analysis route (unchanged)
+
 
 
 
