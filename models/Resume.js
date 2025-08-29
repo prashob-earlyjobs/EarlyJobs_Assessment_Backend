@@ -8,6 +8,11 @@ const resumeSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    sector: {
+      type: String,
+      enum: ["Normal", "JDE", "FromPDF"], 
+      required: true, 
+    },
     personalInfo: {
       fullName: String,
       email: String,
@@ -36,7 +41,8 @@ const resumeSchema = new mongoose.Schema(
         position: String,
         startDate: String,
         endDate: String,
-        description: String,
+        description: [String],
+        index: Number,
       },
     ],
     skills: [String],
@@ -78,7 +84,7 @@ const resumeSchema = new mongoose.Schema(
       },
     ],
     atsScore: Object,
-    pdfBuffer: Buffer, // Store PDF binary
+    pdfBuffer: { type: Buffer, default: null },
     pdfContentType: { type: String, default: "application/pdf" },
   },
   { timestamps: true },
