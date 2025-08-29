@@ -84,7 +84,7 @@ const resumeSchema = new mongoose.Schema(
       },
     ],
     atsScore: Object,
-    pdfBuffer: Buffer, // Store PDF binary
+    pdfBuffer: { type: Buffer, default: null },
     pdfContentType: { type: String, default: "application/pdf" },
   },
   { timestamps: true },
