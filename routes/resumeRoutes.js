@@ -6,33 +6,56 @@ const authMiddleware = require("../middlewares/authMiddleware")
 const router = express.Router()
 
 
-router.get("/resumes", authMiddleware, async (req, res) => {
-  try {
-    const userId = req.user.id
+// router.get("/resumes", authMiddleware, async (req, res) => {
+//   try {
+//     const userId = req.user.id
 
-    const resumes = await Resume.find({ created_by: userId })
-    if (resumes.length === 0) {
-      return res.status(404).json({ success: false, message: "No resumes found" })
-    }
-    res.json({ success: true, data: resumes }) // Return all resumes
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message })
-  }
-})
+//     const resumes = await Resume.find({ created_by: userId })
+//     if (resumes.length === 0) {
+//       return res.status(404).json({ success: false, message: "No resumes found" })
+//     }
+//     res.json({ success: true, data: resumes }) // Return all resumes
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: error.message })
+//   }
+// })
 
-router.post("/resumes", authMiddleware, async (req, res) => {
+router.post("/resumes/fromForm", authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id || req.user._id;
     const resumeData = req.body
 
-    const resume = new Resume({ created_by: userId, ...resumeData })
+    const resume = new Resume({ created_by: userId, sector: "Normal", ...resumeData })
     await resume.save()
     res.json({ success: true, data: resume })
   } catch (error) {
     res.status(500).json({ success: false, message: error.message })
   }
 })
+router.post("/resumes/fromPDF", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const resumeData = req.body
 
+    const resume = new Resume({ created_by: userId, sector: "FromPDF", ...resumeData })
+    await resume.save()
+    res.json({ success: true, data: resume })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+})
+router.post("/resumes/fromJDE", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const resumeData = req.body
+
+    const resume = new Resume({ created_by: userId, sector: "JDE", ...resumeData })
+    await resume.save()
+    res.json({ success: true, data: resume })
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message })
+  }
+})
 
 router.put("/resumes/:id", authMiddleware, async (req, res) => {
   try {

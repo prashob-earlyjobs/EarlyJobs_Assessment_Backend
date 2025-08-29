@@ -8,6 +8,11 @@ const resumeSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    sector: {
+      type: String,
+      enum: ["Normal", "JDE", "FromPDF"], 
+      required: true, 
+    },
     personalInfo: {
       fullName: String,
       email: String,
