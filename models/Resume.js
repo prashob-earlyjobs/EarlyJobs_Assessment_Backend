@@ -74,7 +74,7 @@ const resumeSchema = new mongoose.Schema(
         endDate: String,
       },
     ],
-    profilePicture: String, // Base64 string
+   
     template: String,
     sectionOrder: [
       {

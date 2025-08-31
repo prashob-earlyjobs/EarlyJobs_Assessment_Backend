@@ -20,17 +20,40 @@ router.get("/resumes", authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/resumes/fromForm", authMiddleware, async (req, res) => {
-  try {
-    const userId = req.user.id || req.user._id;
-    const resumeData = req.body;
-    const resume = new Resume({ created_by: userId, sector: "Normal", ...resumeData });
-    await resume.save();
-    res.json({ success: true, data: resume });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+router.post(
+  "/resumes/fromForm",
+  authMiddleware,
+  upload.single("pdf"), 
+  async (req, res) => {
+    try {
+      const userId = req.user.id || req.user._id;
+
+      // resumeData comes as string, need to parse it
+      const resumeData = JSON.parse(req.body.resumeData);
+
+      // handle pdf file (optional)
+      let pdfBuffer = null;
+      let pdfContentType = "application/pdf";
+      if (req.file) {
+        pdfBuffer = req.file.buffer;
+        pdfContentType = req.file.mimetype;
+      }
+
+      const resume = new Resume({
+        created_by: userId,
+        sector: "Normal",
+        ...resumeData,
+        pdfBuffer,
+        pdfContentType,
+      });
+
+      await resume.save();
+      res.json({ success: true, data: resume });
+    } catch (error) {
+      console.error("Error saving resume:", error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  });
 
 router.post("/resumes/fromPDF", authMiddleware, async (req, res) => {
   try {
