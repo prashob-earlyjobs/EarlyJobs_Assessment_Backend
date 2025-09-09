@@ -7,6 +7,7 @@ const {
   getFranchiser,
   getTransactions,
   getFranchiseTransactionsAndEarnings,
+  getFranchiseTransactionsForEarlyjobs,
   addFranchiser,
   getFranchises,
 } = require("../controllers/adminController");
@@ -30,7 +31,7 @@ const router = express.Router();
 router.get(
   "/getUsers",
   authMiddleware,
-  roleMiddleware(["super_admin"]),
+  roleMiddleware(["super_admin", "ADMIN"]),
   getAllUsers
 );
 router.put(
@@ -42,7 +43,7 @@ router.put(
 router.get(
   "/getUsersForFranchise/:franchiseId",
   authMiddleware,
-  roleMiddleware(["franchise_admin"]),
+  roleMiddleware(["franchise_admin", "FBDE", "ADMIN"]),
   getFranchiseUsers
 );
 
@@ -68,7 +69,7 @@ router.get(
 router.get(
   "/getTransactions/",
   authMiddleware,
-  roleMiddleware(["super_admin"]),
+  roleMiddleware(["super_admin", "ADMIN"]),
   getTransactions
 );
 router.get(
@@ -77,7 +78,12 @@ router.get(
   roleMiddleware(["franchise_admin"]),
   getFranchiseTransactionsAndEarnings
 );
-
+router.get(
+  "/franchise/getTransactions/earlyjobs/:bdeReferralId",
+  authMiddleware,
+  roleMiddleware(["FBDE"]),
+  getFranchiseTransactionsForEarlyjobs
+);
 router.post(
   "/addFranchiser",
   authMiddleware,
@@ -129,7 +135,13 @@ router.get(
 router.get(
   "/getResultForCandidateAssessment/:interviewId",
   authMiddleware,
-  roleMiddleware(["candidate", "super_admin", "franchise_admin", "ADMIN"]),
+  roleMiddleware([
+    "candidate",
+    "super_admin",
+    "franchise_admin",
+    "ADMIN",
+    "FBDE",
+  ]),
   async (req, res) => {
     try {
       const data = await callVeloxhireApi(
