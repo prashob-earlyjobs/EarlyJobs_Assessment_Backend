@@ -23,7 +23,7 @@ const authMiddleware = async (req, res, next) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       console.log("decoded", decoded);
-      if (decoded.role === "ADMIN") {
+      if (decoded.role === "ADMIN" || decoded.role === "FBDE") {
         req.user = decoded;
         return next();
       }
