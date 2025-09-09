@@ -31,6 +31,7 @@ const assessmentSchema = new mongoose.Schema(
     },
     category: {
       type: String,
+      enum: ["technical", "non-technical"],
       required: true,
     },
     timeLimit: {
