@@ -41,6 +41,8 @@ app.use(
       "https://early-jobs-assessment-frontend-5n6w4951x-earlyjobs-projects.vercel.app",
       "https://www.earlyjobs.in",
       "https://earlyjobs.in",
+      "https://dev2.earlyjobs.in",
+      "https://www.dev2.earlyjobs.in",
       "https://franchise.earlyjobs.in",
       "https://www.franchise.earlyjobs.in",
       "http://localhost:3000",
