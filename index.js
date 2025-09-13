@@ -24,6 +24,7 @@ const tranctions = require("./routes/transactions");
 const offerRoutes = require("./routes/offerRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const resumeRoutes = require('./routes/resumeRoutes');
+const browseCandidateRoutes = require("./routes/browseCandidateRoutes")
 //const resumeRoutes =require("./routes/resumeRoutes");
 
 // const profileRoutes = require('./routes/profileRoutes');
@@ -100,6 +101,7 @@ app.use("/api/transactions", tranctions);
 app.use("/api/offers", offerRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use('/api', resumeRoutes);
+app.use('/api/browseCandidates', browseCandidateRoutes )
 //app.use("/api/resume", resumeRoutes);
 // app.use('/api/results', resultRoutes);
 // app.use('/api/profile', profileRoutes);
