@@ -14,6 +14,7 @@ const errorHandler = require("./middlewares/errorHandler");
 // Route imports
 
 const authRoutes = require("./routes/authRoutes");
+const otpRoutes= require("./routes/otpRoutes")
 const assessmentRoutes = require("./routes/assessmentRoutes");
 const resultRoutes = require("./routes/resultRoutes");
 const adminRoutes = require("./routes/adminRoutes");
@@ -104,7 +105,7 @@ app.use("/api/getOrderIdForPayment", authMiddleware, createOrder);
 app.use("/api/transactions", tranctions);
 app.use("/api/offers", offerRoutes);
 app.use("/api/upload", uploadRoutes);
-
+app.use("/api",otpRoutes);
 app.use('/api', resumeRoutes);
 app.use('/api/browseCandidates', browseCandidateRoutes )
 
