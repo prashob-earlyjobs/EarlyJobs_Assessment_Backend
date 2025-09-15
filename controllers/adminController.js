@@ -717,6 +717,128 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
   }
 };
 
+const getFranchiseTransactionsForEarlyjobs = async (req, res) => {
+  try {
+    const { bdeReferralId } = req.params;
+    const franchiserId = bdeReferralId;
+    const { page = 1, limit = 10 } = req.query;
+    console.log("req.user", bdeReferralId);
+    // Validate franchiserId
+    if (!franchiserId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Franchiser ID is required" });
+    }
+
+    // Validate page and limit
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    if (pageNum < 1 || limitNum < 1) {
+      return res.status(400).json({
+        success: false,
+        message: "Page and limit must be positive integers",
+      });
+    }
+
+    console.log("franchiserId", franchiserId);
+    // Query transactions where franchiserId matches or userId matches franchiserId
+    const transactions = await Transactions.find({
+      $or: [{ referrerId: franchiserId }],
+    })
+      .limit(limitNum)
+      .skip((pageNum - 1) * limitNum)
+      .sort({ createdAt: -1 })
+      .populate("userId", "name -_id") // Populate candidateName from User model
+      .populate("assessmentId", "title -_id") // Populate assessmentTitle from Assessment model
+      .select(
+        "transactionId createdAt assessmentId userId transactionAmount franchiserId referrerId offerCode"
+      );
+
+    // Get total count for pagination
+    const total = await Transactions.countDocuments({
+      $or: [{ referrerId: franchiserId }],
+    });
+    console.log("transactions", transactions, "total", total);
+
+    // Fetch franchise names by matching franchiserId with User _id
+    const franchiseIds = transactions
+      .map((t) => t.referrerId)
+      .filter((id) => id);
+    const franchiseUsers = await User.find({
+      referrerId: { $in: franchiseIds },
+    }).select("name _id referrerId");
+
+    console.log("franchiseUsers", franchiseUsers, "franchiseIds", franchiseIds);
+
+    // Map transactions with populated and calculated fields
+    const apiCost = 307; // Fixed API cost per transaction
+    const transactionsWithCommission = transactions.map((transaction) => {
+      const franchiseUser = franchiseUsers.find(
+        (u) => u.referrerId === transaction.referrerId
+      );
+
+      return {
+        ...transaction.toObject(),
+        candidateName: transaction.userId?.name || "Unknown",
+        assessmentTitle: transaction.assessmentId?.title || "Unknown",
+        franchiseCommission:
+          transaction.transactionAmount > apiCost
+            ? ((transaction.transactionAmount - apiCost) * 0.7).toFixed(2)
+            : "0.00",
+        franchiseName: franchiseUser ? franchiseUser.name : "Unknown",
+      };
+    });
+    console.log("transactionsWithCommission", transactionsWithCommission);
+    // Calculate total earnings (70% of total transaction amounts minus API cost)
+    const totalTransactions = await Transactions.find({
+      referrerId: franchiserId,
+    });
+    const apiCostTotal = apiCost * totalTransactions.length; // API cost scaled by transaction count
+    const totalAmountResult = await Transactions.aggregate([
+      { $match: { referrerId: franchiserId } },
+      { $group: { _id: null, totalAmount: { $sum: "$transactionAmount" } } },
+    ]);
+    const totalAmount =
+      totalAmountResult.length > 0 ? totalAmountResult[0].totalAmount : 0;
+    const totalCommission = (totalAmount - apiCostTotal) * 0.7;
+
+    console.log(
+      "totalCommission",
+      totalCommission,
+      "totalAmount",
+      totalAmount,
+      "apiCostTotal",
+      apiCostTotal
+    );
+
+    res.json({
+      success: true,
+      data: {
+        transactions: transactionsWithCommission,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          pages: Math.ceil(total / limitNum) || 0,
+        },
+        earnings: {
+          totalCommission:
+            totalCommission >= 0 ? parseFloat(totalCommission.toFixed(2)) : 0.0,
+          totalAmount,
+          apiCost: apiCostTotal,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching transactions and earnings:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching transactions and earnings",
+      error: error.message,
+    });
+  }
+};
+
 const addFranchiser = async (req, res) => {
   const {
     name,
@@ -872,4 +994,5 @@ module.exports = {
   getTransactions,
   addFranchiser,
   getFranchiseTransactionsAndEarnings,
+  getFranchiseTransactionsForEarlyjobs,
 };

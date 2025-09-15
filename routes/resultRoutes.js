@@ -6,12 +6,12 @@ const {
   createResult
 } = require('../controllers/resultController');
 const authMiddleware = require('../middlewares/authMiddleware');
-const { getPublicResults } = require('../controllers/resultPublicController');
+
 
 const router = express.Router();
 
 // Routes
-router.get('/public', getPublicResults);
+
 router.get('/', authMiddleware, getMyResults);
 router.get('/analytics', authMiddleware, getAnalytics);
 router.get('/:id', authMiddleware, getResult);
