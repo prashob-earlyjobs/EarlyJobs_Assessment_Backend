@@ -14,6 +14,7 @@ const errorHandler = require("./middlewares/errorHandler");
 // Route imports
 
 const authRoutes = require("./routes/authRoutes");
+const otpRoutes= require("./routes/otpRoutes")
 const assessmentRoutes = require("./routes/assessmentRoutes");
 const resultRoutes = require("./routes/resultRoutes");
 const adminRoutes = require("./routes/adminRoutes");
@@ -23,7 +24,10 @@ const authMiddleware = require("./middlewares/authMiddleware");
 const tranctions = require("./routes/transactions");
 const offerRoutes = require("./routes/offerRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
-const resumeRoutes = require("./routes/resumeRoutes");
+
+const resumeRoutes = require('./routes/resumeRoutes');
+const browseCandidateRoutes = require("./routes/browseCandidateRoutes")
+
 //const resumeRoutes =require("./routes/resumeRoutes");
 
 // const profileRoutes = require('./routes/profileRoutes');
@@ -101,7 +105,10 @@ app.use("/api/getOrderIdForPayment", authMiddleware, createOrder);
 app.use("/api/transactions", tranctions);
 app.use("/api/offers", offerRoutes);
 app.use("/api/upload", uploadRoutes);
-app.use("/api", resumeRoutes);
+app.use("/api",otpRoutes);
+app.use('/api', resumeRoutes);
+app.use('/api/browseCandidates', browseCandidateRoutes )
+
 //app.use("/api/resume", resumeRoutes);
 // app.use('/api/results', resultRoutes);
 // app.use('/api/profile', profileRoutes);
