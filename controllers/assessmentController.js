@@ -539,11 +539,13 @@ const editAssessment = async (req, res) => {
   }
 };
 
+
+
 const getAssessmentsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    // Fetch user data to get assessmentsPaid
+    
     const user = await User.findById(userId);
     if (!user) {
       return res

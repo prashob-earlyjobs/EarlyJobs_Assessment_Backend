@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { getAllCandidates } = require('../controllers/candidateController');
+const { getAllCandidates ,getassessmentsByUser} = require('../controllers/candidateController');
 const {callVeloxhireApi} = require('../controllers/veloxhireController')
 
 
 router.get('/candidates', getAllCandidates);
+router.get('/assessments/:userId',getassessmentsByUser);
 router.get(
   "/getResultForCandidateAssessment/:interviewId",
   
