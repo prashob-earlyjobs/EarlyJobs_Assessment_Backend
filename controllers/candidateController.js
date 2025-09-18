@@ -46,7 +46,7 @@ const getAllCandidates = async (req, res) => {
       assessmentsPaid: { $exists: true, $not: { $size: 0 } }
     })
       .select('-password')
-      
+      .sort({ createdAt: -1 })
       .lean();
 
     if (!candidates || candidates.length === 0) {
