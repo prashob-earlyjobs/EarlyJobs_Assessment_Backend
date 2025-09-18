@@ -130,7 +130,7 @@ router.put('/resumes/:id', authMiddleware, upload.single('pdf'), async (req, res
           extracurriculars: resumeData.extracurriculars,
           template: resumeData.template,
           sectionOrder: resumeData.sectionOrder,
-          pdfBuffer: pdfFile ? pdfFile.buffer : existingResume.pdfBuffer, // Preserve existing PDF if none provided
+          pdfBuffer: pdfFile ? pdfFile.buffer : existingResume.pdfBuffer, 
           updated_at: new Date(),
         },
       },
