@@ -11,24 +11,29 @@ const generateQuestions = async () => {
 Question selection rules:  
 - The first 2 questions should be short-answer conceptual questions.  
 - The 3rd question should be a coding/logic question that can be answered in any programming language.  
-- To ensure variety, randomly choose questions from the following categories:  
-  • Variables and Data Types  
-  • Operators and Expressions  
-  • Conditional Statements (if/else, switch)  
-  • Loops (for, while, do-while)  
-  • Functions and Scope  
-  • Arrays and Strings  
-  • Object-Oriented Programming (classes, objects, inheritance)  
-  • Data Structures (stack, queue, linked list, etc.)  
-  • Algorithms (sorting, searching, recursion)  
-  • Debugging and Error Handling  
-  • Input/Output operations  
-  • Pattern Printing  
 
-Additional rules:  
-- Do not repeat the same category more than once in a single call.  
-- For the coding/logic question, rotate between arrays, strings, loops, conditions, and patterns.  
-- If the coding question involves a pattern, show the expected output in proper multi-line format (not a single line).  
+To ensure variety, randomly choose questions from the following categories:  
+• Variables and Data Types  
+• Operators and Expressions  
+• Conditional Statements (if/else, switch)  
+• Loops (for, while, do-while)  
+• Functions and Scope  
+• Arrays and Strings  
+• Object-Oriented Programming (classes, objects, inheritance)  
+• Data Structures (stack, queue, linked list, etc.)  
+• Algorithms (sorting, searching, recursion)  
+• Debugging and Error Handling  
+• Input/Output operations  
+• Pattern Printing  
+
+Rules for the 3rd (coding/logic) question:  
+- Randomly pick from one of these types:  
+  • Array-based problem (sum, max, reverse, etc.)  
+  • String manipulation (palindrome, count vowels, etc.)  
+  • Loop/condition logic (factors, prime, etc.)  
+  • Pattern printing (triangle, pyramid, etc.)  
+  • Simple algorithm (searching, sorting, recursion).  
+- If the question involves a pattern, show the expected output in proper multi-line format (not a single line).  
 
 For each question, provide:  
 1. The question text.  
