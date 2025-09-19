@@ -7,13 +7,32 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const generateQuestions = async () => {
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   const prompt = `Generate exactly 3 unique, beginner-to-intermediate level questions in common programming.  
-- The first 2 questions should be short-answer conceptual questions (e.g., definitions, differences, usage).  
-- The 3rd question should be a coding/logic question (e.g., arrays, loops, patterns, etc.) that can be answered in any programming language.  
+
+Question selection rules:  
+- The first 2 questions should be short-answer conceptual questions.  
+- The 3rd question should be a coding/logic question that can be answered in any programming language.  
+- To ensure variety, randomly choose questions from the following categories:  
+  • Variables and Data Types  
+  • Operators and Expressions  
+  • Conditional Statements (if/else, switch)  
+  • Loops (for, while, do-while)  
+  • Functions and Scope  
+  • Arrays and Strings  
+  • Object-Oriented Programming (classes, objects, inheritance)  
+  • Data Structures (stack, queue, linked list, etc.)  
+  • Algorithms (sorting, searching, recursion)  
+  • Debugging and Error Handling  
+  • Input/Output operations  
+  • Pattern Printing  
+
+Additional rules:  
+- Do not repeat the same category more than once in a single call.  
+- For the coding/logic question, rotate between arrays, strings, loops, conditions, and patterns.  
+- If the coding question involves a pattern, show the expected output in proper multi-line format (not a single line).  
 
 For each question, provide:  
 1. The question text.  
 2. A brief correct answer explanation (for validation later).  
-   - If the question involves generating a pattern, show the expected output in proper multi-line format (not in a single line).  
 
 Respond ONLY with valid JSON array in the format:  
 [{"question": "...", "expectedAnswer": "..."}, ...]`;
