@@ -119,6 +119,42 @@ const registerCandidate = async (req, res) => {
   }
 };
 
+const getallusers = async (req, res) => {
+  try {
+    // query params
+    const { page = 1, limit = 10, search = "" } = req.query;
+
+    // search condition (modify according to your schema fields)
+    let query = {};
+    if (search) {
+      query = {
+        $or: [
+          { name: { $regex: search, $options: "i" } }, // case-insensitive
+          { email: { $regex: search, $options: "i" } },
+        ],
+      };
+    }
+
+    // pagination logic
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const users = await Exam.find(query).skip(skip).limit(Number(limit));
+
+    const total = await Exam.countDocuments(query);
+
+    res.json({
+      total, // total matching records
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / limit),
+      users,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 // 2. Get Questions for Exam
 const getQuestions = async (req, res) => {
   try {
@@ -196,4 +232,5 @@ module.exports = {
   registerCandidate,
   getQuestions,
   submitAnswers,
+  getallusers,
 };

@@ -53,6 +53,7 @@ app.use(
       "http://localhost:3000",
       "https://nextjs.earlyjobs.ai",
       "https://dev.earlyjobs.ai",
+      "https://portal.earlyjobs.ai",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
