@@ -1,10 +1,6 @@
 const User = require('../models/User');
 const Assessment = require("../models/Assessment");
 
-
-
-
-
 const getassessmentsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -40,7 +36,6 @@ const getassessmentsByUser = async (req, res) => {
 
 const getAllCandidates = async (req, res) => {
   try {
-    
     const candidates = await User.find({ 
       role: 'candidate',
       assessmentsPaid: { $exists: true, $not: { $size: 0 } }
@@ -56,10 +51,20 @@ const getAllCandidates = async (req, res) => {
       });
     }
 
+    // Exclude the last 7 candidates
+    const filteredCandidates = candidates.slice(0, -7);
+
+    if (filteredCandidates.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No candidates remain after excluding the last 7'
+      });
+    }
+
     res.status(200).json({
       success: true,
-      count: candidates.length,
-      data: candidates
+      count: filteredCandidates.length,
+      data: filteredCandidates
     });
   } catch (error) {
     console.error('Error fetching candidates:', error);
@@ -70,4 +75,5 @@ const getAllCandidates = async (req, res) => {
     });
   }
 };
-module.exports = { getAllCandidates , getassessmentsByUser};
+
+module.exports = { getAllCandidates, getassessmentsByUser };
