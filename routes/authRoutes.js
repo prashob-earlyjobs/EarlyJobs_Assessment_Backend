@@ -16,6 +16,7 @@ const {
   getColleges,
 } = require("../controllers/authController");
 const authMiddleware = require("../middlewares/authMiddleware");
+const { uploadAvatar } = require("../middlewares/multerAvatar");
 
 const router = express.Router();
 
