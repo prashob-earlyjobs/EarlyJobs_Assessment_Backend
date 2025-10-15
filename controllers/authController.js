@@ -395,9 +395,12 @@ const completeProfile = async (req, res) => {
       PreferredJobRole,
       dateOfBirth,
       gender,
+      avatar
+      
     } = req.body;
 
     const updatedFields = {
+      avatar,
       "profile.preferredJobRole": PreferredJobRole,
       "profile.dateOfBirth": dateOfBirth,
       "profile.gender": gender,
@@ -406,6 +409,7 @@ const completeProfile = async (req, res) => {
       "profile.resume": resume || null,
       "profile.college": college || null,
       "profile.prefJobLocations": PrefJobLocations || [],
+      
     };
 
     const user = await User.findByIdAndUpdate(
