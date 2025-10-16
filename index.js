@@ -28,6 +28,7 @@ const resumeRoutes = require("./routes/resumeRoutes");
 const examRoutes = require("./routes/exam.route");
 
 const browseCandidateRoutes = require("./routes/browseCandidateRoutes");
+const certificateRoutes = require("./routes/certificateRoutes");
 
 //const resumeRoutes =require("./routes/resumeRoutes");
 
@@ -111,6 +112,7 @@ app.use("/api/exam", examRoutes);
 app.use("/api", otpRoutes);
 app.use("/api", resumeRoutes);
 app.use("/api/browseCandidates", browseCandidateRoutes);
+app.use("/api/certificates", certificateRoutes);
 
 //app.use("/api/resume", resumeRoutes);
 // app.use('/api/results', resultRoutes);
