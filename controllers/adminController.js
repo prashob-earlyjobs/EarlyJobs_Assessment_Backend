@@ -1,9 +1,10 @@
-const Assessment = require("../models/Assessment");
+const Assessment =require("../models/Assessment");
 const User = require("../models/User");
 const Transactions = require("../models/transactions");
 const Result = require("../models/Result");
 
 const { validationResult } = require("express-validator");
+
 
 // @desc    Create new assessment
 // @route   POST /api/admin/assessments
@@ -717,6 +718,10 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
   }
 };
 
+
+
+
+
 const getFranchiseTransactionsForEarlyjobs = async (req, res) => {
   try {
     const { bdeReferralId } = req.params;
@@ -995,4 +1000,5 @@ module.exports = {
   addFranchiser,
   getFranchiseTransactionsAndEarnings,
   getFranchiseTransactionsForEarlyjobs,
+  
 };
