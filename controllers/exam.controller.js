@@ -65,7 +65,7 @@ const generateQuestions = async (usedQuestions = []) => {
 
 
 const validateAnswer = async (question, userAnswer) => {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   const prompt = `Question: ${question}
 User Answer: ${userAnswer}
 
@@ -251,7 +251,7 @@ const submitAnswers = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
