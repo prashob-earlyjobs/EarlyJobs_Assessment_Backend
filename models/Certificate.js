@@ -13,7 +13,7 @@ const certificateSchema = new mongoose.Schema(
       required: [true, "Interview ID is required"],
       trim: true,
     },
-    cerficateno: {
+    certificateno: {
       type: String,
       required: [true, "Certificate number is required"],
       unique: true,
@@ -25,7 +25,7 @@ const certificateSchema = new mongoose.Schema(
       ref: "Assessment",
       required: [true, "Assessment ID is required"],
     },
-    cerficatelink: {
+    certificatelink: {
       type: String,
       required: [true, "Certificate link is required"],
       trim: true,
@@ -49,6 +49,6 @@ const certificateSchema = new mongoose.Schema(
 certificateSchema.index({ userid: 1 });
 certificateSchema.index({ assessmentid: 1 });
 certificateSchema.index({ interviewid: 1 });
-certificateSchema.index({ cerficateno: 1 });
+certificateSchema.index({ certificateno: 1 });
 
 module.exports = mongoose.model("Certificate", certificateSchema);

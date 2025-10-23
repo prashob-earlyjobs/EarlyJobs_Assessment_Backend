@@ -75,5 +75,35 @@ const getAllCandidates = async (req, res) => {
     });
   }
 };
+const getUserIdByInterviewId = async (req, res) => {
+  try {
+    const { interviewId } = req.params;
 
-module.exports = { getAllCandidates, getassessmentsByUser };
+    
+    const candidate = await User.findOne({
+      "assessmentsPaid.interviewId": interviewId,
+    }).select("_id name email");
+
+    if (!candidate) {
+      return res.status(404).json({
+        success: false,
+        message: "No candidate found for this interview ID",
+      });
+    }
+
+    res.json({
+      success: true,
+      userId: candidate._id, 
+      name: candidate.name,
+      email: candidate.email,
+    });
+  } catch (error) {
+    console.error("Error fetching user ID by interviewId:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+module.exports = { getAllCandidates, getassessmentsByUser, getUserIdByInterviewId };

@@ -4,6 +4,7 @@ const Result = require('../models/Result');
 const Assessment = require('../models/Assessment');
 const User = require('../models/User');
 
+
 router.post("/assessment-result", async (req, res) => {
   try {
     const resultData = req.body;
@@ -29,5 +30,7 @@ router.post("/assessment-result", async (req, res) => {
     res.status(500).json({ message: "Error storing result" });
   }
 });
+
+
 
 module.exports = router;

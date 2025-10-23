@@ -6,7 +6,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // 1. Register User and Generate Questions
 const generateQuestions = async (usedQuestions = []) => {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   
   const createPrompt = (usedQ) => `Generate exactly 3 unique, beginner-to-intermediate level questions in common programming.
   Make sure that the questions are unique from the provided list of used questions.
@@ -142,7 +142,7 @@ const registerCandidate = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: err.message });
   }
 }
 

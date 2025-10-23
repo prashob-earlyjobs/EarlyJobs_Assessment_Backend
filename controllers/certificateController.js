@@ -20,7 +20,7 @@ const verifyCertificate = async (req, res) => {
 
     // Find certificate by certificate number
     const certificate = await Certificate.findOne({ 
-      cerficateno: certificateNo.toUpperCase(),
+      certificateno: certificateNo.toUpperCase(),
       isActive: true 
     })
       .populate('userid', 'name email mobile')
@@ -40,10 +40,10 @@ const verifyCertificate = async (req, res) => {
       data: {
         certificate: {
           _id: certificate._id,
-          certificateNumber: certificate.cerficateno,
+          certificateNumber: certificate.certificateno,
           interviewId: certificate.interviewid,
           issuedDate: certificate.issuedDate,
-          certificateLink: certificate.cerficatelink,
+          certificateLink: certificate.certificatelink,
           user: {
             name: certificate.userid?.name,
             email: certificate.userid?.email,
@@ -95,10 +95,10 @@ const getUserCertificates = async (req, res) => {
       data: {
         certificates: certificates.map(cert => ({
           _id: cert._id,
-          certificateNumber: cert.cerficateno,
+          certificateNumber: cert.certificateno,
           interviewId: cert.interviewid,
           issuedDate: cert.issuedDate,
-          certificateLink: cert.cerficatelink,
+          certificateLink: cert.certificatelink,
           assessment: {
             title: cert.assessmentid?.title,
             category: cert.assessmentid?.category,
@@ -123,13 +123,13 @@ const getUserCertificates = async (req, res) => {
 // @access  Private (Admin)
 const createCertificate = async (req, res) => {
   try {
-    const { userid, interviewid, cerficateno, assessmentid, cerficatelink } = req.body;
+    const { userid, interviewid, certificateno, assessmentid, certificatelink } = req.body;
 
     // Validate required fields
-    if (!userid || !interviewid || !cerficateno || !assessmentid || !cerficatelink) {
+    if (!userid || !interviewid || !certificateno || !assessmentid || !certificatelink) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required: userid, interviewid, cerficateno, assessmentid, cerficatelink",
+        message: "All fields are required: userid, interviewid, certificateno, assessmentid, certificatelink",
       });
     }
 
@@ -160,7 +160,7 @@ const createCertificate = async (req, res) => {
     }
 
     // Check if certificate number already exists
-    const existingCertificate = await Certificate.findOne({ cerficateno: cerficateno.toUpperCase() });
+    const existingCertificate = await Certificate.findOne({ certificateno: certificateno.toUpperCase() });
     if (existingCertificate) {
       return res.status(400).json({
         success: false,
@@ -172,9 +172,9 @@ const createCertificate = async (req, res) => {
     const certificate = await Certificate.create({
       userid,
       interviewid,
-      cerficateno: cerficateno.toUpperCase(),
+      certificateno: certificateno.toUpperCase(),
       assessmentid,
-      cerficatelink,
+      certificatelink,
     });
 
     // Populate the created certificate
@@ -187,10 +187,10 @@ const createCertificate = async (req, res) => {
       data: {
         certificate: {
           _id: certificate._id,
-          certificateNumber: certificate.cerficateno,
+          certificateNumber: certificate.certificateno,
           interviewId: certificate.interviewid,
           issuedDate: certificate.issuedDate,
-          certificateLink: certificate.cerficatelink,
+          certificateLink: certificate.certificatelink,
           user: {
             name: certificate.userid?.name,
             email: certificate.userid?.email,
@@ -208,7 +208,7 @@ const createCertificate = async (req, res) => {
     if (error.code === 11000) {
       return res.status(400).json({
         success: false,
-        message: "Certificate number already exists",
+        message: error.message,
       });
     }
     
@@ -253,10 +253,10 @@ const getCertificateById = async (req, res) => {
       data: {
         certificate: {
           _id: certificate._id,
-          certificateNumber: certificate.cerficateno,
+          certificateNumber: certificate.certificateno,
           interviewId: certificate.interviewid,
           issuedDate: certificate.issuedDate,
-          certificateLink: certificate.cerficatelink,
+          certificateLink: certificate.certificatelink,
           user: {
             name: certificate.userid?.name,
             email: certificate.userid?.email,

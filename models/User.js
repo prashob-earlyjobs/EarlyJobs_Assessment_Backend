@@ -1,4 +1,4 @@
-// models/User.js
+
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema(
     referrerId: {
       type: String || null,
       default: null,
-    }, // Optional field for referral tracking
+    },
     franchiserId: {
       type: mongoose.Schema.Types.ObjectId || null,
       default: null,
@@ -56,7 +56,7 @@ const userSchema = new mongoose.Schema(
     googleId: {
       type: String,
       unique: true,
-      sparse: true, // Allows null values and maintains uniqueness for non-null values
+      sparse: true,
     },
     authProvider: {
       type: String,
@@ -83,36 +83,33 @@ const userSchema = new mongoose.Schema(
         createdAt: { type: Date, default: Date.now },
       },
     ],
+    certificates: [
+        {
+          type: String,
+          
+          default:[],
+        },
+      ],
     inviteLink: {
       type: String,
       unique: true,
-      sparse: true, // Allows null values and maintains uniqueness for non-null values
+      sparse: true,
     },
     profile: {
       college: {
-        university: {
-          type: String,
-        },
-        college: {
-          type: String,
-        },
-        college_type: {
-          type: String,
-        },
-        state: {
-          type: String,
-        },
-        district: {
-          type: String,
-        },
+        university: { type: String },
+        college: { type: String },
+        college_type: { type: String },
+        state: { type: String },
+        district: { type: String },
       },
       dateOfBirth: {
         type: String,
         validate: {
           validator: function (value) {
-            if (!value) return false; // Allow empty value
+            if (!value) return false;
             const birthDate = new Date(value);
-            if (isNaN(birthDate.getTime())) return false; // Invalid date string
+            if (isNaN(birthDate.getTime())) return false;
             const today = new Date();
             return birthDate <= today;
           },
@@ -198,7 +195,6 @@ const userSchema = new mongoose.Schema(
             },
             fieldOfStudy: {
               type: String,
-              // required: [false, 'Field of study is required'],
               trim: true,
               maxLength: [100, "Field of study cannot exceed 100 characters"],
             },
@@ -217,7 +213,6 @@ const userSchema = new mongoose.Schema(
           },
         ],
       },
-
       gender: {
         type: String,
         enum: ["Male", "Female", "Other"],
@@ -249,6 +244,7 @@ const userSchema = new mongoose.Schema(
           trim: true,
         },
       ],
+      
       experience: [
         {
           title: {
@@ -279,7 +275,7 @@ const userSchema = new mongoose.Schema(
             type: Date,
             validate: {
               validator: function (value) {
-                if (!value) return true; // Allow null for current jobs
+                if (!value) return true;
                 return value >= this.from;
               },
               message: "End date must be after start date",
@@ -296,7 +292,6 @@ const userSchema = new mongoose.Schema(
           },
         },
       ],
-
       preferences: {
         jobType: {
           type: String,
@@ -329,7 +324,6 @@ const userSchema = new mongoose.Schema(
         },
       },
     },
-
     isEmailVerified: {
       type: Boolean,
       default: false,
@@ -354,7 +348,6 @@ const userSchema = new mongoose.Schema(
 
 // Modify password encryption to handle Google users
 userSchema.pre("save", async function (next) {
-  // Skip password encryption for Google users
   if (this.authProvider === "google") {
     next();
     return;
@@ -372,7 +365,7 @@ userSchema.pre("save", async function (next) {
 // Update password comparison to handle Google users
 userSchema.methods.matchPassword = async function (enteredPassword) {
   if (this.authProvider === "google") {
-    return false; // Google users can't use password login
+    return false;
   }
   return await bcrypt.compare(enteredPassword, this.password);
 };
@@ -380,27 +373,23 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 // Add method to handle Google profile
 userSchema.statics.findOrCreateGoogleUser = async function (googleProfile) {
   try {
-    // Try to find existing user
     let user = await this.findOne({ googleId: googleProfile.id });
 
     if (!user) {
-      // Try to find user by email
       user = await this.findOne({ email: googleProfile.email });
 
       if (user) {
-        // Link Google ID to existing account
         user.googleId = googleProfile.id;
         user.authProvider = "google";
         await user.save();
       } else {
-        // Create new user
         user = await this.create({
           googleId: googleProfile.id,
           name: googleProfile.displayName,
           email: googleProfile.email,
           avatar: googleProfile.picture,
           authProvider: "google",
-          isEmailVerified: true, // Google emails are verified
+          isEmailVerified: true,
         });
       }
     }
