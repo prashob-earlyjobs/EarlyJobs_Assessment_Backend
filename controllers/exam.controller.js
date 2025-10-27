@@ -6,9 +6,10 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // 1. Register User and Generate Questions
 const generateQuestions = async (usedQuestions = []) => {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-  
-  const createPrompt = (usedQ) => `Generate exactly 3 unique, beginner-to-intermediate level questions in common programming.
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const createPrompt = (
+    usedQ
+  ) => `Generate exactly 3 unique, beginner-to-intermediate level questions in common programming.
   Make sure that the questions are unique from the provided list of used questions.
   Question selection rules: 
   - The first 2 questions should be short-answer conceptual questions.
@@ -46,26 +47,25 @@ const generateQuestions = async (usedQuestions = []) => {
   Respond ONLY with valid JSON array in the format: 
   [{"question": "...", "expectedAnswer": "..."}, ...]`;
 
-  const prompt = createPrompt(usedQuestions);
+  const prompt = createPrompt(usedQuestions);
 
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  let text = response.text();
+  const result = await model.generateContent(prompt);
+  const response = await result.response;
+  let text = response.text();
 
-  text = text.replace(/```json|```/g, "").trim();
+  text = text.replace(/```json|```/g, "").trim();
 
-  try {
-    return JSON.parse(text);
-  } catch (err) {
-    console.error("JSON Parse Error:", err);
-    console.error("Gemini raw output:", text); 
-    throw new Error("Failed to parse questions from Gemini");
-  }
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    console.error("JSON Parse Error:", err);
+    console.error("Gemini raw output:", text);
+    throw new Error("Failed to parse questions from Gemini");
+  }
 };
 
-
 const validateAnswer = async (question, userAnswer) => {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   const prompt = `Question: ${question}
 User Answer: ${userAnswer}
 
@@ -90,61 +90,59 @@ Evaluate if the user's answer is correct. Respond ONLY with valid JSON:
 
 // 1. Register User and Generate Questions
 const registerCandidate = async (req, res) => {
-  try {
-    const { fullName, email, phone, college } = req.body;
+  try {
+    const { fullName, email, phone, college } = req.body; // Find the single document storing all used questions
 
-    // Find the single document storing all used questions
-    let usedQuestionsDoc = await UsedQuestion.find({});
-    let usedQuestions = [];
-    if (usedQuestionsDoc.length > 0) {
-      // Get the single document from the array
-      usedQuestionsDoc = usedQuestionsDoc[0];
-      usedQuestions = usedQuestionsDoc.questions.slice(0,24);
-    } else {
-      // Create a new document if one doesn't exist
-      usedQuestionsDoc = new UsedQuestion({});
-    }
+    let usedQuestionsDoc = await UsedQuestion.find({});
+    let usedQuestions = [];
+    if (usedQuestionsDoc.length > 0) {
+      // Get the single document from the array
+      usedQuestionsDoc = usedQuestionsDoc[0];
+      usedQuestions = usedQuestionsDoc.questions.slice(0, 24);
+    } else {
+      // Create a new document if one doesn't exist
+      usedQuestionsDoc = new UsedQuestion({});
+    } // Generate new questions using the list of all used questions
 
-    // Generate new questions using the list of all used questions
-    const questionsData = await generateQuestions(usedQuestions);
-    const newQuestions = questionsData.map((q) => q.question);
+    const questionsData = await generateQuestions(usedQuestions);
+    const newQuestions = questionsData.map((q) => q.question); // Update the used questions document with the new questions
 
-    // Update the used questions document with the new questions
-    usedQuestionsDoc.questions = [...new Set([...usedQuestions, ...newQuestions])];
-    await usedQuestionsDoc.save();
+    usedQuestionsDoc.questions = [
+      ...new Set([...usedQuestions, ...newQuestions]),
+    ];
+    await usedQuestionsDoc.save(); // Check if user already has an exam session
 
-    // Check if user already has an exam session
-    let existingExam = await Exam.findOne({ email });
+    let existingExam = await Exam.findOne({ email });
 
-    let exam;
-    if (existingExam) {
-      // Update the existing exam session
-      existingExam.questions = newQuestions;
-      existingExam.status = "questions_generated";
-      exam = await existingExam.save();
-    } else {
-      // Create a new exam session
-      exam = new Exam({
-        fullName,
-        email,
-        phone,
-        college,
-        questions: newQuestions,
-        status: "questions_generated",
-      });
-      await exam.save();
-    }
+    let exam;
+    if (existingExam) {
+      // Update the existing exam session
+      existingExam.questions = newQuestions;
+      existingExam.status = "questions_generated";
+      exam = await existingExam.save();
+    } else {
+      // Create a new exam session
+      exam = new Exam({
+        fullName,
+        email,
+        phone,
+        college,
+        questions: newQuestions,
+        status: "questions_generated",
+      });
+      await exam.save();
+    }
 
-    res.status(201).json({
-      message: "Registration successful",
-      examId: exam._id,
-      questions: exam.questions,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
-  }
-}
+    res.status(201).json({
+      message: "Registration successful",
+      examId: exam._id,
+      questions: exam.questions,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+};
 
 const getallusers = async (req, res) => {
   try {

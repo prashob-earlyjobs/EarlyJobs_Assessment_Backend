@@ -5,7 +5,7 @@ const {
   getAssessment,
   submitAssessment,
   getAssessmentsByUser,
-  getassessmentsByUser,
+  getAssessmentSuggestions,
   getUserStats,
   storeAssessmentDetails,
   matchAssessmentsDetails,
@@ -45,6 +45,11 @@ router.post(
 router.get("/getAssessments/:userId", authMiddleware, getAssessmentsByUser);
 
 router.get("/getUserStats/:userId", authMiddleware, getUserStats);
+router.get(
+  "/getAssessmentSuggestions",
+  authMiddleware,
+  getAssessmentSuggestions
+);
 router.post(
   "/getAssessmentLink/:assessmentId",
   authMiddleware,
