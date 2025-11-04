@@ -175,6 +175,28 @@ router.get(
   }
 );
 router.get(
+  "/portal/getResultForCandidateAssessment/:interviewId",
+
+    async (req, res) => {
+      
+    try {
+      const data = await callVeloxhireApi(
+        `/report/new/${req.params.interviewId}`
+      );
+
+      res.json({
+        success: true,
+        data: data.data,
+      });
+    } catch (error) {
+      res.json({
+        success: false,
+        message: "Something went wrong please try again later",
+      });
+    }
+  }
+);
+router.get(
   "/getResultForCandidateAssessment/:interviewId",
   authMiddleware,
   roleMiddleware([
@@ -202,10 +224,43 @@ router.get(
     }
   }
 );
+router.get("/portal/getRecording/:interviewId", async (req, res) => {
+  try {
+    const data = await callVeloxhireApi(
+      `/report/new/${req.params.interviewId}/recording`
+    );
+    res.json({
+      success: true,
+      data: data.data,
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: "Something went wrong please try again later",
+    });
+  }
+});
 router.get("/getRecording/:interviewId", authMiddleware, async (req, res) => {
   try {
     const data = await callVeloxhireApi(
       `/report/new/${req.params.interviewId}/recording`
+    );
+    res.json({
+      success: true,
+      data: data.data,
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: "Something went wrong please try again later",
+    });
+  }
+});
+
+router.get("/portal/getTranscript/:interviewId", async (req, res) => {
+  try {
+    const data = await callVeloxhireApi(
+      `/report/new/${req.params.interviewId}/enhanceSpeechTranscript`
     );
     res.json({
       success: true,
