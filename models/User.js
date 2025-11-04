@@ -31,6 +31,9 @@ const userSchema = new mongoose.Schema(
         "franchise",
         "super_admin",
         "franchise_admin",
+        "ADMIN",
+        "FBDE",
+        "creator",
       ],
       default: "candidate",
     },
@@ -47,6 +50,17 @@ const userSchema = new mongoose.Schema(
     franchiserId: {
       type: mongoose.Schema.Types.ObjectId || null,
       default: null,
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    userId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
     },
     password: {
       type: String,

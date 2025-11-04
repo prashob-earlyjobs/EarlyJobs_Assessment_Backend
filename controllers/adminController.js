@@ -985,6 +985,319 @@ const getFranchises = async (req, res) => {
       .json({ error: "Failed to fetch franchises", details: error.message });
   }
 };
+
+// @desc    Add a new user (admin action)
+// @route   POST /api/admin/addUser
+// @access  Private (Super Admin)
+
+const addUser = async (req, res) => {
+  try {
+    const {
+      name,
+      email,
+      password,
+      mobile,
+      role,
+      referrerId,
+      profile,
+      userId,
+    } = req.body;
+
+    if (!name || !email || !password || !mobile) {
+      return res.status(400).json({
+        success: false,
+        message: "name, email, password and mobile are required",
+      });
+    }
+
+    // Normalize and validate role; default to 'candidate'
+    const roleInput = (role || "candidate").toString();
+    const lower = roleInput.toLowerCase();
+    const aliasMap = { admin: "ADMIN", fbde: "FBDE", creater: "creator" };
+    const mapped = aliasMap[lower] || lower;
+    const allowedRoles = [
+      "candidate",
+      "recruiter",
+      "franchise",
+      "super_admin",
+      "franchise_admin",
+      "ADMIN",
+      "FBDE",
+      "creator",
+    ];
+    const normalizedRole = allowedRoles.includes(mapped) ? mapped : "candidate";
+
+    // Uniqueness checks for email, mobile, userId
+    const existing = await User.findOne({
+      $or: [
+        { email: email.toLowerCase() },
+        { mobile },
+        ...(userId ? [{ userId }] : []),
+      ],
+    });
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message:
+          existing.email?.toLowerCase() === email.toLowerCase()
+            ? "Email already exists"
+            : existing.mobile === mobile
+            ? "Mobile already exists"
+            : "UserId already exists",
+      });
+    }
+
+    // Generate a userId in format EJU0001, EJU0002, etc.
+    let generatedUserId = userId && typeof userId === "string" && userId.trim() !== ""
+      ? userId.trim()
+      : null;
+
+    if (!generatedUserId) {
+      // Find all users with userId matching pattern EJU####
+      const usersWithEJU = await User.find({
+        userId: { $regex: /^EJU\d+$/ },
+      }).select("userId");
+
+      if (usersWithEJU && usersWithEJU.length > 0) {
+        // Extract all numbers and find the maximum
+        const numbers = usersWithEJU
+          .map((u) => {
+            const match = u.userId.match(/^EJU(\d+)$/);
+            return match ? parseInt(match[1], 10) : 0;
+          })
+          .filter((num) => !isNaN(num));
+
+        if (numbers.length > 0) {
+          const maxNumber = Math.max(...numbers);
+          const nextNumber = maxNumber + 1;
+          generatedUserId = `EJU${nextNumber.toString().padStart(4, "0")}`;
+        } else {
+          generatedUserId = "EJU0001";
+        }
+      } else {
+        // No existing user with EJU pattern, start from EJU0001
+        generatedUserId = "EJU0001";
+      }
+    }
+
+    const user = await User.create({
+      name,
+      email: email.toLowerCase(),
+      password, // hashed by pre-save hook
+      mobile,
+      role: normalizedRole,
+      referrerId: referrerId || null,
+      createdBy: req.user?._id || null,
+      authProvider: "local",
+      profile: profile || {},
+      userId: generatedUserId,
+    });
+
+    return res.status(201).json({ success: true, data: { user: user.toJSON() } });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ success: false, message: "Duplicate key" });
+    }
+    return res.status(500).json({
+      success: false,
+      message: "Failed to create user",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Get referred users for a specific user
+// @route   GET /api/admin/getReferredUsers/:userId
+// @access  Private
+const getReferredUsers = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { page = 1, limit = 10, searchQuery = "", role = "candidate" } = req.query;
+
+    // Validate userId
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    // Find the user by userId field (EJU####) - not MongoDB _id
+    const referrerUser = await User.findOne({
+      userId: userId,
+    });
+
+    if (!referrerUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found with the provided userId",
+      });
+    }
+
+    // Use userId (EJU####) as referrerId for querying candidates
+    // The referrerId in candidates should match this userId
+    const referrerId = referrerUser.userId;
+    
+    if (!referrerId) {
+      return res.status(400).json({
+        success: false,
+        message: "Referrer user does not have a userId assigned",
+      });
+    }
+
+    // Validate page and limit
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    if (pageNum < 1 || limitNum < 1) {
+      return res.status(400).json({
+        success: false,
+        message: "Page and limit must be positive integers",
+      });
+    }
+
+    // Build query object - find candidates where referrerId matches the user's userId
+    const query = {
+      referrerId: referrerId, // Match candidates with referrerId = referrerUser.userId (EJU####)
+    };
+
+    // Add role filter
+    if (role && role !== "undefined") {
+      query.role = role;
+    }
+
+    // Add search query if provided
+    if (searchQuery && searchQuery.trim() !== "") {
+      const sanitizedSearch = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      query.$or = [
+        { name: { $regex: sanitizedSearch, $options: "i" } },
+        { email: { $regex: sanitizedSearch, $options: "i" } },
+        { mobile: { $regex: sanitizedSearch, $options: "i" } },
+      ];
+    }
+
+    console.log(`Finding referred users for userId: ${referrerId}, query:`, query);
+
+    // Fetch referred users (candidates where referrerId = this user's userId)
+    const users = await User.find(query)
+      .select("-password")
+      .limit(limitNum)
+      .skip((pageNum - 1) * limitNum)
+      .sort({ createdAt: -1 });
+
+    const total = await User.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: {
+        users,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          pages: Math.ceil(total / limitNum) || 0,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching referred users:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching referred users",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Get referred transactions for a specific user
+// @route   GET /api/admin/getReferredTransactions/:userId
+// @access  Private
+const getReferredTransactions = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+
+    // Validate userId
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    // Find the user by userId field (EJU####) - not MongoDB _id
+    const referrerUser = await User.findOne({
+      userId: userId,
+    });
+
+    if (!referrerUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found with the provided userId",
+      });
+    }
+
+    // Use userId (EJU####) as referrerId for querying transactions
+    // The referrerId in transactions should match this userId
+    const referrerId = referrerUser.userId;
+    
+    if (!referrerId) {
+      return res.status(400).json({
+        success: false,
+        message: "Referrer user does not have a userId assigned",
+      });
+    }
+
+    // Validate page and limit
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    if (pageNum < 1 || limitNum < 1) {
+      return res.status(400).json({
+        success: false,
+        message: "Page and limit must be positive integers",
+      });
+    }
+
+    console.log(`Finding referred transactions for userId: ${referrerId}`);
+
+    // Query transactions where referrerId matches the user's userId
+    const transactions = await Transactions.find({
+      referrerId: referrerId, // Match transactions with referrerId = referrerUser.userId (EJU####)
+    })
+      .limit(limitNum)
+      .skip((pageNum - 1) * limitNum)
+      .sort({ createdAt: -1 })
+      .populate("userId", "name email -_id")
+      .populate("assessmentId", "title -_id")
+      .select(
+        "transactionId createdAt assessmentId userId transactionAmount referrerId offerCode transactionStatus"
+      );
+
+    const total = await Transactions.countDocuments({
+      referrerId: referrerId,
+    });
+
+    res.json({
+      success: true,
+      data: {
+        transactions,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          pages: Math.ceil(total / limitNum) || 0,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching referred transactions:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching referred transactions",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createAssessment,
   updateAssessment,
@@ -1000,5 +1313,7 @@ module.exports = {
   addFranchiser,
   getFranchiseTransactionsAndEarnings,
   getFranchiseTransactionsForEarlyjobs,
-  
+  addUser,
+  getReferredUsers,
+  getReferredTransactions,
 };
