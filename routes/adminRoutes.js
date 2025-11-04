@@ -10,6 +10,9 @@ const {
   getFranchiseTransactionsForEarlyjobs,
   addFranchiser,
   getFranchises,
+  addUser,
+  getReferredUsers,
+  getReferredTransactions,
 } = require("../controllers/adminController");
 const {
   addAssessment,
@@ -43,7 +46,14 @@ router.put(
 router.get(
   "/getUsersForFranchise/:franchiseId",
   authMiddleware,
-  roleMiddleware(["franchise_admin", "FBDE", "ADMIN"]),
+  // roleMiddleware(["franchise_admin", "FBDE", "ADMIN", "creator"]),
+  getFranchiseUsers
+);
+
+
+router.get("/portal/getPaidAssessments/:userId", getPaidAssessments);
+router.get(
+  "/portal/getUsersForFranchise/:franchiseId",
   getFranchiseUsers
 );
 
@@ -84,6 +94,12 @@ router.get(
   roleMiddleware(["FBDE"]),
   getFranchiseTransactionsForEarlyjobs
 );
+
+router.get(
+  "/franchise/getTransactions/:userId",
+  getFranchiseTransactionsForEarlyjobs
+);
+
 router.post(
   "/addFranchiser",
   authMiddleware,
@@ -96,6 +112,30 @@ router.get(
   roleMiddleware(["super_admin"]),
   getFranchises
 );
+
+// Add user (admin)
+router.post(
+  "/addUser",
+  authMiddleware,
+  roleMiddleware(["super_admin"]),
+  addUser
+);
+
+// Get referred users
+router.get(
+  "/getReferredUsers/:userId",
+  authMiddleware,
+  getReferredUsers
+);
+
+// Get referred transactions
+router.get(
+  "/getReferredTransactions/:userId",
+  authMiddleware,
+  getReferredTransactions
+);
+
+
 router.get(
   "/getAssessmentsVelox",
   authMiddleware,
