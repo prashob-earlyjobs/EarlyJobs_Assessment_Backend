@@ -18,6 +18,7 @@ const {
   addAssessment,
   editAssessment,
   getAssessmentsByUser,
+  getPaidAssessments,
 } = require("../controllers/assessmentController");
 
 const { callVeloxhireApi } = require("../controllers/veloxhireController");

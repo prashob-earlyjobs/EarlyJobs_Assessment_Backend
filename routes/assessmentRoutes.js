@@ -102,5 +102,8 @@ router.get(
   roleMiddleware(["super_admin"]),
   getShortIdForUrl
 );
+
+router.get("/portal/getPaidAssessments/:userId", getPaidAssessments);
+
 router.get("/:id", getAssessment);
 module.exports = router;
