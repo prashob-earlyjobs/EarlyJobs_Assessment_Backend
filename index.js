@@ -56,6 +56,7 @@ app.use(
       "https://nextjs.earlyjobs.ai",
       "https://dev.earlyjobs.ai",
       "https://portal.earlyjobs.ai",
+      "https://qa-portal.earlyjobs.ai"
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],

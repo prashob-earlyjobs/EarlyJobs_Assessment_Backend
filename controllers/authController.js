@@ -59,6 +59,7 @@ const register = async (req, res) => {
     }
 
     const { name, email, mobile, password, role, referrerId } = req.body;
+    console.log("referrerId", referrerId);
 
     // Check if user exists
     const userExists = await User.findOne({
@@ -70,15 +71,15 @@ const register = async (req, res) => {
         message: "User already exists with this email or mobile number",
       });
     }
-    if (referrerId) {
-      const referrerExists = await User.findOne({ franchiseId: referrerId });
-      if (!referrerExists) {
-        return res.status(400).json({
-          success: false,
-          message: "Referrer does not exist",
-        });
-      }
-    }
+    // if (referrerId) {
+    //   const referrerExists = await User.findOne({ userId: referrerId });
+    //   if (!referrerExists) {
+    //     return res.status(400).json({
+    //       success: false,
+    //       message: "Referrer does not exist",
+    //     });
+    //   }
+    // }
 
     // Create user
     const user = await User.create({

@@ -10,11 +10,15 @@ const {
   getFranchiseTransactionsForEarlyjobs,
   addFranchiser,
   getFranchises,
+  addUser,
+  getReferredUsers,
+  getReferredTransactions,
 } = require("../controllers/adminController");
 const {
   addAssessment,
   editAssessment,
   getAssessmentsByUser,
+  getPaidAssessments,
 } = require("../controllers/assessmentController");
 
 const { callVeloxhireApi } = require("../controllers/veloxhireController");
@@ -43,7 +47,14 @@ router.put(
 router.get(
   "/getUsersForFranchise/:franchiseId",
   authMiddleware,
-  roleMiddleware(["franchise_admin", "FBDE", "ADMIN"]),
+  // roleMiddleware(["franchise_admin", "FBDE", "ADMIN", "creator"]),
+  getFranchiseUsers
+);
+
+
+router.get("/portal/getPaidAssessments/:userId", getPaidAssessments);
+router.get(
+  "/portal/getUsersForFranchise/:franchiseId",
   getFranchiseUsers
 );
 
@@ -84,6 +95,12 @@ router.get(
   roleMiddleware(["FBDE"]),
   getFranchiseTransactionsForEarlyjobs
 );
+
+router.get(
+  "/franchise/getTransactions/:userId",
+  getFranchiseTransactionsForEarlyjobs
+);
+
 router.post(
   "/addFranchiser",
   authMiddleware,
@@ -96,6 +113,30 @@ router.get(
   roleMiddleware(["super_admin"]),
   getFranchises
 );
+
+// Add user (admin)
+router.post(
+  "/addUser",
+  authMiddleware,
+  roleMiddleware(["super_admin"]),
+  addUser
+);
+
+// Get referred users
+router.get(
+  "/getReferredUsers/:userId",
+  authMiddleware,
+  getReferredUsers
+);
+
+// Get referred transactions
+router.get(
+  "/getReferredTransactions/:userId",
+  authMiddleware,
+  getReferredTransactions
+);
+
+
 router.get(
   "/getAssessmentsVelox",
   authMiddleware,
@@ -134,6 +175,28 @@ router.get(
   }
 );
 router.get(
+  "/portal/getResultForCandidateAssessment/:interviewId",
+
+    async (req, res) => {
+      
+    try {
+      const data = await callVeloxhireApi(
+        `/report/new/${req.params.interviewId}`
+      );
+
+      res.json({
+        success: true,
+        data: data.data,
+      });
+    } catch (error) {
+      res.json({
+        success: false,
+        message: "Something went wrong please try again later",
+      });
+    }
+  }
+);
+router.get(
   "/getResultForCandidateAssessment/:interviewId",
   authMiddleware,
   roleMiddleware([
@@ -161,10 +224,43 @@ router.get(
     }
   }
 );
+router.get("/portal/getRecording/:interviewId", async (req, res) => {
+  try {
+    const data = await callVeloxhireApi(
+      `/report/new/${req.params.interviewId}/recording`
+    );
+    res.json({
+      success: true,
+      data: data.data,
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: "Something went wrong please try again later",
+    });
+  }
+});
 router.get("/getRecording/:interviewId", authMiddleware, async (req, res) => {
   try {
     const data = await callVeloxhireApi(
       `/report/new/${req.params.interviewId}/recording`
+    );
+    res.json({
+      success: true,
+      data: data.data,
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: "Something went wrong please try again later",
+    });
+  }
+});
+
+router.get("/portal/getTranscript/:interviewId", async (req, res) => {
+  try {
+    const data = await callVeloxhireApi(
+      `/report/new/${req.params.interviewId}/enhanceSpeechTranscript`
     );
     res.json({
       success: true,
