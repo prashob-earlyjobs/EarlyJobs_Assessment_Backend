@@ -33,9 +33,9 @@ const registerValidation = [
   body("mobile")
     .isMobilePhone()
     .withMessage("Please provide a valid mobile number"),
-  body("password")
-    .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters long"),
+  body("experienceLevel")
+    .isIn(["fresher", "experienced"])
+    .withMessage("Invalid experience level"),
   body("role")
     .optional()
     .isIn(["candidate", "recruiter", "super_admin", "franchise_admin"])
@@ -56,7 +56,14 @@ const loginValidation = [
       return true;
     }),
 
-  body("password").notEmpty().withMessage("Password is required"),
+   body("otp") 
+    .trim()
+    .notEmpty()
+    .withMessage("OTP is required")
+    .isNumeric()
+    .withMessage("OTP must be a number")
+    .isLength({ min: 6, max: 6 })
+    .withMessage("OTP must be 6 digits long")
 ];
 
 // Auth routes
