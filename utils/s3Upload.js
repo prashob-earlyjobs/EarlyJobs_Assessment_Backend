@@ -67,10 +67,13 @@ aws.config.update({
 const s3 = new aws.S3();
 
 const fileFilter = (req, file, cb) => {
+  console.log("File received:", file.mimetype);
   if (
     file.mimetype === "image/jpeg" ||
     file.mimetype === "image/png" ||
-    file.mimetype === "application/pdf"
+    file.mimetype === "application/pdf" ||
+    file.mimetype === "application/msword" ||
+    file.mimetype ==='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   ) {
     cb(null, true);
   } else {
