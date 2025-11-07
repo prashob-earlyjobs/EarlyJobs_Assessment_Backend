@@ -725,9 +725,8 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
 const getFranchiseTransactionsForEarlyjobs = async (req, res) => {
   try {
     const { bdeReferralId } = req.params;
-    const franchiserId = bdeReferralId;
+    const franchiserId = bdeReferralId || req.params?.userId;
     const { page = 1, limit = 10 } = req.query;
-    console.log("req.user", bdeReferralId);
     // Validate franchiserId
     if (!franchiserId) {
       return res

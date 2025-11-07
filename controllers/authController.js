@@ -58,7 +58,7 @@ const register = async (req, res) => {
       });
     }
 
-    const { name, email, mobile, password, role, referrerId } = req.body;
+    const { name, email, mobile, experienceLevel, role, referrerId } = req.body;
     console.log("referrerId", referrerId);
 
     // Check if user exists
@@ -115,7 +115,7 @@ const register = async (req, res) => {
       name,
       email,
       mobile,
-      password,
+      experienceLevel,
       referrerId,
       role: role || "candidate",
       userId: generatedUserId,
@@ -680,51 +680,91 @@ const sendOtpMobileSms = async (phoneNumber, otp) => {
 };
 
 const generateAndSendOtp = async (req, res) => {
-  const { phoneNumber, email, franchiseId = "", tochangePassword } = req.body;
+  let { phoneNumber, email, franchiseId = "", tochangePassword, toLogin } = req.body;
   const userExists = await User.findOne({
     $or: [{ mobile: phoneNumber }, { email }],
   });
-  const userExistsforpasswordchange = await User.findOne({
-    $and: [{ mobile: phoneNumber }, { email }],
-  });
-  if (tochangePassword) {
-    if (!userExistsforpasswordchange) {
-      return res.status(400).json({
+  
+ 
+
+  if (!toLogin) {
+
+
+    const userExists = await User.findOne({
+      $or: [{ mobile: phoneNumber }, { email }],
+    });
+    const userExistsforpasswordchange = await User.findOne({
+      $and: [{ mobile: phoneNumber }, { email }],
+    });
+    if (tochangePassword) {
+      if (!userExistsforpasswordchange) {
+        return res.status(400).json({
+          success: false,
+          message: "User does not exist with this mobile number or email",
+        });
+      }
+    } else if (userExists) {
+      return res.status(409).json({
+        success: false,
+        message: "User already exists with this mobile number or email",
+      });
+    }
+
+    if (!phoneNumber || !/^\d{10}$/.test(phoneNumber)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid phone number" });
+    }
+    if (franchiseId !== "") {
+      const franchiseAdmins = await User.find({ role: "franchise_admin" });
+
+      // Check if any franchise admin has the matching franchiseId
+
+      const isValidFranchiseId = franchiseAdmins.some(
+        (admin) => admin.franchiseId === franchiseId
+      );
+      if (!isValidFranchiseId) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid Franchise ID" });
+      }
+    }
+  } else {
+    if(!email && !phoneNumber){
+      return res
+        .status(400)
+        .json({ success: false, message: "Phone or email is required" });
+    }
+
+    if (phoneNumber && !/^\d{10}$/.test(phoneNumber)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid phone number" });
+    }
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid email address" });
+    }
+    if (!userExists) {
+      return res.status(404).json({
         success: false,
         message: "User does not exist with this mobile number or email",
       });
+    } else if (userExists) {
+      phoneNumber = userExists.mobile;
+      email = userExists.email;
     }
-  } else if (userExists) {
-    return res.status(400).json({
-      success: false,
-      message: "User already exists with this mobile number or email",
-    });
-  }
-
-  if (!phoneNumber || !/^\d{10}$/.test(phoneNumber)) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid phone number" });
-  }
-  if (franchiseId !== "") {
-    const franchiseAdmins = await User.find({ role: "franchise_admin" });
-
-    // Check if any franchise admin has the matching franchiseId
-
-    const isValidFranchiseId = franchiseAdmins.some(
-      (admin) => admin.franchiseId === franchiseId
-    );
-    if (!isValidFranchiseId) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid Franchise ID" });
-    }
+    
+    
   }
   const otp = generateOtp();
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
   // Store OTP in database
   await OTP.create({
+    email,
     phoneNumber,
     otp,
     expiresAt,
@@ -765,14 +805,22 @@ const generateAndSendOtp = async (req, res) => {
 
 // Endpoint to verify OTP
 const verifyOtp = async (req, res) => {
-  const { phoneNumber, otp } = req.body;
+  try {const { phoneNumber, otp, toLogin, email } = req.body;
 
-  const storedOtp = await OTP.findOne({
-    phoneNumber,
-    otp,
-    isUsed: false,
-    expiresAt: { $gt: new Date() },
-  });
+  const [storedOtp]= await OTP.aggregate([
+    { $match: {
+         $or: [
+        { phoneNumber: phoneNumber },
+        { email: email }
+      ],
+        otp,
+        isUsed: false,
+        expiresAt: { $gt: new Date() },
+      }
+    },
+  ]);
+
+  console.log("storedOtp", storedOtp);
 
   if (!storedOtp) {
     return res.status(400).json({
@@ -782,10 +830,74 @@ const verifyOtp = async (req, res) => {
   }
 
   // Mark OTP as used
-  storedOtp.isUsed = true;
-  await storedOtp.save();
+  await OTP.updateOne(
+    { _id: storedOtp._id },
+    { $set: { isUsed: true } }
+  );
 
-  res.json({ success: true, message: "OTP verified successfully" });
+  if (toLogin) {
+    console.log("Login flow OTP verified");
+    const user = await User.findOne({
+      $or: [
+        { mobile: phoneNumber },
+        { email: email }
+      ]
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+   
+    if (!user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: "Account is deactivated",
+      });
+    }
+
+    console.log("last login update");
+    await User.updateOne({
+      $or: [
+        { mobile: phoneNumber },
+        { email: email }
+      ]
+    },{ $set:{lastLogin: new Date()} });
+    console.log("last login updated");
+
+    const accessToken = generateToken(user);
+    const refreshToken = generateRefreshToken(user._id);
+
+    // Set refresh token in cookie
+    res.cookie("refreshToken", refreshToken, cookieOptions);
+
+    // Return success response
+    return res.json({
+      success: true,
+      message: "OTP verified successfully. Login successful.",
+      data: {
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          mobile: user.mobile,
+          role: user.role,
+          profile: user.profile,
+          isEmailVerified: user.isEmailVerified,
+          isPhoneVerified: user.isPhoneVerified,
+        },
+        accessToken,
+      },
+    });
+
+  }
+  res.json({ success: true, message: "OTP verified successfully" });}
+  catch(err){
+    console.error("OTP verification error:", err);
+  }
+  
 };
 
 const getColleges = async (req, res) => {
