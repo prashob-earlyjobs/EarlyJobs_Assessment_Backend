@@ -83,7 +83,6 @@ const userSchema = new mongoose.Schema(
     experienceLevel: {
       type: String,
       enum: ["fresher", "experienced"],
-      required: [true, "Experience level is required"],
     },
     googleId: {
       type: String,
@@ -438,6 +437,11 @@ userSchema.pre("save", async function (next) {
 
 userSchema.pre("save", async function (next) {
   try {
+    console.log("role:",this.role);
+    if (this.role !== "candidate") {
+      console.log("ℹ️ User is not a candidate, skipping Portal DB sync.");
+      return next();
+    }
     const portalDB = getPortalDB();
     if (!portalDB) throw new Error("⚠️ Portal DB not connected yet!");
 
@@ -477,7 +481,13 @@ userSchema.pre("save", async function (next) {
 
 userSchema.pre("findOneAndUpdate", async function (next) {
   console.log("🔄 Detected user update, syncing to Portal DB...");
+
   try {
+    console.log("role:",this.role);
+    if (this.role !== "candidate") {
+      console.log("ℹ️ User is not a candidate, skipping Portal DB sync.");
+      return next();
+    }
     const portalDB = getPortalDB();
     if (!portalDB) {
       console.warn("⚠️ Portal DB not connected yet!");
