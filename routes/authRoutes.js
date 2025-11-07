@@ -35,11 +35,12 @@ const registerValidation = [
     .isMobilePhone()
     .withMessage("Please provide a valid mobile number"),
   body("experienceLevel")
+    .optional()
     .isIn(["fresher", "experienced"])
     .withMessage("Invalid experience level"),
   body("role")
     .optional()
-    .isIn(["candidate", "recruiter", "super_admin", "franchise_admin"])
+    .isIn(["candidate", "recruiter", "super_admin", "franchise_admin", "creator"])
     .withMessage("Invalid role"),
 ];
 
