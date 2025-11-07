@@ -52,7 +52,6 @@ router.get(
 );
 
 
-router.get("/portal/getPaidAssessments/:userId", getPaidAssessments);
 router.get(
   "/portal/getUsersForFranchise/:franchiseId",
   getFranchiseUsers
