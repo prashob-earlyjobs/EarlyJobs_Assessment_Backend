@@ -338,6 +338,44 @@ const userSchema = new mongoose.Schema(
         },
       },
     },
+    bankAccountDetails: {
+      accountHolderName: {
+        type: String,
+        trim: true,
+        maxLength: [100, "Account holder name cannot exceed 100 characters"],
+      },
+      accountNumber: {
+        type: String,
+        trim: true,
+        match: [/^[0-9]{9,18}$/, "Please enter a valid account number"],
+      },
+      ifscCode: {
+        type: String,
+        trim: true,
+        uppercase: true,
+        match: [/^[A-Z]{4}0[A-Z0-9]{6}$/, "Please enter a valid IFSC code"],
+      },
+      bankName: {
+        type: String,
+        trim: true,
+        maxLength: [100, "Bank name cannot exceed 100 characters"],
+      },
+      branchName: {
+        type: String,
+        trim: true,
+        maxLength: [100, "Branch name cannot exceed 100 characters"],
+      },
+      accountType: {
+        type: String,
+        enum: ["Savings", "Current", "Salary", "Other"],
+      },
+      panCard: {
+        type: String,
+        trim: true,
+        uppercase: true,
+        match: [/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Please enter a valid PAN card number"],
+      },
+    },
     isEmailVerified: {
       type: Boolean,
       default: false,
