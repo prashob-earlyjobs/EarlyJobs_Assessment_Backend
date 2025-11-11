@@ -58,7 +58,7 @@ const register = async (req, res) => {
       });
     }
 
-    const { name, email, mobile, password, role, referrerId } = req.body;
+    const { name, email, mobile, experienceLevel, role, referrerId } = req.body;
     console.log("referrerId", referrerId);
 
     // Check if user exists
@@ -81,14 +81,44 @@ const register = async (req, res) => {
     //   }
     // }
 
+    // Generate a userId in format EJU0001, EJU0002, etc.
+    let generatedUserId = null;
+
+    // Find all users with userId matching pattern EJU####
+    const usersWithEJU = await User.find({
+      userId: { $regex: /^EJU\d+$/ },
+    }).select("userId");
+
+    if (usersWithEJU && usersWithEJU.length > 0) {
+      // Extract all numbers and find the maximum
+      const numbers = usersWithEJU
+        .map((u) => {
+          const match = u.userId.match(/^EJU(\d+)$/);
+          return match ? parseInt(match[1], 10) : 0;
+        })
+        .filter((num) => !isNaN(num));
+
+      if (numbers.length > 0) {
+        const maxNumber = Math.max(...numbers);
+        const nextNumber = maxNumber + 1;
+        generatedUserId = `EJU${nextNumber.toString().padStart(4, "0")}`;
+      } else {
+        generatedUserId = "EJU0001";
+      }
+    } else {
+      // No existing user with EJU pattern, start from EJU0001
+      generatedUserId = "EJU0001";
+    }
+
     // Create user
     const user = await User.create({
       name,
       email,
       mobile,
-      password,
+      experienceLevel,
       referrerId,
       role: role || "candidate",
+      userId: generatedUserId,
     });
     // Generate tokens
     const accessToken = generateToken(user);
@@ -650,51 +680,91 @@ const sendOtpMobileSms = async (phoneNumber, otp) => {
 };
 
 const generateAndSendOtp = async (req, res) => {
-  const { phoneNumber, email, franchiseId = "", tochangePassword } = req.body;
+  let { phoneNumber, email, franchiseId = "", tochangePassword, toLogin } = req.body;
   const userExists = await User.findOne({
     $or: [{ mobile: phoneNumber }, { email }],
   });
-  const userExistsforpasswordchange = await User.findOne({
-    $and: [{ mobile: phoneNumber }, { email }],
-  });
-  if (tochangePassword) {
-    if (!userExistsforpasswordchange) {
-      return res.status(400).json({
+  
+ 
+
+  if (!toLogin) {
+
+
+    const userExists = await User.findOne({
+      $or: [{ mobile: phoneNumber }, { email }],
+    });
+    const userExistsforpasswordchange = await User.findOne({
+      $and: [{ mobile: phoneNumber }, { email }],
+    });
+    if (tochangePassword) {
+      if (!userExistsforpasswordchange) {
+        return res.status(400).json({
+          success: false,
+          message: "User does not exist with this mobile number or email",
+        });
+      }
+    } else if (userExists) {
+      return res.status(409).json({
+        success: false,
+        message: "User already exists with this mobile number or email",
+      });
+    }
+
+    if (!phoneNumber || !/^\d{10}$/.test(phoneNumber)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid phone number" });
+    }
+    if (franchiseId !== "") {
+      const franchiseAdmins = await User.find({ role: "franchise_admin" });
+
+      // Check if any franchise admin has the matching franchiseId
+
+      const isValidFranchiseId = franchiseAdmins.some(
+        (admin) => admin.franchiseId === franchiseId
+      );
+      if (!isValidFranchiseId) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid Franchise ID" });
+      }
+    }
+  } else {
+    if(!email && !phoneNumber){
+      return res
+        .status(400)
+        .json({ success: false, message: "Phone or email is required" });
+    }
+
+    if (phoneNumber && !/^\d{10}$/.test(phoneNumber)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid phone number" });
+    }
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid email address" });
+    }
+    if (!userExists) {
+      return res.status(404).json({
         success: false,
         message: "User does not exist with this mobile number or email",
       });
+    } else if (userExists) {
+      phoneNumber = userExists.mobile;
+      email = userExists.email;
     }
-  } else if (userExists) {
-    return res.status(400).json({
-      success: false,
-      message: "User already exists with this mobile number or email",
-    });
-  }
-
-  if (!phoneNumber || !/^\d{10}$/.test(phoneNumber)) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Invalid phone number" });
-  }
-  if (franchiseId !== "") {
-    const franchiseAdmins = await User.find({ role: "franchise_admin" });
-
-    // Check if any franchise admin has the matching franchiseId
-
-    const isValidFranchiseId = franchiseAdmins.some(
-      (admin) => admin.franchiseId === franchiseId
-    );
-    if (!isValidFranchiseId) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid Franchise ID" });
-    }
+    
+    
   }
   const otp = generateOtp();
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
   // Store OTP in database
   await OTP.create({
+    email,
     phoneNumber,
     otp,
     expiresAt,
@@ -735,14 +805,22 @@ const generateAndSendOtp = async (req, res) => {
 
 // Endpoint to verify OTP
 const verifyOtp = async (req, res) => {
-  const { phoneNumber, otp } = req.body;
+  try {const { phoneNumber, otp, toLogin, email } = req.body;
 
-  const storedOtp = await OTP.findOne({
-    phoneNumber,
-    otp,
-    isUsed: false,
-    expiresAt: { $gt: new Date() },
-  });
+  const [storedOtp]= await OTP.aggregate([
+    { $match: {
+         $or: [
+        { phoneNumber: phoneNumber },
+        { email: email }
+      ],
+        otp,
+        isUsed: false,
+        expiresAt: { $gt: new Date() },
+      }
+    },
+  ]);
+
+  console.log("storedOtp", storedOtp);
 
   if (!storedOtp) {
     return res.status(400).json({
@@ -752,10 +830,74 @@ const verifyOtp = async (req, res) => {
   }
 
   // Mark OTP as used
-  storedOtp.isUsed = true;
-  await storedOtp.save();
+  await OTP.updateOne(
+    { _id: storedOtp._id },
+    { $set: { isUsed: true } }
+  );
 
-  res.json({ success: true, message: "OTP verified successfully" });
+  if (toLogin) {
+    console.log("Login flow OTP verified");
+    const user = await User.findOne({
+      $or: [
+        { mobile: phoneNumber },
+        { email: email }
+      ]
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+   
+    if (!user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: "Account is deactivated",
+      });
+    }
+
+    console.log("last login update");
+    await User.updateOne({
+      $or: [
+        { mobile: phoneNumber },
+        { email: email }
+      ]
+    },{ $set:{lastLogin: new Date()} });
+    console.log("last login updated");
+
+    const accessToken = generateToken(user);
+    const refreshToken = generateRefreshToken(user._id);
+
+    // Set refresh token in cookie
+    res.cookie("refreshToken", refreshToken, cookieOptions);
+
+    // Return success response
+    return res.json({
+      success: true,
+      message: "OTP verified successfully. Login successful.",
+      data: {
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          mobile: user.mobile,
+          role: user.role,
+          profile: user.profile,
+          isEmailVerified: user.isEmailVerified,
+          isPhoneVerified: user.isPhoneVerified,
+        },
+        accessToken,
+      },
+    });
+
+  }
+  res.json({ success: true, message: "OTP verified successfully" });}
+  catch(err){
+    console.error("OTP verification error:", err);
+  }
+  
 };
 
 const getColleges = async (req, res) => {
@@ -794,6 +936,103 @@ const getColleges = async (req, res) => {
       .json({ message: "Server error", error: error.message });
   }
 };
+
+// @desc    Update bank account details
+// @route   PUT /api/auth/update-bank-details
+// @access  Private
+const updateBankDetails = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const {
+      accountHolderName,
+      accountNumber,
+      ifscCode,
+      bankName,
+      branchName,
+      accountType,
+      panCard,
+    } = req.body;
+
+    // Build update object with only provided fields
+    const bankDetailsUpdate = {};
+    
+    if (accountHolderName !== undefined) {
+      bankDetailsUpdate["bankAccountDetails.accountHolderName"] = accountHolderName;
+    }
+    if (accountNumber !== undefined) {
+      bankDetailsUpdate["bankAccountDetails.accountNumber"] = accountNumber;
+    }
+    if (ifscCode !== undefined) {
+      bankDetailsUpdate["bankAccountDetails.ifscCode"] = ifscCode;
+    }
+    if (bankName !== undefined) {
+      bankDetailsUpdate["bankAccountDetails.bankName"] = bankName;
+    }
+    if (branchName !== undefined) {
+      bankDetailsUpdate["bankAccountDetails.branchName"] = branchName;
+    }
+    if (accountType !== undefined) {
+      bankDetailsUpdate["bankAccountDetails.accountType"] = accountType;
+    }
+    if (panCard !== undefined) {
+      bankDetailsUpdate["bankAccountDetails.panCard"] = panCard;
+    }
+
+    // If no fields provided, return error
+    if (Object.keys(bankDetailsUpdate).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No bank details provided to update",
+      });
+    }
+
+    // Update user's bank account details
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: bankDetailsUpdate },
+      {
+        new: true,
+        runValidators: true,
+        select: "-password",
+      }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Bank account details updated successfully",
+      data: {
+        user: updatedUser,
+        bankAccountDetails: updatedUser.bankAccountDetails,
+      },
+    });
+  } catch (error) {
+    console.error("Update bank details error:", error);
+    
+    // Handle validation errors
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map((err) => err.message);
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        errors: errors,
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Server error updating bank details",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -808,4 +1047,5 @@ module.exports = {
   resetPassword,
   verifyOtp,
   getColleges,
+  updateBankDetails,
 };

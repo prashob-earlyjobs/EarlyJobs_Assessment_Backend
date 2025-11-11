@@ -1,6 +1,24 @@
 
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const { getPortalDB } = require("../config/portalDatabase");
+const PortalCandidateSchema = require("./candidate.portal");
+
+const workExperienceSchema = new mongoose.Schema({
+  company: { type: String, trim: true, },
+  jobTitle: { type: String, trim: true, },
+  startDate: { type: Date, },
+  endDate: { type: Date, },
+  responsibilities: { type: String, trim: true, },
+  location: { type: String, trim: true, },
+  description: { type: String, trim: true, },
+  currentlyWorking: { type: Boolean, default: false, },
+}, { _id: true });
+
+const languageSchema = new mongoose.Schema(
+  {name: String, read: Boolean, write: Boolean, speak: Boolean},
+  {_id: true}
+)
 
 const userSchema = new mongoose.Schema(
   {
@@ -62,10 +80,9 @@ const userSchema = new mongoose.Schema(
       sparse: true,
       trim: true,
     },
-    password: {
+    experienceLevel: {
       type: String,
-      required: [true, "Password is required"],
-      select: false,
+      enum: ["fresher", "experienced"],
     },
     googleId: {
       type: String,
@@ -117,6 +134,7 @@ const userSchema = new mongoose.Schema(
         state: { type: String },
         district: { type: String },
       },
+      languages: [languageSchema],
       dateOfBirth: {
         type: String,
         validate: {
@@ -186,6 +204,9 @@ const userSchema = new mongoose.Schema(
           enum: ["Onsite", "Remote", "Hybrid"],
           default: "Onsite",
         },
+        workExperience: [
+         workExperienceSchema
+        ],
         education: [
           {
             _id: {
@@ -221,7 +242,7 @@ const userSchema = new mongoose.Schema(
             year: {
               type: Number,
               required: [true, "Year is required"],
-              min: [1950, "Year must be after 1950"],
+              // min: [1950, "Year must be after 1950"],
               max: [new Date().getFullYear(), "Year cannot be in the future"],
             },
           },
@@ -338,6 +359,44 @@ const userSchema = new mongoose.Schema(
         },
       },
     },
+    bankAccountDetails: {
+      accountHolderName: {
+        type: String,
+        trim: true,
+        maxLength: [100, "Account holder name cannot exceed 100 characters"],
+      },
+      accountNumber: {
+        type: String,
+        trim: true,
+        match: [/^[0-9]{9,18}$/, "Please enter a valid account number"],
+      },
+      ifscCode: {
+        type: String,
+        trim: true,
+        uppercase: true,
+        match: [/^[A-Z]{4}0[A-Z0-9]{6}$/, "Please enter a valid IFSC code"],
+      },
+      bankName: {
+        type: String,
+        trim: true,
+        maxLength: [100, "Bank name cannot exceed 100 characters"],
+      },
+      branchName: {
+        type: String,
+        trim: true,
+        maxLength: [100, "Branch name cannot exceed 100 characters"],
+      },
+      accountType: {
+        type: String,
+        enum: ["Savings", "Current", "Salary", "Other"],
+      },
+      panCard: {
+        type: String,
+        trim: true,
+        uppercase: true,
+        match: [/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Please enter a valid PAN card number"],
+      },
+    },
     isEmailVerified: {
       type: Boolean,
       default: false,
@@ -375,6 +434,168 @@ userSchema.pre("save", async function (next) {
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
+
+userSchema.pre("save", async function (next) {
+  try {
+    console.log("role:",this.role);
+    if (this.role !== "candidate") {
+      console.log("ℹ️ User is not a candidate, skipping Portal DB sync.");
+      return next();
+    }
+    const portalDB = getPortalDB();
+    if (!portalDB) throw new Error("⚠️ Portal DB not connected yet!");
+
+    const PortalCandidate =
+      portalDB.models.PortalCandidate ||
+      portalDB.model("PortalCandidate", PortalCandidateSchema, "candidates");
+      console.log("🆕 New user registration detected, syncing to Portal DB...",this);
+    // Determine experience level
+    const experienceLevel =
+      this.totalExperienceYears > 0 || this.totalExperienceMonths > 0
+        ? "Experienced"
+        : "Fresher";
+
+    const candidateData = {
+      name: this.name,
+      email: this.email,
+      phone: this.phone || this.mobile,
+      experienceLevel,
+      totalExperienceYears: this.totalExperienceYears,
+      totalExperienceMonths: this.totalExperienceMonths,
+      dateOfBirth: this.dateOfBirth
+        ? new Date(this.dateOfBirth).toISOString().split("T")[0]
+        : null,
+      address: this.address,
+    };
+
+    // Try saving in secondary DB
+    await PortalCandidate.create(candidateData);
+
+    next(); // proceed if successful
+  } catch (err) {
+    console.error("❌ Error in pre-save hook:", err.message);
+    next(err); // ❗ abort main save
+  }
+});
+
+
+userSchema.pre("findOneAndUpdate", async function (next) {
+  console.log("🔄 Detected user update, syncing to Portal DB...");
+
+  try {
+    console.log("role:",this.role);
+    if (this.role !== "candidate") {
+      console.log("ℹ️ User is not a candidate, skipping Portal DB sync.");
+      return next();
+    }
+    const portalDB = getPortalDB();
+    if (!portalDB) {
+      console.warn("⚠️ Portal DB not connected yet!");
+      return next();
+    }
+
+    const PortalCandidate =
+      portalDB.models.PortalCandidate ||
+      portalDB.model("PortalCandidate", PortalCandidateSchema, "candidates");
+
+    const update = this.getUpdate();
+    const query = this.getQuery();
+
+    const existingUser = await this.model.findById(query._id);
+
+        console.log("🔄 Update data:", update,this.getQuery());
+        console.log("🔄 Existing user data:", existingUser);
+
+    if (!existingUser?.email) {
+      console.warn("⚠️ No email found in update — skipping sync.");
+      return next();
+    }
+
+
+    // Fetch existing record (if any)
+    const existingCandidate = await PortalCandidate.findOne({ email: existingUser.email });
+
+    if (!existingCandidate) {
+      console.log("ℹ️ No existing candidate found");
+      return;
+    }
+
+    // Compute experience level
+    const totalYears = update.profile?.professionalInformation?.experience ??
+                       existingCandidate?.totalExperienceYears ?? 0;
+    const totalMonths =0
+    const experienceLevel = (totalYears > 0 || totalMonths > 0) ? "Experienced" : "Fresher";
+
+    // Map candidate data based on provided schema
+    const candidateData = {
+      name: update.name ?? existingCandidate?.name,
+      source: "assessment",
+      resumeUrl: update.resumeUrl ?? existingCandidate?.resumeUrl,
+      fatherName: update.profile?.fatherName ?? existingCandidate?.fatherName,
+      dateOfBirth: update.profile?.dateOfBirth
+        ? new Date(update.profile.dateOfBirth)
+        : existingCandidate?.dateOfBirth,
+      gender: update.profile?.gender ?? existingCandidate?.gender,
+      aadharNumber: update.profile?.aadharNumber ?? existingCandidate?.aadharNumber,
+      highestQualification: update.profile?.highestQualification ?? existingCandidate?.highestQualification,
+
+      // 🏠 Address
+      currentLocationDetails: {
+        street: update.profile?.address?.street ?? existingCandidate?.currentLocationDetails?.street,
+        area: update.profile?.address?.area ?? existingCandidate?.currentLocationDetails?.area,
+        city: update.profile?.address?.city ?? existingCandidate?.currentLocationDetails?.city,
+        pincode: update.profile?.address?.zipCode ?? existingCandidate?.currentLocationDetails?.pincode,
+        fullAddress: [update.profile?.address?.street ?? existingCandidate?.currentLocationDetails?.street,
+                update.profile?.address?.area ?? existingCandidate?.currentLocationDetails?.area,
+                update.profile?.address?.city ?? existingCandidate?.currentLocationDetails?.city,
+                update.profile?.address?.zipCode ?? existingCandidate?.currentLocationDetails?.pincode]
+                .filter(Boolean)
+                .join(", "),
+      },
+
+      spokenLanguages: update.profile?.languages.filter((l)=>l.speak == true).map(l=>l.name) ?? existingCandidate?.spokenLanguages ?? [],
+      totalExperienceYears: totalYears,
+      totalExperienceMonths: totalMonths,
+      skills: update.profile?.skills ?? existingCandidate?.skills ?? [],
+      preferredJobCategories: update.profile?.professionalInformation?.preferredJobCategories ??
+                              existingCandidate?.preferredJobCategories ?? [],
+      preferredEmploymentTypes: update.profile?.professionalInformation?.preferredEmploymentTypes ??
+                                existingCandidate?.preferredEmploymentTypes ?? [],
+      preferredWorkTypes: update.profile?.professionalInformation?.workMode
+        ? [update.profile.professionalInformation.workMode]
+        : existingCandidate?.preferredWorkTypes ?? [],
+
+      candidateProfileStrength: update.profile?.strength ?? existingCandidate?.candidateProfileStrength,
+      aiResumeSummary: update.profile?.aiSummary ?? existingCandidate?.aiResumeSummary,
+      profileSource: "assessment_platform",
+      availabilityStatus: update.availabilityStatus ?? existingCandidate?.availabilityStatus ?? "AVAILABLE",
+      lastLoginAt: update.lastLoginAt ?? existingCandidate?.lastLoginAt,
+      emailVerified: update.emailVerified ?? existingCandidate?.emailVerified ?? false,
+      phoneVerified: update.phoneVerified ?? existingCandidate?.phoneVerified ?? false,
+      optInJobRecommendationEmails: update.optInJobRecommendationEmails ??
+                                   existingCandidate?.optInJobRecommendationEmails ?? true,
+      resumeUrl: update?.profile?.resumeUrl ?? existingCandidate?.resumeUrl,
+      experienceLevel,
+    };
+
+    // Sync to Portal DB
+    await PortalCandidate.findOneAndUpdate(
+      { email: existingCandidate.email },
+      candidateData,
+      { upsert: true, new: true }
+    );
+
+    console.log(`✅ Synced ${update.email} to Portal DB`);
+    next();
+  } catch (err) {
+    console.error("⚠️ Error syncing to Portal DB:", err);
+    next(err);
+  }
+});
+
+
+
+
 
 // Update password comparison to handle Google users
 userSchema.methods.matchPassword = async function (enteredPassword) {

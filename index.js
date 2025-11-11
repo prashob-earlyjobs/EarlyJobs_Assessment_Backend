@@ -9,6 +9,7 @@ const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const connectDB = require("./config/database");
+const {connectPortalDB} = require("./config/portalDatabase");
 const errorHandler = require("./middlewares/errorHandler");
 
 // Route imports
@@ -38,7 +39,10 @@ const candidateRoutes= require("./routes/candidateRoutes");
 const app = express();
 
 // Connect to MongoDB
-connectDB();
+(async () => {
+  await connectDB();
+  await connectPortalDB();
+})();
 app.use(
   cors({
     origin: [
@@ -56,7 +60,8 @@ app.use(
       "https://nextjs.earlyjobs.ai",
       "https://dev.earlyjobs.ai",
       "https://portal.earlyjobs.ai",
-      "https://qa-portal.earlyjobs.ai"
+      "https://qa-portal.earlyjobs.ai",
+      "http://localhost:3001",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
