@@ -38,6 +38,11 @@ router.get(
   roleMiddleware(["super_admin", "ADMIN"]),
   getAllUsers
 );
+
+router.get(
+  "/portal/getUsers",
+  getAllUsers
+);
 router.put(
   "/users/:id/status",
   authMiddleware,
