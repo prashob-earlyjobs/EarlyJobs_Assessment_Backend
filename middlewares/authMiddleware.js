@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const authMiddleware = async (req, res, next) => {
-  console.log("req.headers", req.headers);
+
   try {
     let token;
 
@@ -22,7 +22,7 @@ const authMiddleware = async (req, res, next) => {
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log("decoded", decoded);
+
       if (decoded.role === "ADMIN" || decoded.role === "FBDE") {
         req.user = decoded;
         return next();
