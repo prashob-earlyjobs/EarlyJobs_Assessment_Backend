@@ -32,6 +32,7 @@ const browseCandidateRoutes = require("./routes/browseCandidateRoutes");
 const certificateRoutes = require("./routes/certificateRoutes");
 const candidateRoutes= require("./routes/candidateRoutes");
 const zohoRoutes = require("./routes/zohoRoutes");
+const enquiryRoutes = require("./routes/enquiryRoutes");
 
 //const resumeRoutes =require("./routes/resumeRoutes");
 
@@ -124,6 +125,7 @@ app.use("/api/team", teamRoutes);
 app.use("/api/certificates", certificateRoutes);
 app.use("/api/candidate", candidateRoutes);
 app.use("/api/zoho", zohoRoutes);
+app.use("/api/enquiries", enquiryRoutes);
 
 //app.use("/api/resume", resumeRoutes);
 // app.use('/api/results', resultRoutes);
