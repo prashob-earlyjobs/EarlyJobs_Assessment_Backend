@@ -188,8 +188,9 @@ const createInvoice = async (req, res) => {
       line_items,
       date: body.date || body.invoiceDate || new Date().toISOString().split("T")[0],
       due_date: body.due_date || body.dueDate,
-      reference_number: body.reference_number || body.referenceNumber,
-      currency_code: body.currencyCode || undefined,
+      // Use reference_number for tracking (not invoice_number to avoid auto-numbering conflict)
+      reference_number: body.reference_number || body.referenceNumber || undefined,
+      currency_code: body.currencyCode || body.currency_code || "INR",
       payment_terms: parseInt(body.payment_terms || body.paymentTerms || 0),
       payment_terms_label:
         body.payment_terms_label ||
@@ -210,8 +211,39 @@ const createInvoice = async (req, res) => {
       notes: body.notes,
       terms: body.terms,
       status: body.status || "draft",
-      is_pre_gst: true, // ✅ valid Zoho field
     };
+
+    // Handle discountAmount from frontend
+    if (body.discountAmount !== undefined) {
+      invoiceData.discount = parseFloat(body.discountAmount);
+    } else if (body.discount !== undefined) {
+      invoiceData.discount = parseFloat(body.discount);
+    }
+
+    // Handle is_pre_gst from frontend
+    if (body.is_pre_gst !== undefined) {
+      invoiceData.is_pre_gst = body.is_pre_gst;
+    }
+
+    // Handle paymentOptions from frontend (convert to Zoho format)
+    if (body.paymentOptions && Array.isArray(body.paymentOptions)) {
+      invoiceData.payment_options = {
+        payment_gateways: body.paymentOptions.map((opt) => ({
+          configured: true,
+          gateway_name: opt.method?.toLowerCase() || "razorpay",
+          additional_field1: opt.reference || opt.additional_field1 || "standard",
+        })),
+      };
+    } else if (body.payment_options) {
+      invoiceData.payment_options = body.payment_options;
+    }
+
+    // Remove undefined fields to keep payload clean
+    Object.keys(invoiceData).forEach((key) => {
+      if (invoiceData[key] === undefined) {
+        delete invoiceData[key];
+      }
+    });
 
     // --- 🔐 Step 4: Call Zoho API ---
     const token = await getZohoAccessToken();
