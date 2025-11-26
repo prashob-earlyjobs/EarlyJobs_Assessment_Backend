@@ -26,6 +26,11 @@ const examSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  department: {
+    type: String,
+    required: false,
+    trim: true,
+  },
   questions: [
     {
       type: String,
