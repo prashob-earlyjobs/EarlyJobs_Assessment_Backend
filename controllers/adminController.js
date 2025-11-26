@@ -536,7 +536,7 @@ const getTransactions = async (req, res) => {
     }).select("name _id");
     console.log("transactions", transactions);
     // Map transactions with populated and calculated fields
-    const apiCostPerTransaction = 307;
+    // const apiCostPerTransaction = 307;
     const transactionsWithCommission = transactions.map((transaction) => {
       const franchiseUser = franchiseUsers.find(
         (u) => u._id === transaction.franchiserId
@@ -548,7 +548,7 @@ const getTransactions = async (req, res) => {
         franchiseCommission:
           transaction.transactionAmount > 307
             ? (
-                (transaction.transactionAmount - apiCostPerTransaction) *
+                transaction.transactionAmount  *
                 0.7
               ).toFixed(2)
             : "0.00",
@@ -558,13 +558,13 @@ const getTransactions = async (req, res) => {
 
     // Calculate total earnings for all franchises
     const totalTransactions = await Transactions.find();
-    const totalApiCost = apiCostPerTransaction * totalTransactions.length;
+    // const totalApiCost = apiCostPerTransaction * totalTransactions.length;
     const totalAmountResult = await Transactions.aggregate([
       { $group: { _id: null, totalAmount: { $sum: "$transactionAmount" } } },
     ]);
     const totalAmount =
       totalAmountResult.length > 0 ? totalAmountResult[0].totalAmount : 0;
-    const totalCommission = (totalAmount - totalApiCost) * 0.7;
+    const totalCommission = totalAmount  * 0.7;
 
     res.json({
       success: true,
@@ -580,7 +580,7 @@ const getTransactions = async (req, res) => {
           totalCommission:
             totalCommission >= 0 ? parseFloat(totalCommission.toFixed(2)) : 0.0,
           totalAmount,
-          apiCost: totalApiCost,
+          apiCost: 0,
         },
       },
     });
@@ -650,7 +650,7 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
     console.log("franchiseUsers", franchiseUsers, "franchiseIds", franchiseIds);
 
     // Map transactions with populated and calculated fields
-    const apiCost = 307; // Fixed API cost per transaction
+    // const apiCost = 307; // Fixed API cost per transaction
     const transactionsWithCommission = transactions.map((transaction) => {
       const franchiseUser = franchiseUsers.find(
         (u) => u.referrerId === transaction.referrerId
@@ -661,8 +661,8 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
         candidateName: transaction.userId?.name || "Unknown",
         assessmentTitle: transaction.assessmentId?.title || "Unknown",
         franchiseCommission:
-          transaction.transactionAmount > apiCost
-            ? ((transaction.transactionAmount - apiCost) * 0.7).toFixed(2)
+          transaction.transactionAmount > 300
+            ? ((transaction.transactionAmount ) * 0.7).toFixed(2)
             : "0.00",
         franchiseName: franchiseUser ? franchiseUser.name : "Unknown",
       };
@@ -672,14 +672,14 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
     const totalTransactions = await Transactions.find({
       referrerId: franchiserId,
     });
-    const apiCostTotal = apiCost * totalTransactions.length; // API cost scaled by transaction count
+    // const apiCostTotal = apiCost * totalTransactions.length; // API cost scaled by transaction count
     const totalAmountResult = await Transactions.aggregate([
       { $match: { referrerId: franchiserId } },
       { $group: { _id: null, totalAmount: { $sum: "$transactionAmount" } } },
     ]);
     const totalAmount =
       totalAmountResult.length > 0 ? totalAmountResult[0].totalAmount : 0;
-    const totalCommission = (totalAmount - apiCostTotal) * 0.7;
+    const totalCommission = (totalAmount ) * 0.7;
 
     console.log(
       "totalCommission",
@@ -687,7 +687,7 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
       "totalAmount",
       totalAmount,
       "apiCostTotal",
-      apiCostTotal
+      0
     );
 
     res.json({
@@ -704,7 +704,7 @@ const getFranchiseTransactionsAndEarnings = async (req, res) => {
           totalCommission:
             totalCommission >= 0 ? parseFloat(totalCommission.toFixed(2)) : 0.0,
           totalAmount,
-          apiCost: apiCostTotal,
+          apiCost: 0,
         },
       },
     });
@@ -775,7 +775,7 @@ const getFranchiseTransactionsForEarlyjobs = async (req, res) => {
     console.log("franchiseUsers", franchiseUsers, "franchiseIds", franchiseIds);
 
     // Map transactions with populated and calculated fields
-    const apiCost = 307; // Fixed API cost per transaction
+    // const apiCost = 307; // Fixed API cost per transaction
     const transactionsWithCommission = transactions.map((transaction) => {
       const franchiseUser = franchiseUsers.find(
         (u) => u.referrerId === transaction.referrerId
@@ -786,8 +786,8 @@ const getFranchiseTransactionsForEarlyjobs = async (req, res) => {
         candidateName: transaction.userId?.name || "Unknown",
         assessmentTitle: transaction.assessmentId?.title || "Unknown",
         franchiseCommission:
-          transaction.transactionAmount > apiCost
-            ? ((transaction.transactionAmount - apiCost) * 0.7).toFixed(2)
+          transaction.transactionAmount > 300
+            ? ((transaction.transactionAmount) * 0.7).toFixed(2)
             : "0.00",
         franchiseName: franchiseUser ? franchiseUser.name : "Unknown",
       };
@@ -797,14 +797,14 @@ const getFranchiseTransactionsForEarlyjobs = async (req, res) => {
     const totalTransactions = await Transactions.find({
       referrerId: franchiserId,
     });
-    const apiCostTotal = apiCost * totalTransactions.length; // API cost scaled by transaction count
+    // const apiCostTotal = apiCost * totalTransactions.length; // API cost scaled by transaction count
     const totalAmountResult = await Transactions.aggregate([
       { $match: { referrerId: franchiserId } },
       { $group: { _id: null, totalAmount: { $sum: "$transactionAmount" } } },
     ]);
     const totalAmount =
       totalAmountResult.length > 0 ? totalAmountResult[0].totalAmount : 0;
-    const totalCommission = (totalAmount - apiCostTotal) * 0.7;
+    const totalCommission = (totalAmount ) * 0.7;
 
     console.log(
       "totalCommission",
@@ -812,7 +812,7 @@ const getFranchiseTransactionsForEarlyjobs = async (req, res) => {
       "totalAmount",
       totalAmount,
       "apiCostTotal",
-      apiCostTotal
+      0
     );
 
     res.json({
@@ -829,7 +829,7 @@ const getFranchiseTransactionsForEarlyjobs = async (req, res) => {
           totalCommission:
             totalCommission >= 0 ? parseFloat(totalCommission.toFixed(2)) : 0.0,
           totalAmount,
-          apiCost: apiCostTotal,
+          apiCost: 0,
         },
       },
     });
