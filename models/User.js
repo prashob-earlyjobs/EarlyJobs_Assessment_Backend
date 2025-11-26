@@ -442,6 +442,7 @@ userSchema.pre("save", async function (next) {
       console.log("ℹ️ User is not a candidate, skipping Portal DB sync.");
       return next();
     }
+  
     const portalDB = getPortalDB();
     if (!portalDB) throw new Error("⚠️ Portal DB not connected yet!");
 
@@ -449,23 +450,29 @@ userSchema.pre("save", async function (next) {
       portalDB.models.PortalCandidate ||
       portalDB.model("PortalCandidate", PortalCandidateSchema, "candidates");
       console.log("🆕 New user registration detected, syncing to Portal DB...",this);
+
+    const userExist = PortalCandidate.findOne({
+      $or: [
+        { phone: this.mobile },
+        { email: this.email }
+      ]
+    })
+
+    if(userExist) return next();
+
+
     // Determine experience level
     const experienceLevel =
-      this.totalExperienceYears > 0 || this.totalExperienceMonths > 0
-        ? "Experienced"
-        : "Fresher";
+      this.experienceLevel === 'experienced' ? "Experienced"  : "Fresher";
 
     const candidateData = {
       name: this.name,
       email: this.email,
       phone: this.phone || this.mobile,
       experienceLevel,
-      totalExperienceYears: this.totalExperienceYears,
-      totalExperienceMonths: this.totalExperienceMonths,
       dateOfBirth: this.dateOfBirth
         ? new Date(this.dateOfBirth).toISOString().split("T")[0]
         : null,
-      address: this.address,
     };
 
     // Try saving in secondary DB
