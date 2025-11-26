@@ -274,7 +274,7 @@ const sendEnquiryAcknowledgement = async (data) => {
   const password = process.env.GUPSHUP_WHATSAPP_PASSWORD;
   try {
     const response = await axios.get(
-      `https://mediaapi.smsgupshup.com/GatewayAPI/rest?userid=2000254194&password=${password}&send_to=${data?.mobile}&v=1.1&format=json&msg_type=TEXT&method=SENDMESSAGE&msg=Hello+%2A${data.name}%2A%21+%0A%0AThank+you+for+submitting+your+enquiry+with+EarlyJobs.+We%27re+excited+to+help+you+with%3A+${data.expectations.join(',')}%0A%0AOur+team+will+review+your+enquiry+and+reach+out+to+you+soon.%0A%0ANeed+immediate+help%3F+Call+us%3A+9148176008%0AEmail%3A+info%40earlyjobs.ai%0A%0AWe+look+forward+to+help+you&isTemplate=true&footer=EarlyJobs+Team`
+      `https://mediaapi.smsgupshup.com/GatewayAPI/rest?userid=2000254194&password=${password}&send_to=${data?.mobile}&v=1.1&format=json&msg_type=TEXT&method=SENDMESSAGE&msg=Hello+%2A${data.name}%2A%21+%0A%0AThank+you+for+submitting+your+enquiry+with+EarlyJobs.+We%27re+excited+to+help+you+with%3A+${data.expectations.join(',')}%0A%0AOur+team+will+review+your+enquiry+and+reach+out+to+you+soon.%0A%0ANeed+immediate+help%3F+Call+us%3A+8217527926%0AEmail%3A+info%40earlyjobs.ai%0A%0AWe+look+forward+to+help+you&isTemplate=true&footer=EarlyJobs+Team`
     );
     console.log(response?.data)
    
