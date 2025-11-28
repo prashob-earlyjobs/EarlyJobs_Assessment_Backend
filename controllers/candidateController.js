@@ -36,35 +36,68 @@ const getassessmentsByUser = async (req, res) => {
 
 const getAllCandidates = async (req, res) => {
   try {
-    const candidates = await User.find({ 
+    // Get pagination parameters from query
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const skip = (page - 1) * limit;
+
+    // Build query
+    const query = { 
       role: 'candidate',
       assessmentsPaid: { $exists: true, $not: { $size: 0 } }
-    })
-      .select('-password')
-      .sort({ createdAt: -1 })
-      .lean();
+    };
 
-    if (!candidates || candidates.length === 0) {
+    // Get total count of all candidates
+    const totalCandidatesAll = await User.countDocuments(query);
+    
+    // Exclude the last 7 candidates from total count
+    const totalCandidates = Math.max(0, totalCandidatesAll - 7);
+    
+    if (totalCandidates === 0) {
       return res.status(404).json({
         success: false,
         message: 'No candidates with paid assessments found'
       });
     }
 
-    // Exclude the last 7 candidates
-    const filteredCandidates = candidates.slice(0, -7);
-
-    if (filteredCandidates.length === 0) {
+    // Check if skip is beyond available candidates
+    if (skip >= totalCandidates) {
       return res.status(404).json({
         success: false,
-        message: 'No candidates remain after excluding the last 7'
+        message: 'No candidates found for this page'
+      });
+    }
+
+    // Calculate how many candidates to fetch
+    // We only fetch up to (totalCandidatesAll - 7) to exclude the last 7
+    const fetchLimit = Math.min(skip + limit, totalCandidates);
+    
+    // Fetch candidates (sorted by newest first)
+    // Since we're limiting to totalCandidates, we won't fetch the excluded last 7
+    const candidates = await User.find(query)
+      .select('-password')
+      .sort({ createdAt: -1 })
+      .limit(fetchLimit)
+      .lean();
+    
+    // Apply pagination by slicing from skip position
+    const paginatedCandidates = candidates.slice(skip);
+
+    if (paginatedCandidates.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No candidates found for this page'
       });
     }
 
     res.status(200).json({
       success: true,
-      count: filteredCandidates.length,
-      data: filteredCandidates
+      count: paginatedCandidates.length,
+      total: totalCandidates,
+      page: page,
+      limit: limit,
+      totalPages: Math.ceil(totalCandidates / limit),
+      data: paginatedCandidates
     });
   } catch (error) {
     console.error('Error fetching candidates:', error);
