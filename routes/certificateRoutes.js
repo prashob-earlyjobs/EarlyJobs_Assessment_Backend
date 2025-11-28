@@ -44,7 +44,7 @@ router.get("/:id", getCertificateById);
 // @access  Private (Admin)
 router.post(
   "/",
-  authMiddleware,
+  // authMiddleware,
   // roleMiddleware(["super_admin", "franchise_admin"]),
   createCertificateValidation,
   createCertificate
