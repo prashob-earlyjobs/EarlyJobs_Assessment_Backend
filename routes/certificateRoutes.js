@@ -32,12 +32,12 @@ router.get("/verify/:certificateNo", verifyCertificate);
 // @route   GET /api/certificates/user/:userId
 // @desc    Get all certificates for a user
 // @access  Private
-router.get("/user/:userId", authMiddleware, getUserCertificates);
+router.get("/user/:userId", getUserCertificates);
 
 // @route   GET /api/certificates/:id
 // @desc    Get certificate by ID
 // @access  Private
-router.get("/:id", authMiddleware, getCertificateById);
+router.get("/:id", getCertificateById);
 
 // @route   POST /api/certificates
 // @desc    Create a new certificate

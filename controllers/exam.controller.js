@@ -92,6 +92,10 @@ const generateITQuestions = async (usedQuestions = []) => {
  [{"question": "...", "expectedAnswer": "..."}, ...]`;
 
   const prompt = createPrompt(usedQuestions);
+  console.log("IT Questions Generation - Used questions in prompt:", {
+    count: usedQuestions.length,
+    included: usedQuestions.length > 0
+  });
 
   const result = await model.generateContent(prompt);
   const response = await result.response;
@@ -212,6 +216,11 @@ const generateStreamQuestions = async (department, usedQuestions = []) => {
 
   const fieldType = isEngineering ? "engineering" : isBusiness ? "business" : isHR ? "hr" : "general";
   const prompt = createPrompt(deptDisplayName, usedQuestions, fieldType);
+  console.log("Stream Questions Generation - Used questions in prompt:", {
+    department: deptDisplayName,
+    count: usedQuestions.length,
+    included: usedQuestions.length > 0
+  });
 
   const result = await model.generateContent(prompt);
   const response = await result.response;
@@ -255,27 +264,56 @@ Evaluate if the user's answer is correct. Respond ONLY with valid JSON:
 // 1. Register User and Generate Questions
 const registerCandidate = async (req, res) => {
   try {
+    console.log("=== REGISTER CANDIDATE START ===");
     const { fullName, email, phone, college, department } = req.body;
+    console.log("Request body:", { fullName, email, phone, college, department });
 
     // Determine if IT/Computer Engineering or other branch
     const normalizedDept = normalizeDepartment(department);
     const isITBranch = normalizedDept === "it";
     const questionCount = isITBranch ? 3 : 10;
+    console.log("Department analysis:", { department, normalizedDept, isITBranch, questionCount });
 
     // Find the single document storing all used questions
-    let usedQuestionsDoc = await UsedQuestion.find({});
+    console.log("Fetching used questions document...");
+    let usedQuestionsDoc = await UsedQuestion.findOne({});
     let usedQuestions = [];
-    if (usedQuestionsDoc.length > 0) {
-      // Get the single document from the array
-      usedQuestionsDoc = usedQuestionsDoc[0];
-      // Get more used questions for non-IT branches (10 questions need more context)
-      usedQuestions = usedQuestionsDoc.questions.slice(0, isITBranch ? 24 : 50);
+    let usedQuestionsDocId = null;
+    
+    if (usedQuestionsDoc) {
+      usedQuestionsDocId = usedQuestionsDoc._id;
+      const totalUsedQuestions = usedQuestionsDoc.questions?.length || 0;
+      console.log("Found used questions document:", { 
+        docId: usedQuestionsDocId, 
+        version: usedQuestionsDoc.__v,
+        totalUsedQuestions: totalUsedQuestions
+      });
+      
+      // Use the last 30 added questions for uniqueness checking
+      const questionsToCheck = 30;
+      const allUsedQuestions = (usedQuestionsDoc.questions || []);
+      
+      if (allUsedQuestions.length > questionsToCheck) {
+        // Use the most recent ones (last 30)
+        usedQuestions = allUsedQuestions.slice(-questionsToCheck);
+        console.log(`Using last ${usedQuestions.length} used questions for context (out of ${totalUsedQuestions} total)`);
+      } else {
+        // Use all questions if less than 30
+        usedQuestions = allUsedQuestions;
+        console.log(`Using all ${usedQuestions.length} used questions for context (less than ${questionsToCheck})`);
+      }
     } else {
-      // Create a new document if one doesn't exist
-      usedQuestionsDoc = new UsedQuestion({});
+      console.log("No used questions document found, will create/upsert one");
+      usedQuestions = [];
     }
+    
+    console.log("Used questions being passed to AI:", {
+      count: usedQuestions.length,
+      sample: usedQuestions.slice(0, 3) // Log first 3 as sample
+    });
 
     // Generate new questions based on department
+    console.log("Generating questions...");
     let questionsData;
     if (isITBranch) {
       questionsData = await generateITQuestions(usedQuestions);
@@ -283,29 +321,133 @@ const registerCandidate = async (req, res) => {
       // Use the department name for stream-specific questions (will be normalized in the function)
       questionsData = await generateStreamQuestions(department || "Engineering", usedQuestions);
     }
+    console.log("Generated", questionsData.length, "questions");
 
     const newQuestions = questionsData.map((q) => q.question);
+    console.log("New questions extracted:", newQuestions.length);
 
-    // Update the used questions document with the new questions
-    usedQuestionsDoc.questions = [
-      ...new Set([...usedQuestions, ...newQuestions]),
-    ];
-    await usedQuestionsDoc.save();
+    // Update the used questions document atomically using findOneAndUpdate
+    // This prevents version conflicts when multiple requests update simultaneously
+    console.log("Updating used questions document atomically...");
+    try {
+      // Use $addToSet to add unique questions atomically
+      // This prevents version conflicts and ensures uniqueness
+      const updateResult = await UsedQuestion.findOneAndUpdate(
+        usedQuestionsDocId ? { _id: usedQuestionsDocId } : {},
+        {
+          $addToSet: {
+            questions: { $each: newQuestions }
+          }
+        },
+        {
+          upsert: true, // Create if doesn't exist
+          new: true, // Return updated document
+          setDefaultsOnInsert: true
+        }
+      );
+      console.log("Used questions document updated successfully:", {
+        docId: updateResult._id,
+        version: updateResult.__v,
+        totalQuestions: updateResult.questions?.length || 0
+      });
+    } catch (usedQErr) {
+      console.error("Error updating used questions document:", {
+        error: usedQErr.message,
+        errorName: usedQErr.name,
+        docId: usedQuestionsDocId
+      });
+      // Continue even if this fails, as it's not critical for exam registration
+      // The questions will still be generated and saved to the exam
+    }
 
     // Check if user already has an exam session
+    console.log("Checking for existing exam with email:", email);
     let existingExam = await Exam.findOne({ email });
+    
+    if (existingExam) {
+      console.log("Found existing exam:", {
+        examId: existingExam._id,
+        currentVersion: existingExam.__v,
+        currentStatus: existingExam.status,
+        currentQuestionsCount: existingExam.questions?.length || 0
+      });
+    } else {
+      console.log("No existing exam found, will create new one");
+    }
 
     let exam;
     if (existingExam) {
-      // Update the existing exam session
-      existingExam.questions = newQuestions;
-      existingExam.status = "questions_generated";
-      if (department !== undefined) {
-        existingExam.department = department;
+      // Use findOneAndUpdate to handle version conflicts atomically
+      console.log("Updating existing exam...");
+      try {
+        exam = await Exam.findOneAndUpdate(
+          { 
+            _id: existingExam._id,
+            // Optionally add version check to prevent stale updates
+          },
+          {
+            $set: {
+              questions: newQuestions,
+              status: "questions_generated",
+              ...(department !== undefined && { department: department }),
+              fullName: fullName,
+              phone: phone,
+              college: college,
+            }
+          },
+          { 
+            new: true, // Return updated document
+            runValidators: true,
+            // Remove version check to allow updates even if version changed
+            // This handles concurrent updates better
+          }
+        );
+        console.log("Exam updated successfully:", {
+          examId: exam._id,
+          newVersion: exam.__v,
+          questionsCount: exam.questions?.length || 0
+        });
+      } catch (updateErr) {
+        console.error("Error updating exam:", {
+          error: updateErr.message,
+          errorName: updateErr.name,
+          examId: existingExam._id,
+          examVersion: existingExam.__v
+        });
+        
+        // If version conflict, retry with fresh fetch
+        if (updateErr.name === 'VersionError' || updateErr.message.includes('version')) {
+          console.log("Version conflict detected, retrying with fresh fetch...");
+          const freshExam = await Exam.findById(existingExam._id);
+          if (freshExam) {
+            exam = await Exam.findOneAndUpdate(
+              { _id: freshExam._id },
+              {
+                $set: {
+                  questions: newQuestions,
+                  status: "questions_generated",
+                  ...(department !== undefined && { department: department }),
+                  fullName: fullName,
+                  phone: phone,
+                  college: college,
+                }
+              },
+              { new: true, runValidators: true }
+            );
+            console.log("Retry successful, exam updated:", {
+              examId: exam._id,
+              newVersion: exam.__v
+            });
+          } else {
+            throw new Error("Exam not found during retry");
+          }
+        } else {
+          throw updateErr;
+        }
       }
-      exam = await existingExam.save();
     } else {
       // Create a new exam session
+      console.log("Creating new exam session...");
       exam = new Exam({
         fullName,
         email,
@@ -315,9 +457,24 @@ const registerCandidate = async (req, res) => {
         questions: newQuestions,
         status: "questions_generated",
       });
-      await exam.save();
+      try {
+        await exam.save();
+        console.log("New exam created successfully:", {
+          examId: exam._id,
+          version: exam.__v,
+          questionsCount: exam.questions?.length || 0
+        });
+      } catch (saveErr) {
+        console.error("Error saving new exam:", {
+          error: saveErr.message,
+          errorName: saveErr.name,
+          email: email
+        });
+        throw saveErr;
+      }
     }
 
+    console.log("=== REGISTER CANDIDATE SUCCESS ===");
     res.status(201).json({
       message: "Registration successful",
       examId: exam._id,
@@ -325,8 +482,17 @@ const registerCandidate = async (req, res) => {
       questionCount: exam.questions.length,
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
+    console.error("=== REGISTER CANDIDATE ERROR ===");
+    console.error("Error details:", {
+      message: err.message,
+      name: err.name,
+      stack: err.stack,
+      email: req.body?.email
+    });
+    res.status(500).json({ 
+      message: err.message,
+      error: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
   }
 };
 
