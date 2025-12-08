@@ -36,9 +36,16 @@ const teamMemberSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  description:{
+    type:String,
+  },
   joined_date: {
     type: Date,
   },
+  type:{
+    type:String,
+    enum:["core","franchise","advisor","freelance"]
+  }
 }, { timestamps: true });
 
 const TeamMember = mongoose.model('TeamMember', teamMemberSchema);
