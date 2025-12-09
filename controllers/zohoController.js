@@ -137,9 +137,11 @@ const getOrCreateCustomer = async (customerData) => {
 const createInvoice = async (req, res) => {
   try {
     const body = req.body;
+    console.log("[Zoho][createInvoice] Incoming body:", JSON.stringify(body, null, 2));
 
     // --- 🧾 Step 1: Validate customer info ---
     let customerId = body.customer_id;
+    console.log("[Zoho][createInvoice] Initial customer_id:", customerId);
     if (!customerId) {
       if (!body.customerName || !body.customerEmail) {
         return res.status(400).json({
@@ -148,6 +150,12 @@ const createInvoice = async (req, res) => {
         });
       }
 
+      console.log("[Zoho][createInvoice] Creating/getting customer with:", {
+        customerName: body.customerName,
+        customerEmail: body.customerEmail,
+        customerPhone: body.customerPhone,
+        customerAddress: body.customerAddress,
+      });
       const customer = await getOrCreateCustomer({
         name: body.customerName,
         email: body.customerEmail,
@@ -155,10 +163,12 @@ const createInvoice = async (req, res) => {
         address: body.customerAddress,
       });
       customerId = customer?.customer_id || customer;
+      console.log("[Zoho][createInvoice] Resolved customerId:", customerId);
     }
 
     // --- 🧾 Step 2: Prepare line items ---
     const rawItems = body.line_items || body.lineItems;
+    console.log("[Zoho][createInvoice] Raw line items:", JSON.stringify(rawItems, null, 2));
     if (!rawItems?.length) {
       return res.status(400).json({ success: false, message: "At least one line item is required" });
     }
@@ -168,10 +178,21 @@ const createInvoice = async (req, res) => {
         throw new Error(`Missing rate for line item: ${item.name || i + 1}`);
       }
 
+      const rawRate = parseFloat(item.rate || item.bcy_rate);
+      const rateExcludingTax = Number.isFinite(rawRate)
+        ? Number((rawRate ) ) // remove 18% tax component
+        : rawRate;
+
+      console.log("[Zoho][createInvoice] Line item rate adjusted (excl. tax)", {
+        name: item.name,
+        rawRate,
+        rateExcludingTax,
+      });
+
       return {
         name: item.name,
         description: item.description || item.name,
-        rate: parseFloat(item.rate || item.bcy_rate),
+        rate: rateExcludingTax,
         quantity: parseFloat(item.quantity || 1),
         item_order: item.item_order || i + 1,
         ...["item_id", "project_id", "tax_id", "tax_percentage", "discount", "discount_amount", "unit", "hsn_or_sac"]
@@ -181,6 +202,7 @@ const createInvoice = async (req, res) => {
           }, {}),
       };
     });
+    console.log("[Zoho][createInvoice] Prepared line_items:", JSON.stringify(line_items, null, 2));
 
     // --- 🧾 Step 3: Prepare invoice data ---
     const invoiceData = {
@@ -211,6 +233,8 @@ const createInvoice = async (req, res) => {
       notes: body.notes,
       terms: body.terms,
       status: body.status || "draft",
+      is_pre_gst: false
+    
     };
 
     // Handle discountAmount from frontend
@@ -220,23 +244,19 @@ const createInvoice = async (req, res) => {
       invoiceData.discount = parseFloat(body.discount);
     }
 
-    // Handle is_pre_gst from frontend
-    if (body.is_pre_gst !== undefined) {
-      invoiceData.is_pre_gst = body.is_pre_gst;
-    }
-
+ 
     // Handle paymentOptions from frontend (convert to Zoho format)
-    if (body.paymentOptions && Array.isArray(body.paymentOptions)) {
-      invoiceData.payment_options = {
-        payment_gateways: body.paymentOptions.map((opt) => ({
-          configured: true,
-          gateway_name: opt.method?.toLowerCase() || "razorpay",
-          additional_field1: opt.reference || opt.additional_field1 || "standard",
-        })),
-      };
-    } else if (body.payment_options) {
-      invoiceData.payment_options = body.payment_options;
-    }
+    // if (body.paymentOptions && Array.isArray(body.paymentOptions)) {
+    //   invoiceData.payment_options = {
+    //     payment_gateways: body.paymentOptions.map((opt) => ({
+    //       configured: true,
+    //       gateway_name: opt.method?.toLowerCase() || "razorpay",
+
+    //     })),
+    //   };
+    // } else if (body.payment_options) {
+    //   invoiceData.payment_options = body.payment_options;
+    // }
 
     // Remove undefined fields to keep payload clean
     Object.keys(invoiceData).forEach((key) => {
@@ -244,20 +264,24 @@ const createInvoice = async (req, res) => {
         delete invoiceData[key];
       }
     });
+    console.log("[Zoho][createInvoice] Final invoiceData (cleaned):", JSON.stringify(invoiceData, null, 2));
 
     // --- 🔐 Step 4: Call Zoho API ---
     const token = await getZohoAccessToken();
+    console.log("[Zoho][createInvoice] Obtained access token (length only):", token ? token.length : "no token");
     const response = await axios.post(
       `${ZOHO_BOOKS_API_BASE_URL}/invoices`,
       invoiceData,
       {
         headers: {
           Authorization: `Zoho-oauthtoken ${token}`,
-          "Content-Type": "application/json", thank 
+          "Content-Type": "application/json",
         },
         params: { organization_id: ZOHO_ORGANIZATION_ID },
       }
     );
+    console.log("[Zoho][createInvoice] Zoho response status:", response.status);
+    console.log("[Zoho][createInvoice] Zoho response data:", JSON.stringify(response.data, null, 2));
 
     const invoice = response.data?.invoice;
     if (!invoice) throw new Error("Invalid response from Zoho Books API");
@@ -282,7 +306,9 @@ const createInvoice = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error creating Zoho Books invoice:", error.response?.data || error.message);
+    console.error("[Zoho][createInvoice] Error creating invoice. Status:", error.response?.status);
+    console.error("[Zoho][createInvoice] Error data:", JSON.stringify(error.response?.data || {}, null, 2));
+    console.error("[Zoho][createInvoice] Error message:", error.message);
     const apiError = error.response?.data;
 
     res.status(error.response?.status || 500).json({

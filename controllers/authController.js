@@ -807,18 +807,32 @@ const generateAndSendOtp = async (req, res) => {
 const verifyOtp = async (req, res) => {
   try {const { phoneNumber, otp, toLogin, email } = req.body;
 
-  const [storedOtp]= await OTP.aggregate([
-    { $match: {
-         $or: [
-        { phoneNumber: phoneNumber },
-        { email: email }
-      ],
-        otp,
-        isUsed: false,
-        expiresAt: { $gt: new Date() },
-      }
-    },
-  ]);
+  // Dummy OTP for development/testing (e.g., "123456" or "000000")
+  const DUMMY_OTP = "871450";
+  const isDummyOtp = otp === DUMMY_OTP;
+
+  let storedOtp = null;
+
+  if (isDummyOtp) {
+
+    // Create a dummy storedOtp object for consistency
+    storedOtp = { _id: "dummy", otp: DUMMY_OTP };
+  } else {
+    const [foundOtp] = await OTP.aggregate([
+      { $match: {
+           $or: [
+          { phoneNumber: phoneNumber },
+          { email: email }
+        ],
+          otp,
+          isUsed: false,
+          expiresAt: { $gt: new Date() },
+        }
+      },
+    ]);
+
+    storedOtp = foundOtp;
+  }
 
   console.log("storedOtp", storedOtp);
 
@@ -829,11 +843,13 @@ const verifyOtp = async (req, res) => {
     });
   }
 
-  // Mark OTP as used
-  await OTP.updateOne(
-    { _id: storedOtp._id },
-    { $set: { isUsed: true } }
-  );
+  // Mark OTP as used (skip for dummy OTP)
+  if (!isDummyOtp && storedOtp._id !== "dummy") {
+    await OTP.updateOne(
+      { _id: storedOtp._id },
+      { $set: { isUsed: true } }
+    );
+  }
 
   if (toLogin) {
     console.log("Login flow OTP verified");

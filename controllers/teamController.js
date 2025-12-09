@@ -25,6 +25,8 @@ const createTeamMember = async (req, res) => {
       position,
       category,
       joined_date,
+      description,
+      type
     } = req.body;
 
     // Validate required fields
@@ -44,6 +46,8 @@ const createTeamMember = async (req, res) => {
       linkedIn_url,
       position,
       category,
+      description,
+      type
     };
 
     // Validate joined_date
@@ -85,7 +89,7 @@ const createTeamMember = async (req, res) => {
 const updateTeamMember = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, image_url, designation, experience_in_years, certified_by, linkedIn_url, position, category, joined_date } = req.body;
+    const { name, image_url, designation, experience_in_years, certified_by, linkedIn_url, position, category, joined_date,description ,type} = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid ID' });
@@ -100,6 +104,8 @@ const updateTeamMember = async (req, res) => {
       linkedIn_url,
       position,
       category,
+      description,
+      type
     };
 
     if (joined_date) {
