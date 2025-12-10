@@ -704,7 +704,19 @@ const generateAndSendOtp = async (req, res) => {
           message: "User does not exist with this mobile number or email",
         });
       }
+      if (userExistsforpasswordchange.isDeleted) {
+        return res.status(403).json({
+          success: false,
+          message: "User account is deleted",
+        });
+      }
     } else if (userExists) {
+      if (userExists.isDeleted) {
+        return res.status(403).json({
+          success: false,
+          message: "User account is deleted",
+        });
+      }
       return res.status(409).json({
         success: false,
         message: "User already exists with this mobile number or email",
@@ -754,6 +766,12 @@ const generateAndSendOtp = async (req, res) => {
         message: "User does not exist with this mobile number or email",
       });
     } else if (userExists) {
+      if (userExists.isDeleted) {
+        return res.status(403).json({
+          success: false,
+          message: "User account is deleted",
+        });
+      }
       phoneNumber = userExists.mobile;
       email = userExists.email;
     }
@@ -792,7 +810,12 @@ const generateAndSendOtp = async (req, res) => {
       message: "OTP sent successfully",
       id: smsResponse.id,
       // emailRes: emailResponse,
-      user: userExistsforpasswordchange,
+      user: userExistsforpasswordchange
+        ? {
+            ...userExistsforpasswordchange.toObject(),
+            isDeleted: userExistsforpasswordchange.isDeleted ?? false,
+          }
+        : null,
     });
   } else {
     res.json({
