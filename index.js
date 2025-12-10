@@ -64,6 +64,7 @@ app.use(
       "https://portal.earlyjobs.ai",
       "https://qa-portal.earlyjobs.ai",
       "http://localhost:3001",
+      "http://localhost:63306"
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
