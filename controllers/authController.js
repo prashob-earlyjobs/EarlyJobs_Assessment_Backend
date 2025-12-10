@@ -225,6 +225,7 @@ const login = async (req, res) => {
           profile: user.profile,
           isEmailVerified: user.isEmailVerified,
           isPhoneVerified: user.isPhoneVerified,
+          isDeleted: user.isDeleted ?? false, // default false if missing
         },
         accessToken,
       },
@@ -1049,6 +1050,71 @@ const updateBankDetails = async (req, res) => {
   }
 };
 
+// @desc    Soft delete user (sets isDeleted = true)
+// @route   DELETE /api/auth/delete-user/:id
+// @access  Private (owner or super_admin/ADMIN)
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    const requesterRole = req.user?.role;
+    const isAdmin =
+      requesterRole === "super_admin" || requesterRole === "ADMIN";
+
+    // Restrict deletion to admin roles only
+    if (!isAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this user",
+      });
+    }
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (user.isDeleted) {
+      return res.status(400).json({
+        success: false,
+        message: "User is already deleted",
+      });
+    }
+
+    user.isDeleted = true;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+      data: {
+        userId: user._id,
+        name: user.name,
+        email: user.email,
+        isDeleted: user.isDeleted,
+      },
+    });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete user",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -1064,4 +1130,5 @@ module.exports = {
   verifyOtp,
   getColleges,
   updateBankDetails,
+  deleteUser,
 };
