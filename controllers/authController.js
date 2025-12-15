@@ -707,14 +707,16 @@ const generateAndSendOtp = async (req, res) => {
       if (userExistsforpasswordchange.isDeleted) {
         return res.status(403).json({
           success: false,
-          message: "User account is deleted",
+          message:
+            "User account is deleted. You can create a new account after 30 days of account deletion.",
         });
       }
     } else if (userExists) {
       if (userExists.isDeleted) {
         return res.status(403).json({
           success: false,
-          message: "User account is deleted",
+          message:
+            "User account is deleted. You can create a new account after 30 days of account deletion.",
         });
       }
       return res.status(409).json({
@@ -769,7 +771,8 @@ const generateAndSendOtp = async (req, res) => {
       if (userExists.isDeleted) {
         return res.status(403).json({
           success: false,
-          message: "User account is deleted",
+          message:
+            "User account is deleted. You can create a new account after 30 days of account deletion.",
         });
       }
       phoneNumber = userExists.mobile;
