@@ -1,0 +1,749 @@
+[
+  { "value": "software-engineer", "label": "Software Engineer" },
+  { "value": "software-developer", "label": "Software Developer" },
+
+  { "value": "frontend-developer", "label": "Frontend Developer" },
+  { "value": "backend-developer", "label": "Backend Developer" },
+  { "value": "full-stack-developer", "label": "Full Stack Developer" },
+
+  { "value": "mern-stack-developer", "label": "MERN Stack Developer" },
+  { "value": "mean-stack-developer", "label": "MEAN Stack Developer" },
+  { "value": "lamp-stack-developer", "label": "LAMP Stack Developer" },
+
+  { "value": "nodejs-developer", "label": "Node.js Developer" },
+  { "value": "expressjs-developer", "label": "Express.js Developer" },
+  { "value": "nestjs-developer", "label": "NestJS Developer" },
+
+  { "value": "react-developer", "label": "React Developer" },
+  { "value": "nextjs-developer", "label": "Next.js Developer" },
+  { "value": "vuejs-developer", "label": "Vue.js Developer" },
+  { "value": "angular-developer", "label": "Angular Developer" },
+
+  { "value": "mobile-app-developer", "label": "Mobile Application Developer" },
+  { "value": "react-native-developer", "label": "React Native Developer" },
+  { "value": "android-developer", "label": "Android Developer" },
+  { "value": "ios-developer", "label": "iOS Developer" },
+  { "value": "flutter-developer", "label": "Flutter Developer" },
+
+  { "value": "frontend-engineer", "label": "Frontend Engineer" },
+  { "value": "backend-engineer", "label": "Backend Engineer" },
+  { "value": "full-stack-engineer", "label": "Full Stack Engineer" },
+
+  { "value": "java-developer", "label": "Java Developer" },
+  { "value": "spring-boot-developer", "label": "Spring Boot Developer" },
+
+  { "value": "python-developer", "label": "Python Developer" },
+  { "value": "django-developer", "label": "Django Developer" },
+  { "value": "flask-developer", "label": "Flask Developer" },
+
+  { "value": "php-developer", "label": "PHP Developer" },
+  { "value": "laravel-developer", "label": "Laravel Developer" },
+
+  { "value": "golang-developer", "label": "Golang Developer" },
+  { "value": "rust-developer", "label": "Rust Developer" },
+
+  { "value": "dotnet-developer", "label": ".NET Developer" },
+  { "value": "csharp-developer", "label": "C# Developer" },
+
+  { "value": "database-developer", "label": "Database Developer" },
+  { "value": "sql-developer", "label": "SQL Developer" },
+  { "value": "mongodb-developer", "label": "MongoDB Developer" },
+
+  { "value": "devops-engineer", "label": "DevOps Engineer" },
+  { "value": "site-reliability-engineer", "label": "Site Reliability Engineer" },
+  { "value": "cloud-engineer", "label": "Cloud Engineer" },
+  { "value": "aws-engineer", "label": "AWS Engineer" },
+  { "value": "gcp-engineer", "label": "GCP Engineer" },
+  { "value": "azure-engineer", "label": "Azure Engineer" },
+
+  { "value": "platform-engineer", "label": "Platform Engineer" },
+  { "value": "infrastructure-engineer", "label": "Infrastructure Engineer" },
+
+  { "value": "qa-engineer", "label": "QA Engineer" },
+  { "value": "test-automation-engineer", "label": "Test Automation Engineer" },
+  { "value": "manual-tester", "label": "Manual Tester" },
+
+  { "value": "data-engineer", "label": "Data Engineer" },
+  { "value": "data-analyst", "label": "Data Analyst" },
+  { "value": "data-scientist", "label": "Data Scientist" },
+  { "value": "machine-learning-engineer", "label": "Machine Learning Engineer" },
+
+  { "value": "ai-engineer", "label": "AI Engineer" },
+  { "value": "nlp-engineer", "label": "NLP Engineer" },
+
+  { "value": "blockchain-developer", "label": "Blockchain Developer" },
+  { "value": "web3-developer", "label": "Web3 Developer" },
+
+  { "value": "game-developer", "label": "Game Developer" },
+  { "value": "unity-developer", "label": "Unity Developer" },
+
+  { "value": "ui-developer", "label": "UI Developer" },
+  { "value": "ux-developer", "label": "UX Developer" },
+
+  { "value": "technical-lead", "label": "Technical Lead" },
+  { "value": "engineering-manager", "label": "Engineering Manager" },
+  { "value": "solution-architect", "label": "Solution Architect" },
+  { "value": "software-architect", "label": "Software Architect" },
+
+  { "value": "intern-software-developer", "label": "Software Developer Intern" },
+  { "value": "junior-software-developer", "label": "Junior Software Developer" },
+  { "value": "senior-software-developer", "label": "Senior Software Developer" }
+,
+  { "value": "frontend-architect", "label": "Frontend Architect" },
+  { "value": "backend-architect", "label": "Backend Architect" },
+  { "value": "cloud-architect", "label": "Cloud Architect" },
+  { "value": "enterprise-architect", "label": "Enterprise Architect" },
+
+  { "value": "principal-software-engineer", "label": "Principal Software Engineer" },
+  { "value": "staff-software-engineer", "label": "Staff Software Engineer" },
+  { "value": "distinguished-engineer", "label": "Distinguished Engineer" },
+
+  { "value": "web-developer", "label": "Web Developer" },
+  { "value": "web-application-developer", "label": "Web Application Developer" },
+
+  { "value": "api-developer", "label": "API Developer" },
+  { "value": "integration-developer", "label": "Integration Developer" },
+
+  { "value": "microservices-developer", "label": "Microservices Developer" },
+  { "value": "distributed-systems-engineer", "label": "Distributed Systems Engineer" },
+
+  { "value": "systems-engineer", "label": "Systems Engineer" },
+  { "value": "embedded-systems-engineer", "label": "Embedded Systems Engineer" },
+  { "value": "firmware-engineer", "label": "Firmware Engineer" },
+
+  { "value": "mobile-engineer", "label": "Mobile Engineer" },
+  { "value": "cross-platform-developer", "label": "Cross Platform Developer" },
+
+  { "value": "ios-engineer", "label": "iOS Engineer" },
+  { "value": "android-engineer", "label": "Android Engineer" },
+
+  { "value": "build-release-engineer", "label": "Build and Release Engineer" },
+  { "value": "ci-cd-engineer", "label": "CI CD Engineer" },
+
+  { "value": "devsecops-engineer", "label": "DevSecOps Engineer" },
+  { "value": "security-engineer", "label": "Security Engineer" },
+  { "value": "application-security-engineer", "label": "Application Security Engineer" },
+  { "value": "cloud-security-engineer", "label": "Cloud Security Engineer" },
+
+  { "value": "performance-engineer", "label": "Performance Engineer" },
+  { "value": "reliability-engineer", "label": "Reliability Engineer" },
+
+  { "value": "quality-engineer", "label": "Quality Engineer" },
+  { "value": "test-lead", "label": "Test Lead" },
+  { "value": "qa-lead", "label": "QA Lead" },
+
+  { "value": "data-platform-engineer", "label": "Data Platform Engineer" },
+  { "value": "analytics-engineer", "label": "Analytics Engineer" },
+
+  { "value": "big-data-engineer", "label": "Big Data Engineer" },
+  { "value": "etl-developer", "label": "ETL Developer" },
+
+  { "value": "ml-engineer", "label": "Machine Learning Engineer" },
+  { "value": "mlops-engineer", "label": "MLOps Engineer" },
+  { "value": "ai-research-engineer", "label": "AI Research Engineer" },
+
+  { "value": "computer-vision-engineer", "label": "Computer Vision Engineer" },
+  { "value": "nlp-scientist", "label": "NLP Scientist" },
+
+  { "value": "data-architect", "label": "Data Architect" },
+  { "value": "database-architect", "label": "Database Architect" },
+
+  { "value": "blockchain-engineer", "label": "Blockchain Engineer" },
+  { "value": "smart-contract-developer", "label": "Smart Contract Developer" },
+
+  { "value": "gameplay-programmer", "label": "Gameplay Programmer" },
+  { "value": "graphics-programmer", "label": "Graphics Programmer" },
+
+  { "value": "ui-engineer", "label": "UI Engineer" },
+  { "value": "ux-engineer", "label": "UX Engineer" },
+
+  { "value": "product-engineer", "label": "Product Engineer" },
+  { "value": "growth-engineer", "label": "Growth Engineer" },
+
+  { "value": "solutions-engineer", "label": "Solutions Engineer" },
+  { "value": "sales-engineer", "label": "Sales Engineer" },
+
+  { "value": "customer-success-engineer", "label": "Customer Success Engineer" },
+  { "value": "support-engineer", "label": "Support Engineer" },
+
+  { "value": "technical-consultant", "label": "Technical Consultant" },
+  { "value": "implementation-engineer", "label": "Implementation Engineer" },
+
+  { "value": "it-engineer", "label": "IT Engineer" },
+  { "value": "it-administrator", "label": "IT Administrator" },
+
+  { "value": "systems-administrator", "label": "Systems Administrator" },
+  { "value": "linux-administrator", "label": "Linux Administrator" },
+  { "value": "windows-administrator", "label": "Windows Administrator" }
+,
+  { "value": "network-engineer", "label": "Network Engineer" },
+  { "value": "network-administrator", "label": "Network Administrator" },
+  { "value": "network-security-engineer", "label": "Network Security Engineer" },
+
+  { "value": "site-reliability-architect", "label": "Site Reliability Architect" },
+  { "value": "platform-architect", "label": "Platform Architect" },
+
+  { "value": "cloud-platform-engineer", "label": "Cloud Platform Engineer" },
+  { "value": "cloud-operations-engineer", "label": "Cloud Operations Engineer" },
+  { "value": "cloud-infrastructure-engineer", "label": "Cloud Infrastructure Engineer" },
+
+  { "value": "kubernetes-engineer", "label": "Kubernetes Engineer" },
+  { "value": "docker-engineer", "label": "Docker Engineer" },
+
+  { "value": "observability-engineer", "label": "Observability Engineer" },
+  { "value": "monitoring-engineer", "label": "Monitoring Engineer" },
+
+  { "value": "data-warehouse-engineer", "label": "Data Warehouse Engineer" },
+  { "value": "streaming-data-engineer", "label": "Streaming Data Engineer" },
+
+  { "value": "search-engineer", "label": "Search Engineer" },
+  { "value": "recommendation-engineer", "label": "Recommendation Engineer" },
+
+  { "value": "information-security-analyst", "label": "Information Security Analyst" },
+  { "value": "cyber-security-analyst", "label": "Cyber Security Analyst" },
+
+  { "value": "threat-intelligence-analyst", "label": "Threat Intelligence Analyst" },
+  { "value": "incident-response-engineer", "label": "Incident Response Engineer" },
+
+  { "value": "privacy-engineer", "label": "Privacy Engineer" },
+  { "value": "compliance-engineer", "label": "Compliance Engineer" },
+
+  { "value": "data-governance-lead", "label": "Data Governance Lead" },
+  { "value": "data-quality-analyst", "label": "Data Quality Analyst" },
+
+  { "value": "product-manager-technical", "label": "Technical Product Manager" },
+  { "value": "program-manager-technical", "label": "Technical Program Manager" },
+
+  { "value": "delivery-manager", "label": "Delivery Manager" },
+  { "value": "project-manager-technical", "label": "Technical Project Manager" },
+
+  { "value": "engineering-director", "label": "Director of Engineering" },
+  { "value": "vp-engineering", "label": "VP of Engineering" },
+  { "value": "cto", "label": "Chief Technology Officer" },
+
+  { "value": "startup-founder-tech", "label": "Technical Founder" },
+  { "value": "cofounder-tech", "label": "Technical Co-Founder" },
+
+  { "value": "research-engineer", "label": "Research Engineer" },
+  { "value": "applied-scientist", "label": "Applied Scientist" },
+
+  { "value": "quantitative-engineer", "label": "Quantitative Engineer" },
+  { "value": "quantitative-developer", "label": "Quantitative Developer" },
+
+  { "value": "game-engineer", "label": "Game Engineer" },
+  { "value": "engine-tools-programmer", "label": "Engine Tools Programmer" },
+
+  { "value": "ar-vr-engineer", "label": "AR VR Engineer" },
+  { "value": "graphics-engineer", "label": "Graphics Engineer" },
+
+  { "value": "robotics-engineer", "label": "Robotics Engineer" },
+  { "value": "autonomous-systems-engineer", "label": "Autonomous Systems Engineer" },
+
+  { "value": "iot-engineer", "label": "IoT Engineer" },
+  { "value": "embedded-software-engineer", "label": "Embedded Software Engineer" },
+
+  { "value": "firmware-developer", "label": "Firmware Developer" },
+  { "value": "hardware-software-integration-engineer", "label": "Hardware Software Integration Engineer" },
+
+  { "value": "solutions-architect-cloud", "label": "Cloud Solutions Architect" },
+  { "value": "enterprise-solutions-architect", "label": "Enterprise Solutions Architect" }
+,
+  { "value": "technical-account-manager", "label": "Technical Account Manager" },
+  { "value": "solutions-consultant", "label": "Solutions Consultant" },
+
+  { "value": "customer-solutions-engineer", "label": "Customer Solutions Engineer" },
+  { "value": "implementation-consultant", "label": "Implementation Consultant" },
+
+  { "value": "pre-sales-engineer", "label": "Pre Sales Engineer" },
+  { "value": "post-sales-engineer", "label": "Post Sales Engineer" },
+
+  { "value": "support-architect", "label": "Support Architect" },
+  { "value": "escalation-engineer", "label": "Escalation Engineer" },
+
+  { "value": "business-systems-analyst", "label": "Business Systems Analyst" },
+  { "value": "systems-analyst", "label": "Systems Analyst" },
+
+  { "value": "application-support-engineer", "label": "Application Support Engineer" },
+  { "value": "production-support-engineer", "label": "Production Support Engineer" },
+
+  { "value": "release-manager", "label": "Release Manager" },
+  { "value": "change-manager", "label": "Change Manager" },
+
+  { "value": "configuration-manager", "label": "Configuration Manager" },
+  { "value": "asset-manager-it", "label": "IT Asset Manager" },
+
+  { "value": "service-delivery-manager", "label": "Service Delivery Manager" },
+  { "value": "it-service-manager", "label": "IT Service Manager" },
+
+  { "value": "it-operations-manager", "label": "IT Operations Manager" },
+  { "value": "infrastructure-manager", "label": "Infrastructure Manager" },
+
+  { "value": "enterprise-application-manager", "label": "Enterprise Application Manager" },
+  { "value": "platform-operations-manager", "label": "Platform Operations Manager" },
+
+  { "value": "devops-manager", "label": "DevOps Manager" },
+  { "value": "cloud-operations-manager", "label": "Cloud Operations Manager" },
+
+  { "value": "security-operations-manager", "label": "Security Operations Manager" },
+  { "value": "soc-manager", "label": "SOC Manager" },
+
+  { "value": "data-operations-manager", "label": "Data Operations Manager" },
+  { "value": "analytics-manager", "label": "Analytics Manager" },
+
+  { "value": "ml-platform-manager", "label": "ML Platform Manager" },
+  { "value": "ai-operations-manager", "label": "AI Operations Manager" },
+
+  { "value": "digital-platform-manager", "label": "Digital Platform Manager" },
+  { "value": "product-operations-manager", "label": "Product Operations Manager" },
+
+  { "value": "growth-operations-manager", "label": "Growth Operations Manager" },
+  { "value": "revenue-operations-manager", "label": "Revenue Operations Manager" },
+
+  { "value": "technology-evangelist", "label": "Technology Evangelist" },
+  { "value": "developer-evangelist", "label": "Developer Evangelist" },
+
+  { "value": "developer-relations-engineer", "label": "Developer Relations Engineer" },
+  { "value": "community-engineer", "label": "Community Engineer" },
+
+  { "value": "open-source-program-manager", "label": "Open Source Program Manager" },
+  { "value": "inner-source-program-manager", "label": "Inner Source Program Manager" },
+
+  { "value": "technical-trainer", "label": "Technical Trainer" },
+  { "value": "corporate-trainer-technology", "label": "Corporate Technology Trainer" },
+
+  { "value": "learning-and-development-manager", "label": "Learning and Development Manager" },
+  { "value": "technical-educator", "label": "Technical Educator" },
+
+  { "value": "innovation-lead", "label": "Innovation Lead" },
+  { "value": "research-and-development-manager", "label": "Research and Development Manager" },
+
+  { "value": "digital-transformation-lead", "label": "Digital Transformation Lead" },
+  { "value": "technology-strategy-manager", "label": "Technology Strategy Manager" }
+,
+  { "value": "chief-information-officer", "label": "Chief Information Officer" },
+  { "value": "chief-digital-officer", "label": "Chief Digital Officer" },
+  { "value": "chief-data-officer", "label": "Chief Data Officer" },
+  { "value": "chief-ai-officer", "label": "Chief AI Officer" },
+
+  { "value": "head-of-engineering", "label": "Head of Engineering" },
+  { "value": "head-of-platform", "label": "Head of Platform Engineering" },
+  { "value": "head-of-data", "label": "Head of Data Engineering" },
+  { "value": "head-of-security", "label": "Head of Security Engineering" },
+
+  { "value": "principal-architect", "label": "Principal Architect" },
+  { "value": "chief-architect", "label": "Chief Architect" },
+
+  { "value": "lead-frontend-developer", "label": "Lead Frontend Developer" },
+  { "value": "lead-backend-developer", "label": "Lead Backend Developer" },
+  { "value": "lead-full-stack-developer", "label": "Lead Full Stack Developer" },
+
+  { "value": "lead-mobile-developer", "label": "Lead Mobile Developer" },
+  { "value": "lead-react-developer", "label": "Lead React Developer" },
+  { "value": "lead-nodejs-developer", "label": "Lead Node.js Developer" },
+
+  { "value": "senior-frontend-developer", "label": "Senior Frontend Developer" },
+  { "value": "senior-backend-developer", "label": "Senior Backend Developer" },
+  { "value": "senior-full-stack-developer", "label": "Senior Full Stack Developer" },
+
+  { "value": "staff-frontend-engineer", "label": "Staff Frontend Engineer" },
+  { "value": "staff-backend-engineer", "label": "Staff Backend Engineer" },
+  { "value": "staff-full-stack-engineer", "label": "Staff Full Stack Engineer" },
+
+  { "value": "junior-frontend-developer", "label": "Junior Frontend Developer" },
+  { "value": "junior-backend-developer", "label": "Junior Backend Developer" },
+  { "value": "junior-full-stack-developer", "label": "Junior Full Stack Developer" },
+
+  { "value": "graduate-software-engineer", "label": "Graduate Software Engineer" },
+  { "value": "entry-level-software-engineer", "label": "Entry Level Software Engineer" },
+
+  { "value": "software-trainee", "label": "Software Trainee" },
+  { "value": "engineering-trainee", "label": "Engineering Trainee" },
+
+  { "value": "apprentice-software-developer", "label": "Apprentice Software Developer" },
+  { "value": "intern-frontend-developer", "label": "Frontend Developer Intern" },
+  { "value": "intern-backend-developer", "label": "Backend Developer Intern" },
+  { "value": "intern-full-stack-developer", "label": "Full Stack Developer Intern" },
+
+  { "value": "contract-software-developer", "label": "Contract Software Developer" },
+  { "value": "freelance-software-developer", "label": "Freelance Software Developer" },
+
+  { "value": "remote-software-engineer", "label": "Remote Software Engineer" },
+  { "value": "onsite-software-engineer", "label": "Onsite Software Engineer" },
+  { "value": "hybrid-software-engineer", "label": "Hybrid Software Engineer" },
+
+  { "value": "consulting-software-engineer", "label": "Consulting Software Engineer" },
+  { "value": "solutions-software-engineer", "label": "Solutions Software Engineer" },
+
+  { "value": "startup-engineer", "label": "Startup Engineer" },
+  { "value": "founding-engineer", "label": "Founding Engineer" }
+,
+  { "value": "ai-product-manager", "label": "AI Product Manager" },
+  { "value": "technical-product-owner", "label": "Technical Product Owner" },
+
+  { "value": "platform-product-manager", "label": "Platform Product Manager" },
+  { "value": "growth-product-manager", "label": "Growth Product Manager" },
+
+  { "value": "data-product-manager", "label": "Data Product Manager" },
+  { "value": "ml-product-manager", "label": "Machine Learning Product Manager" },
+
+  { "value": "cloud-product-manager", "label": "Cloud Product Manager" },
+  { "value": "security-product-manager", "label": "Security Product Manager" },
+
+  { "value": "technical-program-lead", "label": "Technical Program Lead" },
+  { "value": "delivery-program-manager", "label": "Delivery Program Manager" },
+
+  { "value": "agile-coach", "label": "Agile Coach" },
+  { "value": "scrum-master", "label": "Scrum Master" },
+
+  { "value": "engineering-agile-coach", "label": "Engineering Agile Coach" },
+  { "value": "scaled-agile-lead", "label": "Scaled Agile Lead" },
+
+  { "value": "process-improvement-lead", "label": "Process Improvement Lead" },
+  { "value": "operational-excellence-lead", "label": "Operational Excellence Lead" },
+
+  { "value": "technical-business-analyst", "label": "Technical Business Analyst" },
+  { "value": "product-analyst", "label": "Product Analyst" },
+
+  { "value": "data-analyst-senior", "label": "Senior Data Analyst" },
+  { "value": "business-intelligence-analyst", "label": "Business Intelligence Analyst" },
+
+  { "value": "decision-science-analyst", "label": "Decision Science Analyst" },
+  { "value": "quantitative-analyst", "label": "Quantitative Analyst" },
+
+  { "value": "research-analyst", "label": "Research Analyst" },
+  { "value": "market-research-analyst", "label": "Market Research Analyst" },
+
+  { "value": "customer-insights-analyst", "label": "Customer Insights Analyst" },
+  { "value": "growth-analyst", "label": "Growth Analyst" },
+
+  { "value": "solutions-analyst", "label": "Solutions Analyst" },
+  { "value": "systems-integration-analyst", "label": "Systems Integration Analyst" },
+
+  { "value": "automation-engineer", "label": "Automation Engineer" },
+  { "value": "process-automation-engineer", "label": "Process Automation Engineer" },
+
+  { "value": "rpa-developer", "label": "RPA Developer" },
+  { "value": "workflow-engineer", "label": "Workflow Engineer" },
+
+  { "value": "low-code-developer", "label": "Low Code Developer" },
+  { "value": "no-code-developer", "label": "No Code Developer" },
+
+  { "value": "integration-architect", "label": "Integration Architect" },
+  { "value": "enterprise-integration-architect", "label": "Enterprise Integration Architect" },
+
+  { "value": "solution-delivery-lead", "label": "Solution Delivery Lead" },
+  { "value": "customer-implementation-lead", "label": "Customer Implementation Lead" },
+
+  { "value": "technical-operations-lead", "label": "Technical Operations Lead" },
+  { "value": "service-operations-lead", "label": "Service Operations Lead" },
+
+  { "value": "platform-operations-lead", "label": "Platform Operations Lead" },
+  { "value": "cloud-operations-lead", "label": "Cloud Operations Lead" },
+
+  { "value": "ai-operations-lead", "label": "AI Operations Lead" },
+  { "value": "data-operations-lead", "label": "Data Operations Lead" },
+
+  { "value": "digital-innovation-manager", "label": "Digital Innovation Manager" },
+  { "value": "technology-portfolio-manager", "label": "Technology Portfolio Manager" }
+,
+  { "value": "technical-strategy-consultant", "label": "Technical Strategy Consultant" },
+  { "value": "enterprise-technology-consultant", "label": "Enterprise Technology Consultant" },
+
+  { "value": "solution-advisory-architect", "label": "Solution Advisory Architect" },
+  { "value": "industry-solutions-lead", "label": "Industry Solutions Lead" },
+
+  { "value": "customer-experience-engineer", "label": "Customer Experience Engineer" },
+  { "value": "digital-experience-engineer", "label": "Digital Experience Engineer" },
+
+  { "value": "ui-platform-engineer", "label": "UI Platform Engineer" },
+  { "value": "design-system-engineer", "label": "Design System Engineer" },
+
+  { "value": "frontend-platform-engineer", "label": "Frontend Platform Engineer" },
+  { "value": "backend-platform-engineer", "label": "Backend Platform Engineer" },
+
+  { "value": "api-platform-engineer", "label": "API Platform Engineer" },
+  { "value": "integration-platform-engineer", "label": "Integration Platform Engineer" },
+
+  { "value": "data-platform-architect", "label": "Data Platform Architect" },
+  { "value": "analytics-platform-architect", "label": "Analytics Platform Architect" },
+
+  { "value": "ml-platform-architect", "label": "ML Platform Architect" },
+  { "value": "ai-platform-architect", "label": "AI Platform Architect" },
+
+  { "value": "security-platform-architect", "label": "Security Platform Architect" },
+  { "value": "identity-platform-architect", "label": "Identity Platform Architect" },
+
+  { "value": "cloud-native-engineer", "label": "Cloud Native Engineer" },
+  { "value": "serverless-engineer", "label": "Serverless Engineer" },
+
+  { "value": "edge-platform-engineer", "label": "Edge Platform Engineer" },
+  { "value": "distributed-platform-engineer", "label": "Distributed Platform Engineer" },
+
+  { "value": "performance-optimization-engineer", "label": "Performance Optimization Engineer" },
+  { "value": "scalability-engineer", "label": "Scalability Engineer" },
+
+  { "value": "availability-engineer", "label": "Availability Engineer" },
+  { "value": "resilience-engineer", "label": "Resilience Engineer" },
+
+  { "value": "data-reliability-engineer", "label": "Data Reliability Engineer" },
+  { "value": "ml-reliability-engineer", "label": "ML Reliability Engineer" },
+
+  { "value": "observability-architect", "label": "Observability Architect" },
+  { "value": "monitoring-architect", "label": "Monitoring Architect" },
+
+  { "value": "search-platform-engineer", "label": "Search Platform Engineer" },
+  { "value": "recommendation-platform-engineer", "label": "Recommendation Platform Engineer" },
+
+  { "value": "privacy-architect", "label": "Privacy Architect" },
+  { "value": "trust-safety-engineer", "label": "Trust and Safety Engineer" },
+
+  { "value": "regulatory-technology-engineer", "label": "Regulatory Technology Engineer" },
+  { "value": "compliance-automation-engineer", "label": "Compliance Automation Engineer" },
+
+  { "value": "developer-productivity-engineer", "label": "Developer Productivity Engineer" },
+  { "value": "internal-tools-engineer", "label": "Internal Tools Engineer" },
+
+  { "value": "engineering-enablement-lead", "label": "Engineering Enablement Lead" },
+  { "value": "platform-adoption-lead", "label": "Platform Adoption Lead" },
+
+  { "value": "technical-evangelism-lead", "label": "Technical Evangelism Lead" },
+  { "value": "developer-community-manager", "label": "Developer Community Manager" },
+
+  { "value": "technology-partnership-manager", "label": "Technology Partnership Manager" },
+  { "value": "ecosystem-manager", "label": "Ecosystem Manager" }
+,
+  { "value": "solutions-delivery-manager", "label": "Solutions Delivery Manager" },
+  { "value": "enterprise-delivery-manager", "label": "Enterprise Delivery Manager" },
+
+  { "value": "customer-onboarding-manager", "label": "Customer Onboarding Manager" },
+  { "value": "customer-success-manager-technical", "label": "Technical Customer Success Manager" },
+
+  { "value": "implementation-project-manager", "label": "Implementation Project Manager" },
+  { "value": "migration-project-manager", "label": "Migration Project Manager" },
+
+  { "value": "cloud-migration-specialist", "label": "Cloud Migration Specialist" },
+  { "value": "application-migration-engineer", "label": "Application Migration Engineer" },
+
+  { "value": "modernization-architect", "label": "Modernization Architect" },
+  { "value": "legacy-systems-specialist", "label": "Legacy Systems Specialist" },
+
+  { "value": "integration-specialist", "label": "Integration Specialist" },
+  { "value": "api-integration-engineer", "label": "API Integration Engineer" },
+
+  { "value": "data-migration-engineer", "label": "Data Migration Engineer" },
+  { "value": "database-migration-specialist", "label": "Database Migration Specialist" },
+
+  { "value": "platform-migration-lead", "label": "Platform Migration Lead" },
+  { "value": "cloud-adoption-lead", "label": "Cloud Adoption Lead" },
+
+  { "value": "cost-optimization-engineer", "label": "Cost Optimization Engineer" },
+  { "value": "finops-engineer", "label": "FinOps Engineer" },
+
+  { "value": "capacity-planning-engineer", "label": "Capacity Planning Engineer" },
+  { "value": "infrastructure-planning-lead", "label": "Infrastructure Planning Lead" },
+
+  { "value": "business-continuity-manager", "label": "Business Continuity Manager" },
+  { "value": "disaster-recovery-lead", "label": "Disaster Recovery Lead" },
+
+  { "value": "service-design-manager", "label": "Service Design Manager" },
+  { "value": "service-transition-manager", "label": "Service Transition Manager" },
+
+  { "value": "it-governance-manager", "label": "IT Governance Manager" },
+  { "value": "technology-risk-manager", "label": "Technology Risk Manager" },
+
+  { "value": "vendor-solutions-manager", "label": "Vendor Solutions Manager" },
+  { "value": "technology-sourcing-manager", "label": "Technology Sourcing Manager" },
+
+  { "value": "partner-solutions-manager", "label": "Partner Solutions Manager" },
+  { "value": "alliance-manager-technology", "label": "Technology Alliance Manager" },
+
+  { "value": "product-solutions-architect", "label": "Product Solutions Architect" },
+  { "value": "industry-solutions-architect", "label": "Industry Solutions Architect" },
+
+  { "value": "customer-technology-advisor", "label": "Customer Technology Advisor" },
+  { "value": "strategic-technology-advisor", "label": "Strategic Technology Advisor" },
+
+  { "value": "technology-roadmap-owner", "label": "Technology Roadmap Owner" },
+  { "value": "platform-strategy-lead", "label": "Platform Strategy Lead" },
+
+  { "value": "innovation-program-manager", "label": "Innovation Program Manager" },
+  { "value": "emerging-technology-lead", "label": "Emerging Technology Lead" },
+  
+  { "value": "ai-research-scientist", "label": "AI Research Scientist" },
+  { "value": "machine-learning-scientist", "label": "Machine Learning Scientist" },
+  { "value": "data-science-manager", "label": "Data Science Manager" },
+
+  { "value": "applied-ai-scientist", "label": "Applied AI Scientist" },
+  { "value": "computational-scientist", "label": "Computational Scientist" },
+
+  { "value": "computer-vision-scientist", "label": "Computer Vision Scientist" },
+  { "value": "nlp-research-scientist", "label": "NLP Research Scientist" },
+
+  { "value": "research-program-manager", "label": "Research Program Manager" },
+  { "value": "research-operations-manager", "label": "Research Operations Manager" },
+
+  { "value": "quant-researcher", "label": "Quantitative Researcher" },
+  { "value": "quantitative-strategist", "label": "Quantitative Strategist" },
+
+  { "value": "bioinformatics-scientist", "label": "Bioinformatics Scientist" },
+  { "value": "computational-biologist", "label": "Computational Biologist" },
+
+  { "value": "health-data-scientist", "label": "Health Data Scientist" },
+  { "value": "clinical-informatics-specialist", "label": "Clinical Informatics Specialist" },
+
+  { "value": "geospatial-analyst", "label": "Geospatial Analyst" },
+  { "value": "remote-sensing-specialist", "label": "Remote Sensing Specialist" },
+
+  { "value": "operations-research-analyst", "label": "Operations Research Analyst" },
+  { "value": "decision-science-manager", "label": "Decision Science Manager" },
+
+  { "value": "economic-analyst", "label": "Economic Analyst" },
+  { "value": "policy-analytics-specialist", "label": "Policy Analytics Specialist" },
+
+  { "value": "sustainability-data-scientist", "label": "Sustainability Data Scientist" },
+  { "value": "climate-data-analyst", "label": "Climate Data Analyst" },
+
+  { "value": "energy-systems-analyst", "label": "Energy Systems Analyst" },
+  { "value": "smart-grid-specialist", "label": "Smart Grid Specialist" },
+
+  { "value": "manufacturing-analytics-engineer", "label": "Manufacturing Analytics Engineer" },
+  { "value": "industrial-data-scientist", "label": "Industrial Data Scientist" },
+
+  { "value": "supply-chain-analyst", "label": "Supply Chain Analyst" },
+  { "value": "logistics-data-scientist", "label": "Logistics Data Scientist" },
+
+  { "value": "financial-quant-analyst", "label": "Financial Quant Analyst" },
+  { "value": "risk-modeling-scientist", "label": "Risk Modeling Scientist" },
+
+  { "value": "fraud-risk-analyst", "label": "Fraud Risk Analyst" },
+  { "value": "anti-money-laundering-analyst", "label": "Anti Money Laundering Analyst" },
+
+  { "value": "insurtech-data-scientist", "label": "InsurTech Data Scientist" },
+  { "value": "actuarial-analytics-specialist", "label": "Actuarial Analytics Specialist" },
+
+  { "value": "marketing-data-scientist", "label": "Marketing Data Scientist" },
+  { "value": "customer-analytics-manager", "label": "Customer Analytics Manager" },
+
+  { "value": "growth-science-lead", "label": "Growth Science Lead" },
+  { "value": "experimentation-scientist", "label": "Experimentation Scientist" },
+
+  { "value": "recommendation-science-lead", "label": "Recommendation Science Lead" },
+  { "value": "search-relevance-scientist", "label": "Search Relevance Scientist" }
+
+,
+  { "value": "technical-writer", "label": "Technical Writer" },
+  { "value": "documentation-specialist", "label": "Documentation Specialist" },
+
+  { "value": "knowledge-base-manager", "label": "Knowledge Base Manager" },
+  { "value": "content-strategist-technical", "label": "Technical Content Strategist" },
+
+  { "value": "developer-education-specialist", "label": "Developer Education Specialist" },
+  { "value": "api-educator", "label": "API Educator" },
+
+  { "value": "training-program-manager", "label": "Training Program Manager" },
+  { "value": "learning-platform-manager", "label": "Learning Platform Manager" },
+
+  { "value": "developer-support-specialist", "label": "Developer Support Specialist" },
+  { "value": "technical-support-analyst", "label": "Technical Support Analyst" },
+
+  { "value": "incident-manager", "label": "Incident Manager" },
+  { "value": "problem-manager-it", "label": "IT Problem Manager" },
+
+  { "value": "service-owner", "label": "Service Owner" },
+  { "value": "service-portfolio-manager", "label": "Service Portfolio Manager" },
+
+  { "value": "it-process-owner", "label": "IT Process Owner" },
+  { "value": "it-controls-analyst", "label": "IT Controls Analyst" },
+
+  { "value": "technology-audit-manager", "label": "Technology Audit Manager" },
+  { "value": "it-risk-analyst", "label": "IT Risk Analyst" },
+
+  { "value": "cyber-risk-analyst", "label": "Cyber Risk Analyst" },
+  { "value": "information-risk-manager", "label": "Information Risk Manager" },
+
+  { "value": "data-privacy-officer", "label": "Data Privacy Officer" },
+  { "value": "information-governance-manager", "label": "Information Governance Manager" },
+
+  { "value": "records-management-specialist", "label": "Records Management Specialist" },
+  { "value": "digital-archivist", "label": "Digital Archivist" },
+
+  { "value": "compliance-program-manager", "label": "Compliance Program Manager" },
+  { "value": "regulatory-affairs-manager", "label": "Regulatory Affairs Manager" },
+
+  { "value": "vendor-risk-manager", "label": "Vendor Risk Manager" },
+  { "value": "third-party-risk-analyst", "label": "Third Party Risk Analyst" },
+
+  { "value": "business-continuity-analyst", "label": "Business Continuity Analyst" },
+  { "value": "resilience-program-manager", "label": "Resilience Program Manager" },
+
+  { "value": "sustainability-program-manager", "label": "Sustainability Program Manager" },
+  { "value": "esg-technology-analyst", "label": "ESG Technology Analyst" },
+
+  { "value": "technology-policy-advisor", "label": "Technology Policy Advisor" },
+  { "value": "public-sector-technology-consultant", "label": "Public Sector Technology Consultant" },
+
+  { "value": "digital-government-specialist", "label": "Digital Government Specialist" },
+  { "value": "civic-technology-engineer", "label": "Civic Technology Engineer" },
+
+  { "value": "nonprofit-technology-director", "label": "Nonprofit Technology Director" },
+  { "value": "social-impact-technologist", "label": "Social Impact Technologist" }
+  ,
+  { "value": "open-source-maintainer", "label": "Open Source Maintainer" },
+  { "value": "open-source-contributor", "label": "Open Source Contributor" },
+
+  { "value": "developer-tools-engineer", "label": "Developer Tools Engineer" },
+  { "value": "build-systems-engineer", "label": "Build Systems Engineer" },
+
+  { "value": "compiler-engineer", "label": "Compiler Engineer" },
+  { "value": "language-runtime-engineer", "label": "Language Runtime Engineer" },
+
+  { "value": "operating-systems-engineer", "label": "Operating Systems Engineer" },
+  { "value": "kernel-engineer", "label": "Kernel Engineer" },
+
+  { "value": "distributed-systems-researcher", "label": "Distributed Systems Researcher" },
+  { "value": "systems-researcher", "label": "Systems Researcher" },
+
+  { "value": "database-research-engineer", "label": "Database Research Engineer" },
+  { "value": "storage-systems-engineer", "label": "Storage Systems Engineer" },
+
+  { "value": "network-protocol-engineer", "label": "Network Protocol Engineer" },
+  { "value": "telecom-software-engineer", "label": "Telecom Software Engineer" },
+
+  { "value": "high-performance-computing-engineer", "label": "High Performance Computing Engineer" },
+  { "value": "parallel-computing-engineer", "label": "Parallel Computing Engineer" },
+
+  { "value": "graphics-research-engineer", "label": "Graphics Research Engineer" },
+  { "value": "rendering-engineer", "label": "Rendering Engineer" },
+
+  { "value": "simulation-engineer", "label": "Simulation Engineer" },
+  { "value": "modeling-and-simulation-specialist", "label": "Modeling and Simulation Specialist" },
+
+  { "value": "digital-signal-processing-engineer", "label": "Digital Signal Processing Engineer" },
+  { "value": "signal-processing-researcher", "label": "Signal Processing Researcher" },
+
+  { "value": "control-systems-engineer", "label": "Control Systems Engineer" },
+  { "value": "embedded-controls-engineer", "label": "Embedded Controls Engineer" },
+
+  { "value": "aerospace-software-engineer", "label": "Aerospace Software Engineer" },
+  { "value": "avionics-software-engineer", "label": "Avionics Software Engineer" },
+
+  { "value": "automotive-software-engineer", "label": "Automotive Software Engineer" },
+  { "value": "autonomous-driving-engineer", "label": "Autonomous Driving Engineer" },
+
+  { "value": "railway-systems-engineer", "label": "Railway Systems Engineer" },
+  { "value": "transportation-software-engineer", "label": "Transportation Software Engineer" },
+
+  { "value": "defense-software-engineer", "label": "Defense Software Engineer" },
+  { "value": "mission-critical-systems-engineer", "label": "Mission Critical Systems Engineer" },
+
+  { "value": "industrial-software-engineer", "label": "Industrial Software Engineer" },
+  { "value": "process-control-engineer", "label": "Process Control Engineer" },
+
+  { "value": "scientific-software-engineer", "label": "Scientific Software Engineer" },
+  { "value": "research-software-engineer", "label": "Research Software Engineer" }
+
+
+]
+
+
+

@@ -417,6 +417,20 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    assessment: [
+      {
+        sessionId: { type: mongoose.Schema.Types.ObjectId, default: null },
+        role: { type: String, default: "" },
+        duration: { type: Number, default: 0 }, // in minutes
+        jobDescription: { type: String, default: "" },
+        skills: { type: [String], default: [] },
+        status: {
+          type: String,
+          enum: ["created", "in_progress", "completed", "expired"],
+          default: "created",
+        },
+      },
+    ],
   },
   {
     timestamps: true,

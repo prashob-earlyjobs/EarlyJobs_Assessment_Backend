@@ -1,0 +1,982 @@
+[
+  { "value": "attention-to-detail", "label": "Attention to Detail" },
+  { "value": "communication", "label": "Communication" },
+  { "value": "verbal-communication", "label": "Verbal Communication" },
+  { "value": "written-communication", "label": "Written Communication" },
+  { "value": "problem-solving", "label": "Problem Solving" },
+  { "value": "critical-thinking", "label": "Critical Thinking" },
+  { "value": "analytical-thinking", "label": "Analytical Thinking" },
+  { "value": "decision-making", "label": "Decision Making" },
+  { "value": "leadership", "label": "Leadership" },
+  { "value": "teamwork", "label": "Teamwork" },
+  { "value": "collaboration", "label": "Collaboration" },
+  { "value": "time-management", "label": "Time Management" },
+  { "value": "adaptability", "label": "Adaptability" },
+  { "value": "ownership", "label": "Ownership" },
+  { "value": "accountability", "label": "Accountability" },
+  { "value": "conflict-resolution", "label": "Conflict Resolution" },
+  { "value": "emotional-intelligence", "label": "Emotional Intelligence" },
+  { "value": "stress-management", "label": "Stress Management" },
+  { "value": "mentoring", "label": "Mentoring" },
+  { "value": "coaching", "label": "Coaching" },
+  { "value": "presentation-skills", "label": "Presentation Skills" },
+  { "value": "negotiation", "label": "Negotiation" },
+  { "value": "client-communication", "label": "Client Communication" },
+  { "value": "stakeholder-management", "label": "Stakeholder Management" },
+  { "value": "continuous-learning", "label": "Continuous Learning" },
+  { "value": "work-ethic", "label": "Work Ethic" },
+
+  { "value": "javascript", "label": "JavaScript" },
+  { "value": "javascript-closures", "label": "JavaScript Closures" },
+  { "value": "javascript-hoisting", "label": "JavaScript Hoisting" },
+  { "value": "javascript-prototypes", "label": "JavaScript Prototypes" },
+  { "value": "javascript-async-await", "label": "JavaScript Async Await" },
+  { "value": "javascript-promises", "label": "JavaScript Promises" },
+  { "value": "javascript-event-loop", "label": "JavaScript Event Loop" },
+  { "value": "javascript-dom", "label": "JavaScript DOM Manipulation" },
+  { "value": "javascript-es6", "label": "JavaScript ES6+" },
+
+  { "value": "typescript", "label": "TypeScript" },
+  { "value": "typescript-generics", "label": "TypeScript Generics" },
+  { "value": "typescript-interfaces", "label": "TypeScript Interfaces" },
+  { "value": "typescript-types", "label": "TypeScript Advanced Types" },
+  { "value": "typescript-decorators", "label": "TypeScript Decorators" },
+
+  { "value": "nodejs", "label": "Node.js" },
+  { "value": "nodejs-event-loop", "label": "Node.js Event Loop" },
+  { "value": "nodejs-streams", "label": "Node.js Streams" },
+  { "value": "nodejs-clustering", "label": "Node.js Clustering" },
+  { "value": "nodejs-worker-threads", "label": "Node.js Worker Threads" },
+  { "value": "nodejs-error-handling", "label": "Node.js Error Handling" },
+  { "value": "nodejs-performance", "label": "Node.js Performance Optimization" },
+
+  { "value": "expressjs", "label": "Express.js" },
+  { "value": "expressjs-routing", "label": "Express.js Routing" },
+  { "value": "expressjs-middleware", "label": "Express.js Middleware" },
+  { "value": "expressjs-authentication", "label": "Express.js Authentication" },
+  { "value": "expressjs-error-handling", "label": "Express.js Error Handling" },
+
+  { "value": "nestjs", "label": "NestJS" },
+  { "value": "nestjs-modules", "label": "NestJS Modules" },
+  { "value": "nestjs-guards", "label": "NestJS Guards" },
+  { "value": "nestjs-interceptors", "label": "NestJS Interceptors" },
+
+  { "value": "rest-api-development", "label": "REST API Development" },
+  { "value": "api-design", "label": "API Design" },
+  { "value": "api-versioning", "label": "API Versioning" },
+  { "value": "api-pagination", "label": "API Pagination" },
+  { "value": "api-rate-limiting", "label": "API Rate Limiting" },
+
+  { "value": "graphql", "label": "GraphQL" },
+  { "value": "graphql-schema-design", "label": "GraphQL Schema Design" },
+  { "value": "graphql-resolvers", "label": "GraphQL Resolvers" },
+  { "value": "apollo-graphql", "label": "Apollo GraphQL" },
+
+  { "value": "microservices", "label": "Microservices Architecture" },
+  { "value": "event-driven-architecture", "label": "Event Driven Architecture" },
+  { "value": "service-discovery", "label": "Service Discovery" },
+  { "value": "circuit-breaker-pattern", "label": "Circuit Breaker Pattern" },
+
+  { "value": "mongodb", "label": "MongoDB" },
+  { "value": "mongodb-aggregation", "label": "MongoDB Aggregation" },
+  { "value": "mongodb-indexing", "label": "MongoDB Indexing" },
+  { "value": "mongodb-transactions", "label": "MongoDB Transactions" },
+  { "value": "mongodb-schema-design", "label": "MongoDB Schema Design" },
+
+  { "value": "postgresql", "label": "PostgreSQL" },
+  { "value": "postgresql-indexing", "label": "PostgreSQL Indexing" },
+  { "value": "postgresql-query-optimization", "label": "PostgreSQL Query Optimization" },
+  { "value": "postgresql-transactions", "label": "PostgreSQL Transactions" },
+
+  { "value": "mysql", "label": "MySQL" },
+  { "value": "redis", "label": "Redis" },
+  { "value": "redis-caching", "label": "Redis Caching" },
+  { "value": "elasticsearch", "label": "Elasticsearch" },
+
+  { "value": "docker", "label": "Docker" },
+  { "value": "docker-compose", "label": "Docker Compose" },
+  { "value": "docker-security", "label": "Docker Security" },
+
+  { "value": "kubernetes", "label": "Kubernetes" },
+  { "value": "kubernetes-deployments", "label": "Kubernetes Deployments" },
+  { "value": "kubernetes-services", "label": "Kubernetes Services" },
+  { "value": "kubernetes-ingress", "label": "Kubernetes Ingress" },
+
+  { "value": "ci-cd", "label": "CI CD Pipelines" },
+  { "value": "github-actions", "label": "GitHub Actions" },
+  { "value": "gitlab-ci", "label": "GitLab CI" },
+
+  { "value": "aws", "label": "AWS" },
+  { "value": "aws-ec2", "label": "AWS EC2" },
+  { "value": "aws-s3", "label": "AWS S3" },
+  { "value": "aws-lambda", "label": "AWS Lambda" },
+  { "value": "aws-iam", "label": "AWS IAM" },
+
+  { "value": "system-design", "label": "System Design" },
+  { "value": "scalability", "label": "Scalability" },
+  { "value": "load-balancing", "label": "Load Balancing" },
+  { "value": "caching-strategies", "label": "Caching Strategies" },
+  { "value": "distributed-systems", "label": "Distributed Systems" },
+
+  { "value": "data-structures", "label": "Data Structures" },
+  { "value": "algorithms", "label": "Algorithms" },
+  { "value": "time-complexity", "label": "Time Complexity" },
+  { "value": "space-complexity", "label": "Space Complexity" }
+,
+  { "value": "attention-to-detail", "label": "Attention to Detail" },
+  { "value": "communication", "label": "Communication" },
+  { "value": "verbal-communication", "label": "Verbal Communication" },
+  { "value": "written-communication", "label": "Written Communication" },
+  { "value": "problem-solving", "label": "Problem Solving" },
+  { "value": "critical-thinking", "label": "Critical Thinking" },
+  { "value": "analytical-thinking", "label": "Analytical Thinking" },
+  { "value": "decision-making", "label": "Decision Making" },
+  { "value": "leadership", "label": "Leadership" },
+  { "value": "teamwork", "label": "Teamwork" },
+  { "value": "collaboration", "label": "Collaboration" },
+  { "value": "time-management", "label": "Time Management" },
+  { "value": "adaptability", "label": "Adaptability" },
+  { "value": "ownership", "label": "Ownership" },
+  { "value": "accountability", "label": "Accountability" },
+  { "value": "conflict-resolution", "label": "Conflict Resolution" },
+  { "value": "emotional-intelligence", "label": "Emotional Intelligence" },
+  { "value": "stress-management", "label": "Stress Management" },
+  { "value": "mentoring", "label": "Mentoring" },
+  { "value": "coaching", "label": "Coaching" },
+  { "value": "presentation-skills", "label": "Presentation Skills" },
+  { "value": "negotiation", "label": "Negotiation" },
+  { "value": "client-communication", "label": "Client Communication" },
+  { "value": "stakeholder-management", "label": "Stakeholder Management" },
+  { "value": "continuous-learning", "label": "Continuous Learning" },
+  { "value": "work-ethic", "label": "Work Ethic" },
+
+  { "value": "javascript", "label": "JavaScript" },
+  { "value": "javascript-closures", "label": "JavaScript Closures" },
+  { "value": "javascript-hoisting", "label": "JavaScript Hoisting" },
+  { "value": "javascript-prototypes", "label": "JavaScript Prototypes" },
+  { "value": "javascript-async-await", "label": "JavaScript Async Await" },
+  { "value": "javascript-promises", "label": "JavaScript Promises" },
+  { "value": "javascript-event-loop", "label": "JavaScript Event Loop" },
+  { "value": "javascript-dom", "label": "JavaScript DOM Manipulation" },
+  { "value": "javascript-es6", "label": "JavaScript ES6+" },
+
+  { "value": "typescript", "label": "TypeScript" },
+  { "value": "typescript-generics", "label": "TypeScript Generics" },
+  { "value": "typescript-interfaces", "label": "TypeScript Interfaces" },
+  { "value": "typescript-types", "label": "TypeScript Advanced Types" },
+  { "value": "typescript-decorators", "label": "TypeScript Decorators" },
+
+  { "value": "nodejs", "label": "Node.js" },
+  { "value": "nodejs-event-loop", "label": "Node.js Event Loop" },
+  { "value": "nodejs-streams", "label": "Node.js Streams" },
+  { "value": "nodejs-clustering", "label": "Node.js Clustering" },
+  { "value": "nodejs-worker-threads", "label": "Node.js Worker Threads" },
+  { "value": "nodejs-error-handling", "label": "Node.js Error Handling" },
+  { "value": "nodejs-performance", "label": "Node.js Performance Optimization" },
+
+  { "value": "expressjs", "label": "Express.js" },
+  { "value": "expressjs-routing", "label": "Express.js Routing" },
+  { "value": "expressjs-middleware", "label": "Express.js Middleware" },
+  { "value": "expressjs-authentication", "label": "Express.js Authentication" },
+  { "value": "expressjs-error-handling", "label": "Express.js Error Handling" },
+
+  { "value": "nestjs", "label": "NestJS" },
+  { "value": "nestjs-modules", "label": "NestJS Modules" },
+  { "value": "nestjs-guards", "label": "NestJS Guards" },
+  { "value": "nestjs-interceptors", "label": "NestJS Interceptors" },
+
+  { "value": "rest-api-development", "label": "REST API Development" },
+  { "value": "api-design", "label": "API Design" },
+  { "value": "api-versioning", "label": "API Versioning" },
+  { "value": "api-pagination", "label": "API Pagination" },
+  { "value": "api-rate-limiting", "label": "API Rate Limiting" },
+
+  { "value": "graphql", "label": "GraphQL" },
+  { "value": "graphql-schema-design", "label": "GraphQL Schema Design" },
+  { "value": "graphql-resolvers", "label": "GraphQL Resolvers" },
+  { "value": "apollo-graphql", "label": "Apollo GraphQL" },
+
+  { "value": "microservices", "label": "Microservices Architecture" },
+  { "value": "event-driven-architecture", "label": "Event Driven Architecture" },
+  { "value": "service-discovery", "label": "Service Discovery" },
+  { "value": "circuit-breaker-pattern", "label": "Circuit Breaker Pattern" },
+
+  { "value": "mongodb", "label": "MongoDB" },
+  { "value": "mongodb-aggregation", "label": "MongoDB Aggregation" },
+  { "value": "mongodb-indexing", "label": "MongoDB Indexing" },
+  { "value": "mongodb-transactions", "label": "MongoDB Transactions" },
+  { "value": "mongodb-schema-design", "label": "MongoDB Schema Design" },
+
+  { "value": "postgresql", "label": "PostgreSQL" },
+  { "value": "postgresql-indexing", "label": "PostgreSQL Indexing" },
+  { "value": "postgresql-query-optimization", "label": "PostgreSQL Query Optimization" },
+  { "value": "postgresql-transactions", "label": "PostgreSQL Transactions" },
+
+  { "value": "mysql", "label": "MySQL" },
+  { "value": "redis", "label": "Redis" },
+  { "value": "redis-caching", "label": "Redis Caching" },
+  { "value": "elasticsearch", "label": "Elasticsearch" },
+
+  { "value": "docker", "label": "Docker" },
+  { "value": "docker-compose", "label": "Docker Compose" },
+  { "value": "docker-security", "label": "Docker Security" },
+
+  { "value": "kubernetes", "label": "Kubernetes" },
+  { "value": "kubernetes-deployments", "label": "Kubernetes Deployments" },
+  { "value": "kubernetes-services", "label": "Kubernetes Services" },
+  { "value": "kubernetes-ingress", "label": "Kubernetes Ingress" },
+
+  { "value": "ci-cd", "label": "CI CD Pipelines" },
+  { "value": "github-actions", "label": "GitHub Actions" },
+  { "value": "gitlab-ci", "label": "GitLab CI" },
+
+  { "value": "aws", "label": "AWS" },
+  { "value": "aws-ec2", "label": "AWS EC2" },
+  { "value": "aws-s3", "label": "AWS S3" },
+  { "value": "aws-lambda", "label": "AWS Lambda" },
+  { "value": "aws-iam", "label": "AWS IAM" },
+
+  { "value": "system-design", "label": "System Design" },
+  { "value": "scalability", "label": "Scalability" },
+  { "value": "load-balancing", "label": "Load Balancing" },
+  { "value": "caching-strategies", "label": "Caching Strategies" },
+  { "value": "distributed-systems", "label": "Distributed Systems" },
+
+  { "value": "data-structures", "label": "Data Structures" },
+  { "value": "algorithms", "label": "Algorithms" },
+  { "value": "time-complexity", "label": "Time Complexity" },
+  { "value": "space-complexity", "label": "Space Complexity" }
+,
+  { "value": "react-native", "label": "React Native" },
+  { "value": "react-native-navigation", "label": "React Native Navigation" },
+  { "value": "react-native-animations", "label": "React Native Animations" },
+  { "value": "react-native-performance", "label": "React Native Performance Optimization" },
+  { "value": "expo", "label": "Expo" },
+
+  { "value": "android-development", "label": "Android Development" },
+  { "value": "android-sdk", "label": "Android SDK" },
+  { "value": "kotlin", "label": "Kotlin" },
+  { "value": "java-android", "label": "Java for Android" },
+  { "value": "android-ui", "label": "Android UI Development" },
+
+  { "value": "ios-development", "label": "iOS Development" },
+  { "value": "swift", "label": "Swift" },
+  { "value": "swiftui", "label": "SwiftUI" },
+  { "value": "objective-c", "label": "Objective C" },
+  { "value": "ios-ui", "label": "iOS UI Development" },
+
+  { "value": "flutter", "label": "Flutter" },
+  { "value": "dart", "label": "Dart" },
+  { "value": "flutter-widgets", "label": "Flutter Widgets" },
+  { "value": "flutter-state-management", "label": "Flutter State Management" },
+
+  { "value": "database-design", "label": "Database Design" },
+  { "value": "data-modeling", "label": "Data Modeling" },
+  { "value": "sql", "label": "SQL" },
+  { "value": "nosql", "label": "NoSQL" },
+  { "value": "database-migrations", "label": "Database Migrations" },
+
+  { "value": "firebase", "label": "Firebase" },
+  { "value": "firebase-auth", "label": "Firebase Authentication" },
+  { "value": "firebase-cloud-functions", "label": "Firebase Cloud Functions" },
+  { "value": "firebase-firestore", "label": "Firebase Firestore" },
+
+  { "value": "message-queues", "label": "Message Queues" },
+  { "value": "rabbitmq", "label": "RabbitMQ" },
+  { "value": "apache-kafka", "label": "Apache Kafka" },
+  { "value": "pub-sub", "label": "Publish Subscribe Systems" },
+
+  { "value": "monitoring", "label": "Monitoring" },
+  { "value": "logging", "label": "Logging" },
+  { "value": "application-metrics", "label": "Application Metrics" },
+  { "value": "error-tracking", "label": "Error Tracking" },
+
+  { "value": "performance-testing", "label": "Performance Testing" },
+  { "value": "load-testing", "label": "Load Testing" },
+  { "value": "stress-testing", "label": "Stress Testing" },
+
+  { "value": "seo-basics", "label": "SEO Basics" },
+  { "value": "web-performance", "label": "Web Performance Optimization" },
+  { "value": "accessibility-standards", "label": "Accessibility Standards" },
+
+  { "value": "ui-design", "label": "UI Design" },
+  { "value": "ux-design", "label": "UX Design" },
+  { "value": "design-systems", "label": "Design Systems" },
+  { "value": "wireframing", "label": "Wireframing" },
+  { "value": "prototyping", "label": "Prototyping" },
+
+  { "value": "product-thinking", "label": "Product Thinking" },
+  { "value": "user-centric-design", "label": "User Centric Design" },
+  { "value": "feature-prioritization", "label": "Feature Prioritization" },
+
+  { "value": "risk-management", "label": "Risk Management" },
+  { "value": "planning", "label": "Planning" },
+  { "value": "estimation", "label": "Estimation" },
+
+  { "value": "cross-team-collaboration", "label": "Cross Team Collaboration" },
+  { "value": "remote-collaboration", "label": "Remote Collaboration" },
+  { "value": "async-communication", "label": "Asynchronous Communication" }
+,
+  { "value": "data-analysis", "label": "Data Analysis" },
+  { "value": "data-visualization", "label": "Data Visualization" },
+  { "value": "business-intelligence", "label": "Business Intelligence" },
+  { "value": "power-bi", "label": "Power BI" },
+  { "value": "tableau", "label": "Tableau" },
+
+  { "value": "machine-learning", "label": "Machine Learning" },
+  { "value": "supervised-learning", "label": "Supervised Learning" },
+  { "value": "unsupervised-learning", "label": "Unsupervised Learning" },
+  { "value": "model-training", "label": "Model Training" },
+  { "value": "model-evaluation", "label": "Model Evaluation" },
+
+  { "value": "deep-learning", "label": "Deep Learning" },
+  { "value": "neural-networks", "label": "Neural Networks" },
+  { "value": "cnn", "label": "Convolutional Neural Networks" },
+  { "value": "rnn", "label": "Recurrent Neural Networks" },
+  { "value": "transformers", "label": "Transformers" },
+
+  { "value": "natural-language-processing", "label": "Natural Language Processing" },
+  { "value": "text-classification", "label": "Text Classification" },
+  { "value": "sentiment-analysis", "label": "Sentiment Analysis" },
+  { "value": "named-entity-recognition", "label": "Named Entity Recognition" },
+  { "value": "speech-recognition", "label": "Speech Recognition" },
+
+  { "value": "computer-vision", "label": "Computer Vision" },
+  { "value": "image-processing", "label": "Image Processing" },
+  { "value": "object-detection", "label": "Object Detection" },
+  { "value": "image-segmentation", "label": "Image Segmentation" },
+
+  { "value": "mlops", "label": "MLOps" },
+  { "value": "model-deployment", "label": "Model Deployment" },
+  { "value": "model-monitoring", "label": "Model Monitoring" },
+
+  { "value": "data-engineering", "label": "Data Engineering" },
+  { "value": "etl", "label": "ETL" },
+  { "value": "data-pipelines", "label": "Data Pipelines" },
+  { "value": "apache-spark", "label": "Apache Spark" },
+  { "value": "apache-airflow", "label": "Apache Airflow" },
+
+  { "value": "big-data", "label": "Big Data" },
+  { "value": "hadoop", "label": "Hadoop" },
+  { "value": "data-warehousing", "label": "Data Warehousing" },
+
+  { "value": "statistics", "label": "Statistics" },
+  { "value": "probability", "label": "Probability" },
+  { "value": "hypothesis-testing", "label": "Hypothesis Testing" },
+  { "value": "regression-analysis", "label": "Regression Analysis" },
+
+  { "value": "blockchain", "label": "Blockchain" },
+  { "value": "smart-contracts", "label": "Smart Contracts" },
+  { "value": "ethereum", "label": "Ethereum" },
+  { "value": "solidity", "label": "Solidity" },
+
+  { "value": "web3", "label": "Web3" },
+  { "value": "decentralized-applications", "label": "Decentralized Applications" },
+  { "value": "crypto-wallets", "label": "Crypto Wallets" },
+
+  { "value": "quality-assurance", "label": "Quality Assurance" },
+  { "value": "manual-testing", "label": "Manual Testing" },
+  { "value": "automation-testing", "label": "Automation Testing" },
+  { "value": "test-case-design", "label": "Test Case Design" },
+
+  { "value": "compliance", "label": "Compliance" },
+  { "value": "data-privacy", "label": "Data Privacy" },
+  { "value": "gdpr", "label": "GDPR" },
+
+  { "value": "devsecops", "label": "DevSecOps" },
+  { "value": "secure-coding", "label": "Secure Coding" },
+  { "value": "threat-modeling", "label": "Threat Modeling" },
+
+  { "value": "business-analysis", "label": "Business Analysis" },
+  { "value": "process-improvement", "label": "Process Improvement" },
+  { "value": "change-management", "label": "Change Management" },
+
+  { "value": "innovation", "label": "Innovation" },
+  { "value": "strategic-thinking", "label": "Strategic Thinking" },
+  { "value": "decision-support", "label": "Decision Support" }
+,
+  { "value": "game-development", "label": "Game Development" },
+  { "value": "unity", "label": "Unity" },
+  { "value": "unreal-engine", "label": "Unreal Engine" },
+  { "value": "game-physics", "label": "Game Physics" },
+  { "value": "game-ai", "label": "Game AI" },
+
+  { "value": "augmented-reality", "label": "Augmented Reality" },
+  { "value": "virtual-reality", "label": "Virtual Reality" },
+  { "value": "mixed-reality", "label": "Mixed Reality" },
+  { "value": "arcore", "label": "ARCore" },
+  { "value": "arkit", "label": "ARKit" },
+
+  { "value": "internet-of-things", "label": "Internet of Things" },
+  { "value": "iot-architecture", "label": "IoT Architecture" },
+  { "value": "embedded-systems", "label": "Embedded Systems" },
+  { "value": "firmware-development", "label": "Firmware Development" },
+  { "value": "sensor-integration", "label": "Sensor Integration" },
+
+  { "value": "robotics", "label": "Robotics" },
+  { "value": "robot-motion-planning", "label": "Robot Motion Planning" },
+  { "value": "robot-perception", "label": "Robot Perception" },
+  { "value": "control-systems", "label": "Control Systems" },
+
+  { "value": "edge-computing", "label": "Edge Computing" },
+  { "value": "fog-computing", "label": "Fog Computing" },
+
+  { "value": "high-availability", "label": "High Availability Systems" },
+  { "value": "fault-tolerance", "label": "Fault Tolerance" },
+  { "value": "disaster-recovery", "label": "Disaster Recovery" },
+  { "value": "backup-strategies", "label": "Backup Strategies" },
+
+  { "value": "site-reliability-engineering", "label": "Site Reliability Engineering" },
+  { "value": "incident-management", "label": "Incident Management" },
+  { "value": "root-cause-analysis", "label": "Root Cause Analysis" },
+  { "value": "sla-management", "label": "SLA Management" },
+
+  { "value": "observability", "label": "Observability" },
+  { "value": "distributed-tracing", "label": "Distributed Tracing" },
+  { "value": "log-aggregation", "label": "Log Aggregation" },
+
+  { "value": "api-gateway", "label": "API Gateway" },
+  { "value": "service-mesh", "label": "Service Mesh" },
+  { "value": "istio", "label": "Istio" },
+  { "value": "envoy-proxy", "label": "Envoy Proxy" },
+
+  { "value": "feature-flags", "label": "Feature Flags" },
+  { "value": "canary-deployments", "label": "Canary Deployments" },
+  { "value": "blue-green-deployments", "label": "Blue Green Deployments" },
+
+  { "value": "content-management-systems", "label": "Content Management Systems" },
+  { "value": "headless-cms", "label": "Headless CMS" },
+  { "value": "wordpress", "label": "WordPress" },
+  { "value": "strapi", "label": "Strapi" },
+
+  { "value": "ecommerce-platforms", "label": "Ecommerce Platforms" },
+  { "value": "payment-gateways", "label": "Payment Gateways" },
+  { "value": "subscription-billing", "label": "Subscription Billing" },
+  { "value": "fraud-detection", "label": "Fraud Detection" },
+
+  { "value": "search-engine-optimization", "label": "Search Engine Optimization" },
+  { "value": "search-algorithms", "label": "Search Algorithms" },
+  { "value": "recommendation-systems", "label": "Recommendation Systems" },
+
+  { "value": "email-systems", "label": "Email Systems" },
+  { "value": "notification-systems", "label": "Notification Systems" },
+  { "value": "push-notifications", "label": "Push Notifications" },
+
+  { "value": "chat-systems", "label": "Chat Systems" },
+  { "value": "real-time-systems", "label": "Real Time Systems" },
+  { "value": "presence-detection", "label": "Presence Detection" },
+
+  { "value": "workflow-automation", "label": "Workflow Automation" },
+  { "value": "business-process-automation", "label": "Business Process Automation" },
+
+  { "value": "knowledge-management", "label": "Knowledge Management" },
+  { "value": "information-architecture", "label": "Information Architecture" },
+
+  { "value": "technical-leadership", "label": "Technical Leadership" },
+  { "value": "engineering-management", "label": "Engineering Management" },
+  { "value": "people-management", "label": "People Management" },
+
+  { "value": "career-development", "label": "Career Development" },
+  { "value": "goal-setting", "label": "Goal Setting" },
+  { "value": "self-improvement", "label": "Self Improvement" }
+,
+  { "value": "data-governance", "label": "Data Governance" },
+  { "value": "data-quality", "label": "Data Quality Management" },
+  { "value": "master-data-management", "label": "Master Data Management" },
+
+  { "value": "api-security", "label": "API Security" },
+  { "value": "application-security", "label": "Application Security" },
+  { "value": "penetration-testing", "label": "Penetration Testing" },
+  { "value": "vulnerability-assessment", "label": "Vulnerability Assessment" },
+
+  { "value": "identity-management", "label": "Identity Management" },
+  { "value": "single-sign-on", "label": "Single Sign On" },
+  { "value": "multi-factor-authentication", "label": "Multi Factor Authentication" },
+
+  { "value": "network-security", "label": "Network Security" },
+  { "value": "firewalls", "label": "Firewalls" },
+  { "value": "intrusion-detection", "label": "Intrusion Detection Systems" },
+
+  { "value": "cloud-security", "label": "Cloud Security" },
+  { "value": "container-security", "label": "Container Security" },
+  { "value": "kubernetes-security", "label": "Kubernetes Security" },
+
+  { "value": "infrastructure-as-code", "label": "Infrastructure as Code" },
+  { "value": "terraform-modules", "label": "Terraform Modules" },
+  { "value": "cloudformation", "label": "AWS CloudFormation" },
+
+  { "value": "cost-optimization", "label": "Cloud Cost Optimization" },
+  { "value": "capacity-planning", "label": "Capacity Planning" },
+  { "value": "resource-allocation", "label": "Resource Allocation" },
+
+  { "value": "edge-security", "label": "Edge Security" },
+  { "value": "cdn", "label": "Content Delivery Networks" },
+
+  { "value": "database-security", "label": "Database Security" },
+  { "value": "data-encryption", "label": "Data Encryption" },
+  { "value": "key-management", "label": "Key Management" },
+
+  { "value": "backup-and-restore", "label": "Backup and Restore" },
+  { "value": "business-continuity", "label": "Business Continuity Planning" },
+
+  { "value": "software-testing-strategy", "label": "Software Testing Strategy" },
+  { "value": "test-automation-frameworks", "label": "Test Automation Frameworks" },
+
+  { "value": "release-management", "label": "Release Management" },
+  { "value": "change-control", "label": "Change Control" },
+
+  { "value": "configuration-management", "label": "Configuration Management" },
+  { "value": "environment-management", "label": "Environment Management" },
+
+  { "value": "observability-metrics", "label": "Observability Metrics" },
+  { "value": "alerting", "label": "Alerting and Notifications" },
+
+  { "value": "technical-writing", "label": "Technical Writing" },
+  { "value": "knowledge-sharing", "label": "Knowledge Sharing" },
+
+  { "value": "open-source-contributions", "label": "Open Source Contributions" },
+  { "value": "community-building", "label": "Community Building" },
+
+  { "value": "ethical-hacking", "label": "Ethical Hacking" },
+  { "value": "security-auditing", "label": "Security Auditing" },
+
+  { "value": "compliance-audits", "label": "Compliance Audits" },
+  { "value": "risk-assessment", "label": "Risk Assessment" },
+
+  { "value": "vendor-management", "label": "Vendor Management" },
+  { "value": "contract-management", "label": "Contract Management" },
+
+  { "value": "budgeting", "label": "Budgeting" },
+  { "value": "financial-planning", "label": "Financial Planning" },
+
+  { "value": "customer-support", "label": "Customer Support" },
+  { "value": "incident-communication", "label": "Incident Communication" },
+
+  { "value": "process-documentation", "label": "Process Documentation" },
+  { "value": "standard-operating-procedures", "label": "Standard Operating Procedures" }
+,
+  { "value": "observability-tools", "label": "Observability Tools" },
+  { "value": "prometheus", "label": "Prometheus" },
+  { "value": "grafana", "label": "Grafana" },
+  { "value": "datadog", "label": "Datadog" },
+  { "value": "new-relic", "label": "New Relic" },
+
+  { "value": "log-management", "label": "Log Management" },
+  { "value": "elk-stack", "label": "ELK Stack" },
+  { "value": "opensearch", "label": "OpenSearch" },
+  { "value": "splunk", "label": "Splunk" },
+
+  { "value": "api-monitoring", "label": "API Monitoring" },
+  { "value": "synthetic-monitoring", "label": "Synthetic Monitoring" },
+  { "value": "uptime-monitoring", "label": "Uptime Monitoring" },
+
+  { "value": "chaos-engineering", "label": "Chaos Engineering" },
+  { "value": "resilience-testing", "label": "Resilience Testing" },
+  { "value": "fault-injection", "label": "Fault Injection" },
+
+  { "value": "performance-tuning", "label": "Performance Tuning" },
+  { "value": "memory-profiling", "label": "Memory Profiling" },
+  { "value": "cpu-profiling", "label": "CPU Profiling" },
+
+  { "value": "browser-performance", "label": "Browser Performance" },
+  { "value": "web-vitals", "label": "Web Vitals" },
+  { "value": "lighthouse", "label": "Lighthouse" },
+
+  { "value": "api-documentation", "label": "API Documentation" },
+  { "value": "openapi-specification", "label": "OpenAPI Specification" },
+  { "value": "swagger", "label": "Swagger" },
+
+  { "value": "sdk-development", "label": "SDK Development" },
+  { "value": "client-libraries", "label": "Client Libraries" },
+
+  { "value": "search-indexing", "label": "Search Indexing" },
+  { "value": "full-text-search", "label": "Full Text Search" },
+  { "value": "relevance-tuning", "label": "Relevance Tuning" },
+
+  { "value": "recommendation-algorithms", "label": "Recommendation Algorithms" },
+  { "value": "personalization", "label": "Personalization" },
+  { "value": "ranking-models", "label": "Ranking Models" },
+
+  { "value": "feature-engineering", "label": "Feature Engineering" },
+  { "value": "data-labeling", "label": "Data Labeling" },
+
+  { "value": "ab-testing", "label": "A B Testing" },
+  { "value": "experimentation", "label": "Experimentation" },
+
+  { "value": "product-analytics", "label": "Product Analytics" },
+  { "value": "user-behavior-analysis", "label": "User Behavior Analysis" },
+
+  { "value": "growth-hacking", "label": "Growth Hacking" },
+  { "value": "conversion-optimization", "label": "Conversion Optimization" },
+
+  { "value": "roadmap-planning", "label": "Roadmap Planning" },
+  { "value": "product-strategy", "label": "Product Strategy" },
+
+  { "value": "cross-functional-leadership", "label": "Cross Functional Leadership" },
+  { "value": "influence-without-authority", "label": "Influence Without Authority" },
+
+  { "value": "coaching-engineers", "label": "Coaching Engineers" },
+  { "value": "technical-mentorship", "label": "Technical Mentorship" },
+
+  { "value": "organizational-design", "label": "Organizational Design" },
+  { "value": "culture-building", "label": "Culture Building" },
+
+  { "value": "ethics-in-technology", "label": "Ethics in Technology" },
+  { "value": "responsible-ai", "label": "Responsible AI" }
+,
+  { "value": "data-architecture", "label": "Data Architecture" },
+  { "value": "information-security", "label": "Information Security" },
+  { "value": "zero-trust-security", "label": "Zero Trust Security" },
+  { "value": "identity-access-management", "label": "Identity and Access Management" },
+
+  { "value": "api-design-principles", "label": "API Design Principles" },
+  { "value": "restful-architecture", "label": "RESTful Architecture" },
+  { "value": "hypermedia-apis", "label": "Hypermedia APIs" },
+
+  { "value": "event-sourcing", "label": "Event Sourcing" },
+  { "value": "cqrs", "label": "CQRS" },
+  { "value": "domain-driven-design", "label": "Domain Driven Design" },
+
+  { "value": "software-modularity", "label": "Software Modularity" },
+  { "value": "dependency-management", "label": "Dependency Management" },
+  { "value": "package-management", "label": "Package Management" },
+
+  { "value": "monorepos", "label": "Monorepos" },
+  { "value": "polyrepos", "label": "Polyrepos" },
+
+  { "value": "build-automation", "label": "Build Automation" },
+  { "value": "task-runners", "label": "Task Runners" },
+
+  { "value": "code-quality", "label": "Code Quality" },
+  { "value": "static-code-analysis", "label": "Static Code Analysis" },
+  { "value": "linting", "label": "Linting" },
+
+  { "value": "refactoring", "label": "Refactoring" },
+  { "value": "legacy-code-modernization", "label": "Legacy Code Modernization" },
+
+  { "value": "api-lifecycle-management", "label": "API Lifecycle Management" },
+  { "value": "version-control-strategies", "label": "Version Control Strategies" },
+
+  { "value": "git-branching", "label": "Git Branching Strategies" },
+  { "value": "trunk-based-development", "label": "Trunk Based Development" },
+
+  { "value": "release-engineering", "label": "Release Engineering" },
+  { "value": "deployment-automation", "label": "Deployment Automation" },
+
+  { "value": "cloud-migration", "label": "Cloud Migration" },
+  { "value": "application-modernization", "label": "Application Modernization" },
+
+  { "value": "serverless-computing", "label": "Serverless Computing" },
+  { "value": "function-as-a-service", "label": "Function as a Service" },
+
+  { "value": "edge-functions", "label": "Edge Functions" },
+  { "value": "global-distribution", "label": "Global Distribution" },
+
+  { "value": "multi-region-deployment", "label": "Multi Region Deployment" },
+  { "value": "geo-replication", "label": "Geo Replication" },
+
+  { "value": "data-consistency-models", "label": "Data Consistency Models" },
+  { "value": "eventual-consistency", "label": "Eventual Consistency" },
+
+  { "value": "queue-based-systems", "label": "Queue Based Systems" },
+  { "value": "stream-processing", "label": "Stream Processing" },
+
+  { "value": "batch-processing", "label": "Batch Processing" },
+  { "value": "real-time-analytics", "label": "Real Time Analytics" },
+
+  { "value": "feature-management", "label": "Feature Management" },
+  { "value": "experimentation-platforms", "label": "Experimentation Platforms" },
+
+  { "value": "product-discovery", "label": "Product Discovery" },
+  { "value": "user-research", "label": "User Research" },
+
+  { "value": "usability-testing", "label": "Usability Testing" },
+  { "value": "design-thinking", "label": "Design Thinking" },
+
+  { "value": "technical-debt-management", "label": "Technical Debt Management" },
+  { "value": "prioritization-frameworks", "label": "Prioritization Frameworks" }
+,
+
+  { "value": "data-lakes", "label": "Data Lakes" },
+  { "value": "data-mesh", "label": "Data Mesh" },
+  { "value": "lakehouse-architecture", "label": "Lakehouse Architecture" },
+
+  { "value": "streaming-platforms", "label": "Streaming Platforms" },
+  { "value": "apache-flink", "label": "Apache Flink" },
+  { "value": "kinesis", "label": "Amazon Kinesis" },
+
+  { "value": "time-series-databases", "label": "Time Series Databases" },
+  { "value": "influxdb", "label": "InfluxDB" },
+  { "value": "timescaledb", "label": "TimescaleDB" },
+
+  { "value": "graph-databases", "label": "Graph Databases" },
+  { "value": "neo4j", "label": "Neo4j" },
+  { "value": "graph-query-languages", "label": "Graph Query Languages" },
+
+  { "value": "search-infrastructure", "label": "Search Infrastructure" },
+  { "value": "vector-databases", "label": "Vector Databases" },
+  { "value": "pinecone", "label": "Pinecone" },
+  { "value": "faiss", "label": "FAISS" },
+
+  { "value": "semantic-search", "label": "Semantic Search" },
+  { "value": "embedding-models", "label": "Embedding Models" },
+  { "value": "retrieval-augmented-generation", "label": "Retrieval Augmented Generation" },
+
+  { "value": "large-language-models", "label": "Large Language Models" },
+  { "value": "prompt-engineering", "label": "Prompt Engineering" },
+  { "value": "fine-tuning-models", "label": "Fine Tuning Models" },
+
+  { "value": "ai-evaluation", "label": "AI Evaluation" },
+  { "value": "model-bias-mitigation", "label": "Model Bias Mitigation" },
+  { "value": "ai-governance", "label": "AI Governance" },
+
+  { "value": "knowledge-graphs", "label": "Knowledge Graphs" },
+  { "value": "ontology-design", "label": "Ontology Design" },
+
+  { "value": "low-code-platforms", "label": "Low Code Platforms" },
+  { "value": "no-code-tools", "label": "No Code Tools" },
+
+  { "value": "workflow-orchestration", "label": "Workflow Orchestration" },
+  { "value": "business-rules-engines", "label": "Business Rules Engines" },
+
+  { "value": "api-marketplaces", "label": "API Marketplaces" },
+  { "value": "developer-experience", "label": "Developer Experience" },
+
+  { "value": "internal-tools", "label": "Internal Tools Development" },
+  { "value": "platform-engineering", "label": "Platform Engineering" },
+
+  { "value": "self-service-infrastructure", "label": "Self Service Infrastructure" },
+  { "value": "golden-paths", "label": "Golden Paths" },
+
+  { "value": "service-ownership", "label": "Service Ownership" },
+  { "value": "oncall-rotations", "label": "On Call Rotations" },
+
+  { "value": "postmortems", "label": "Postmortems" },
+  { "value": "blameless-culture", "label": "Blameless Culture" },
+
+  { "value": "engineering-metrics", "label": "Engineering Metrics" },
+  { "value": "dora-metrics", "label": "DORA Metrics" },
+
+  { "value": "product-delivery", "label": "Product Delivery" },
+  { "value": "outcome-driven-development", "label": "Outcome Driven Development" },
+
+  { "value": "stakeholder-alignment", "label": "Stakeholder Alignment" },
+  { "value": "executive-communication", "label": "Executive Communication" },
+
+  { "value": "organizational-scaling", "label": "Organizational Scaling" },
+  { "value": "change-leadership", "label": "Change Leadership" }
+,
+  { "value": "quantum-computing", "label": "Quantum Computing" },
+  { "value": "quantum-algorithms", "label": "Quantum Algorithms" },
+  { "value": "quantum-cryptography", "label": "Quantum Cryptography" },
+
+  { "value": "high-performance-computing", "label": "High Performance Computing" },
+  { "value": "parallel-computing", "label": "Parallel Computing" },
+  { "value": "distributed-computing", "label": "Distributed Computing" },
+
+  { "value": "numerical-methods", "label": "Numerical Methods" },
+  { "value": "scientific-computing", "label": "Scientific Computing" },
+
+  { "value": "compiler-design", "label": "Compiler Design" },
+  { "value": "program-analysis", "label": "Program Analysis" },
+  { "value": "static-analysis-tools", "label": "Static Analysis Tools" },
+
+  { "value": "operating-systems", "label": "Operating Systems" },
+  { "value": "kernel-development", "label": "Kernel Development" },
+  { "value": "memory-management-os", "label": "Memory Management (OS)" },
+  { "value": "process-scheduling", "label": "Process Scheduling" },
+
+  { "value": "computer-networks", "label": "Computer Networks" },
+  { "value": "network-protocols", "label": "Network Protocols" },
+  { "value": "tcp-ip", "label": "TCP IP" },
+  { "value": "dns", "label": "DNS" },
+  { "value": "load-testing-network", "label": "Network Load Testing" },
+
+  { "value": "distributed-consensus", "label": "Distributed Consensus" },
+  { "value": "raft-consensus", "label": "Raft Consensus Algorithm" },
+  { "value": "paxos", "label": "Paxos Algorithm" },
+
+  { "value": "fault-tolerant-systems", "label": "Fault Tolerant Systems" },
+  { "value": "byzantine-fault-tolerance", "label": "Byzantine Fault Tolerance" },
+
+  { "value": "cryptography", "label": "Cryptography" },
+  { "value": "public-key-cryptography", "label": "Public Key Cryptography" },
+  { "value": "hash-functions", "label": "Hash Functions" },
+  { "value": "digital-signatures", "label": "Digital Signatures" },
+
+  { "value": "secure-communication", "label": "Secure Communication" },
+  { "value": "tls-ssl", "label": "TLS SSL" },
+
+  { "value": "embedded-linux", "label": "Embedded Linux" },
+  { "value": "real-time-operating-systems", "label": "Real Time Operating Systems" },
+
+  { "value": "hardware-software-integration", "label": "Hardware Software Integration" },
+  { "value": "device-drivers", "label": "Device Drivers" },
+
+  { "value": "digital-signal-processing", "label": "Digital Signal Processing" },
+  { "value": "computer-graphics", "label": "Computer Graphics" },
+  { "value": "gpu-programming", "label": "GPU Programming" },
+
+  { "value": "simulation-modeling", "label": "Simulation Modeling" },
+  { "value": "systems-modeling", "label": "Systems Modeling" },
+
+  { "value": "technical-research", "label": "Technical Research" },
+  { "value": "academic-writing", "label": "Academic Writing" },
+
+  { "value": "patent-writing", "label": "Patent Writing" },
+  { "value": "intellectual-property", "label": "Intellectual Property" },
+
+  { "value": "technology-forecasting", "label": "Technology Forecasting" },
+  { "value": "future-trends-analysis", "label": "Future Trends Analysis" }
+,
+  { "value": "computer-graphics", "label": "Computer Graphics" },
+  { "value": "ray-tracing", "label": "Ray Tracing" },
+  { "value": "real-time-rendering", "label": "Real Time Rendering" },
+
+  { "value": "audio-processing", "label": "Audio Processing" },
+  { "value": "speech-synthesis", "label": "Speech Synthesis" },
+  { "value": "voice-assistants", "label": "Voice Assistants" },
+
+  { "value": "video-processing", "label": "Video Processing" },
+  { "value": "video-streaming", "label": "Video Streaming" },
+  { "value": "media-transcoding", "label": "Media Transcoding" },
+
+  { "value": "content-moderation", "label": "Content Moderation" },
+  { "value": "trust-and-safety", "label": "Trust and Safety" },
+
+  { "value": "recommendation-pipelines", "label": "Recommendation Pipelines" },
+  { "value": "ranking-optimization", "label": "Ranking Optimization" },
+
+  { "value": "search-quality", "label": "Search Quality" },
+  { "value": "query-understanding", "label": "Query Understanding" },
+
+  { "value": "ad-tech", "label": "Ad Tech" },
+  { "value": "real-time-bidding", "label": "Real Time Bidding" },
+  { "value": "campaign-management", "label": "Campaign Management" },
+
+  { "value": "marketing-technology", "label": "Marketing Technology" },
+  { "value": "customer-data-platforms", "label": "Customer Data Platforms" },
+
+  { "value": "crm-systems", "label": "CRM Systems" },
+  { "value": "sales-automation", "label": "Sales Automation" },
+
+  { "value": "customer-journey-mapping", "label": "Customer Journey Mapping" },
+  { "value": "user-segmentation", "label": "User Segmentation" },
+
+  { "value": "identity-resolution", "label": "Identity Resolution" },
+  { "value": "data-enrichment", "label": "Data Enrichment" },
+
+  { "value": "privacy-engineering", "label": "Privacy Engineering" },
+  { "value": "consent-management", "label": "Consent Management" },
+
+  { "value": "secure-data-sharing", "label": "Secure Data Sharing" },
+  { "value": "confidential-computing", "label": "Confidential Computing" },
+
+  { "value": "distributed-ledger-technology", "label": "Distributed Ledger Technology" },
+  { "value": "tokenization", "label": "Tokenization" },
+
+  { "value": "digital-identity", "label": "Digital Identity" },
+  { "value": "verifiable-credentials", "label": "Verifiable Credentials" },
+
+  { "value": "supply-chain-analytics", "label": "Supply Chain Analytics" },
+  { "value": "demand-forecasting", "label": "Demand Forecasting" },
+
+  { "value": "pricing-optimization", "label": "Pricing Optimization" },
+  { "value": "revenue-management", "label": "Revenue Management" },
+
+  { "value": "financial-analytics", "label": "Financial Analytics" },
+  { "value": "fraud-analytics", "label": "Fraud Analytics" },
+
+  { "value": "credit-scoring", "label": "Credit Scoring" },
+  { "value": "risk-analytics", "label": "Risk Analytics" },
+
+  { "value": "learning-platforms", "label": "Learning Platforms" },
+  { "value": "learning-analytics", "label": "Learning Analytics" },
+
+  { "value": "talent-management-systems", "label": "Talent Management Systems" },
+  { "value": "workforce-analytics", "label": "Workforce Analytics" },
+
+  { "value": "enterprise-search", "label": "Enterprise Search" },
+  { "value": "knowledge-discovery", "label": "Knowledge Discovery" },
+
+  { "value": "digital-transformation", "label": "Digital Transformation" },
+  { "value": "business-innovation", "label": "Business Innovation" },
+
+  { "value": "organizational-resilience", "label": "Organizational Resilience" },
+  { "value": "crisis-management", "label": "Crisis Management" }
+,
+  { "value": "software-observability", "label": "Software Observability" },
+  { "value": "service-level-objectives", "label": "Service Level Objectives" },
+  { "value": "service-level-indicators", "label": "Service Level Indicators" },
+
+  { "value": "capacity-modeling", "label": "Capacity Modeling" },
+  { "value": "traffic-shaping", "label": "Traffic Shaping" },
+  { "value": "rate-control", "label": "Rate Control" },
+
+  { "value": "distributed-caching", "label": "Distributed Caching" },
+  { "value": "cache-invalidation", "label": "Cache Invalidation" },
+
+  { "value": "data-replication", "label": "Data Replication" },
+  { "value": "sharding-strategies", "label": "Sharding Strategies" },
+
+  { "value": "consistency-models", "label": "Consistency Models" },
+  { "value": "strong-consistency", "label": "Strong Consistency" },
+  { "value": "weak-consistency", "label": "Weak Consistency" },
+
+  { "value": "distributed-locking", "label": "Distributed Locking" },
+  { "value": "leader-election", "label": "Leader Election" },
+
+  { "value": "api-throttling", "label": "API Throttling" },
+  { "value": "request-queuing", "label": "Request Queuing" },
+
+  { "value": "schema-evolution", "label": "Schema Evolution" },
+  { "value": "backward-compatibility", "label": "Backward Compatibility" },
+
+  { "value": "data-contracts", "label": "Data Contracts" },
+  { "value": "api-contract-testing", "label": "API Contract Testing" },
+
+  { "value": "blueprint-architecture", "label": "Blueprint Architecture" },
+  { "value": "reference-architectures", "label": "Reference Architectures" },
+
+  { "value": "service-composition", "label": "Service Composition" },
+  { "value": "orchestration-patterns", "label": "Orchestration Patterns" },
+
+  { "value": "saga-pattern", "label": "Saga Pattern" },
+  { "value": "two-phase-commit", "label": "Two Phase Commit" },
+
+  { "value": "idempotency", "label": "Idempotency" },
+  { "value": "retry-strategies", "label": "Retry Strategies" },
+
+  { "value": "backpressure", "label": "Backpressure" },
+  { "value": "flow-control", "label": "Flow Control" },
+
+  { "value": "data-anonymization", "label": "Data Anonymization" },
+  { "value": "data-masking", "label": "Data Masking" },
+
+  { "value": "privacy-by-design", "label": "Privacy by Design" },
+  { "value": "security-by-design", "label": "Security by Design" },
+
+  { "value": "secure-boot", "label": "Secure Boot" },
+  { "value": "hardware-security-modules", "label": "Hardware Security Modules" },
+
+  { "value": "supply-chain-security", "label": "Supply Chain Security" },
+  { "value": "software-bill-of-materials", "label": "Software Bill of Materials" },
+
+  { "value": "code-signing", "label": "Code Signing" },
+  { "value": "artifact-repositories", "label": "Artifact Repositories" },
+
+  { "value": "binary-management", "label": "Binary Management" },
+  { "value": "dependency-scanning", "label": "Dependency Scanning" },
+
+  { "value": "vulnerability-disclosure", "label": "Vulnerability Disclosure" },
+  { "value": "bug-bounty-programs", "label": "Bug Bounty Programs" },
+
+  { "value": "developer-productivity", "label": "Developer Productivity" },
+  { "value": "engineering-effectiveness", "label": "Engineering Effectiveness" },
+
+  { "value": "inner-source", "label": "Inner Source" },
+  { "value": "platform-adoption", "label": "Platform Adoption" },
+
+  { "value": "technical-onboarding", "label": "Technical Onboarding" },
+  { "value": "developer-advocacy", "label": "Developer Advocacy" }
+]
