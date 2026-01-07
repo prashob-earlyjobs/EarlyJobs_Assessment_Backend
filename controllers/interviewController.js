@@ -48,12 +48,13 @@ const getInterviewReport = async (req, res)=>{
 
 const checkValidUser = async (req, res) => {
   try{
-    const { email } = req.body;
+    const { phone } = req.body;
     const response = {
       userExists: false
     };
 
-    const user = await User.findOne({ email: email });
+
+    const user = await User.findOne({ mobile: phone });
     if (user) {
       response.userExists = true;
     }
