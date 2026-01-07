@@ -120,6 +120,21 @@ const register = async (req, res) => {
       role: role || "candidate",
       userId: generatedUserId,
     });
+
+    // Update referral status via nominations API
+    try {
+      await axios.patch(
+        "https://backendapi.earlyjobs.ai/api/nominations/referrals/update-by-phone",
+        {
+          phoneNumber: mobile,
+          accountCreated: true,
+        }
+      );
+    } catch (error) {
+      // Log error but don't fail registration if this call fails
+      console.error("Error updating referral status:", error.message);
+    }
+
     // Generate tokens
     const accessToken = generateToken(user);
     const refreshToken = generateRefreshToken(user._id);
@@ -156,6 +171,7 @@ const register = async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 const login = async (req, res) => {
+  console.log("login request", req.body);
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -203,6 +219,38 @@ const login = async (req, res) => {
     // Update last login
     user.lastLogin = new Date();
     await user.save();
+
+    // Check if request is from mobile app
+    const userAgent = req.headers["user-agent"]?.toLowerCase() || "";
+    // Check for mobile app: custom headers, mobile devices, or Flutter/Dart apps
+
+
+    const isMobileApp =
+    req.headers["x-platform"]?.toLowerCase() === "mobile" ||
+    req.headers["x-source"]?.toLowerCase() === "mobile" ||
+    /android|iphone|ipad|ipod|mobile|dart/.test(userAgent) ||
+    (!/mozilla|chrome|safari|firefox|edge|opera/.test(userAgent) && userAgent.length > 0);
+
+
+
+
+    console.log("isMobileApp", isMobileApp);
+
+    // Update referral status via nominations API (only for mobile app requests)
+    if (isMobileApp && user.mobile) {
+      try {
+        await axios.patch(
+          "https://backendapi.earlyjobs.ai/api/nominations/referrals/update-by-phone",
+          {
+            phoneNumber: user.mobile,
+            accountCreated: true,
+          }
+        );
+      } catch (error) {
+        // Log error but don't fail login if this call fails
+        console.error("Error updating referral status:", error.message);
+      }
+    }
 
     // Generate tokens
     const accessToken = generateToken(user);
@@ -681,6 +729,18 @@ const sendOtpMobileSms = async (phoneNumber, otp) => {
 };
 
 const generateAndSendOtp = async (req, res) => {
+
+  const userAgent = req.headers["user-agent"]?.toLowerCase() || "";
+  // Check for mobile app: custom headers, mobile devices, or Flutter/Dart apps
+  const isMobileApp =
+    req.headers["x-platform"]?.toLowerCase() === "mobile" ||
+    req.headers["x-source"]?.toLowerCase() === "mobile" ||
+    /android|iphone|ipad|ipod|mobile|dart/.test(userAgent) ||
+    (!/mozilla|chrome|safari|firefox|edge|opera/.test(userAgent) && userAgent.length > 0);
+
+  
+
+
   let { phoneNumber, email, franchiseId = "", tochangePassword, toLogin } = req.body;
   const userExists = await User.findOne({
     $or: [{ mobile: phoneNumber }, { email }],
@@ -807,6 +867,23 @@ const generateAndSendOtp = async (req, res) => {
       // emailRes: emailResponse.message,
     });
   }
+
+  // Update referral status via nominations API (only for mobile app requests)
+  if (isMobileApp && phoneNumber) {
+    try {
+      await axios.patch(
+        "https://backendapi.earlyjobs.ai/api/nominations/referrals/update-by-phone",
+        {
+          phoneNumber: phoneNumber,
+          accountCreated: true,
+        }
+      );
+    } catch (error) {
+      // Log error but don't fail OTP sending if this call fails
+      console.error("Error updating referral status:", error.message);
+    }
+  }
+
   if (tochangePassword) {
     res.json({
       success: true,
