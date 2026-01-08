@@ -17,6 +17,7 @@ const sendOtpMobileSms = async (phoneNumber, otp) => {
   };
 
   try {
+    console.log(otp);
     const response = await axios.get("https://enterprise.smsgupshup.com/GatewayAPI/rest", { params });
     console.log(response.data);
     if (response.data.toLowerCase().includes("success")) {
