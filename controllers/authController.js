@@ -732,11 +732,11 @@ const generateAndSendOtp = async (req, res) => {
 
   const userAgent = req.headers["user-agent"]?.toLowerCase() || "";
   // Check for mobile app: custom headers, mobile devices, or Flutter/Dart apps
-  const isMobileApp =
-    req.headers["x-platform"]?.toLowerCase() === "mobile" ||
-    req.headers["x-source"]?.toLowerCase() === "mobile" ||
-    /android|iphone|ipad|ipod|mobile|dart/.test(userAgent) ||
-    (!/mozilla|chrome|safari|firefox|edge|opera/.test(userAgent) && userAgent.length > 0);
+  // const isMobileApp =
+  //   req.headers["x-platform"]?.toLowerCase() === "mobile" ||
+  //   req.headers["x-source"]?.toLowerCase() === "mobile" ||
+  //   /android|iphone|ipad|ipod|mobile|dart/.test(userAgent) ||
+  //   (!/mozilla|chrome|safari|firefox|edge|opera/.test(userAgent) && userAgent.length > 0);
 
   
 
@@ -869,20 +869,20 @@ const generateAndSendOtp = async (req, res) => {
   }
 
   // Update referral status via nominations API (only for mobile app requests)
-  if (isMobileApp && phoneNumber) {
-    try {
-      await axios.patch(
-        "https://backendapi.earlyjobs.ai/api/nominations/referrals/update-by-phone",
-        {
-          phoneNumber: phoneNumber,
-          accountCreated: true,
-        }
-      );
-    } catch (error) {
-      // Log error but don't fail OTP sending if this call fails
-      console.error("Error updating referral status:", error.message);
-    }
-  }
+  // if (isMobileApp && phoneNumber) {
+  //   try {
+  //     await axios.patch(
+  //       "https://backendapi.earlyjobs.ai/api/nominations/referrals/update-by-phone",
+  //       {
+  //         phoneNumber: phoneNumber,
+  //         accountCreated: true,
+  //       }
+  //     );
+  //   } catch (error) {
+  //     // Log error but don't fail OTP sending if this call fails
+  //     console.error("Error updating referral status:", error.message);
+  //   }
+  // }
 
   if (tochangePassword) {
     res.json({
@@ -909,7 +909,17 @@ const generateAndSendOtp = async (req, res) => {
 
 // Endpoint to verify OTP
 const verifyOtp = async (req, res) => {
-  try {const { phoneNumber, otp, toLogin, email } = req.body;
+  try {
+    const { phoneNumber, otp, toLogin, email } = req.body;
+
+    // Check if request is from mobile app
+    const userAgent = req.headers["user-agent"]?.toLowerCase() || "";
+    // Check for mobile app: custom headers, mobile devices, or Flutter/Dart apps
+    const isMobileApp =
+      req.headers["x-platform"]?.toLowerCase() === "mobile" ||
+      req.headers["x-source"]?.toLowerCase() === "mobile" ||
+      /android|iphone|ipad|ipod|mobile|dart/.test(userAgent) ||
+      (!/mozilla|chrome|safari|firefox|edge|opera/.test(userAgent) && userAgent.length > 0);
 
   // Dummy OTP for development/testing (e.g., "123456" or "000000")
   const DUMMY_OTP = "871450";
@@ -986,6 +996,22 @@ const verifyOtp = async (req, res) => {
       ]
     },{ $set:{lastLogin: new Date()} });
     console.log("last login updated");
+
+    // Update referral status via nominations API (only for mobile app requests)
+    if (isMobileApp && user.mobile) {
+      try {
+        await axios.patch(
+          "https://backendapi.earlyjobs.ai/api/nominations/referrals/update-by-phone",
+          {
+            phoneNumber: user.mobile,
+            accountCreated: true,
+          }
+        );
+      } catch (error) {
+        // Log error but don't fail login if this call fails
+        console.error("Error updating referral status:", error.message);
+      }
+    }
 
     const accessToken = generateToken(user);
     const refreshToken = generateRefreshToken(user._id);
