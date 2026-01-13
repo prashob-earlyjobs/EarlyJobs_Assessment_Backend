@@ -31,6 +31,8 @@ const roleMiddleware = require("../middlewares/roleMiddleware");
 const authMiddleware = require("../middlewares/authMiddleware");
 
 const router = express.Router();
+const multer = require("multer");
+const GCPupload = multer({ storage: multer.memoryStorage() });
 const upload = require("../utils/s3Upload");
 
 // Validation rules
@@ -45,14 +47,14 @@ router.get(
 );
 
 
-router.post("/college-tieups",authMiddleware, addCollegeTieUps);
+router.post("/college-tieups", GCPupload.single("logo"), authMiddleware, addCollegeTieUps);
 
 router.get("/college-tieups", getCollegeTieUps);
 
 router.delete("/college-tieups/:tieupId",authMiddleware, deleteCollegeTieUps);
 
 router.put(
-  "/college-tieups/:tieupId",authMiddleware, updateCollegeTieUp
+  "/college-tieups/:tieupId",GCPupload.single("logo"),authMiddleware, updateCollegeTieUp
 );
 
 router.get(
