@@ -1301,31 +1301,27 @@ const getReferredTransactions = async (req, res) => {
 
 const addCollegeTieUps = async (req, res) => {
   try {
-    // Support both JSON and multipart/form-data (file uploads handled by multer-s3)
-    // console.log("req.body", req.body);
+    // Support both JSON (base64 in `logoUrl`) and multipart/form-data (file buffer in `req.file`)
     const { collegeName, location, order } = req.body || {};
-    // `imagaeUrl` is expected by the schema (note the existing typo in model)
-    let imagaeUrl = req.body?.imagaeUrl;
-   
 
-    if (req.file && req.file.location) {
-      imagaeUrl = req.file.location;
-    }
-    console.log("imagaeUrl received:", req.body);
     if (!collegeName || !location || order === undefined) {
       return res.status(400).json({
         success: false,
-        message:
-          "collegeName, imagaeUrl (or file), location and order are required",
+        message: "collegeName, location and order are required",
       });
     }
-    const url = await uploadPublicFile({
-      base64: req.body.logoUrl,
-      fileName: `${collegeName}_logo.png`,
-      folder: "college_tieups",
-    })
 
-    console.log("imagaeUrl", url);
+    let url;
+    if (req.file) {
+      // Multer memory storage provides file.buffer
+      url = await uploadPublicFile({ file: req.file, folder: "college_tieups" });
+    } else if (req.body && req.body.logoUrl) {
+      // Accept base64 string in logoUrl
+      url = await uploadPublicFile({ base64: req.body.logoUrl, fileName: `${collegeName}_logo`, folder: "college_tieups" });
+    } else {
+      return res.status(400).json({ success: false, message: "logo file or logoUrl (base64) is required" });
+    }
+
     const tieup = await CollegeTieup.create({
       collegeName:collegeName,
       logoUrl: url,
@@ -1398,11 +1394,10 @@ const updateCollegeTieUp = async (req, res) => {
   try {
     const { tieupId } = req.params;
     const { collegeName, location, order,logoUrl } = req.body || {};
-    let imagaeUrl = req.body?.imagaeUrl;
+    console.log("tieupId to update:", req.body?.logoUrl);
+    let imagaeUrl = req.body?.logoUrl;
 
-    if (req.file && req.file.location) {
-      imagaeUrl = req.file.location;
-    }
+ 
 
     if (!collegeName || !location || order === undefined) {
       return res.status(400).json({
@@ -1412,15 +1407,23 @@ const updateCollegeTieUp = async (req, res) => {
       });
     }
 
+    if(req.file && !imagaeUrl?.startsWith("https://")){
+      imagaeUrl = await uploadPublicFile({ file: req.file, folder: "college_tieups" });
+    }
+
     const updatedData = {
       collegeName,
       location,
       order,
     };
 
+    
+
     if (imagaeUrl) {
       updatedData.logoUrl = imagaeUrl;
     }
+
+    console.log("updatedData", updatedData);
 
    
     if(logoUrl){
