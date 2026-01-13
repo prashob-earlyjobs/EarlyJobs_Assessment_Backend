@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const Assessment = require("../models/Assessment");
+const Result = require("../models/Result");
+const { callVeloxhireApi } = require("../controllers/veloxhireController");
 
 const getassessmentsByUser = async (req, res) => {
   try {
@@ -40,6 +42,9 @@ const getAllCandidates = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
     const skip = (page - 1) * limit;
+    
+    // Get score filter from query (e.g., "1-4", "5-7", "7+")
+    const scoreFilter = req.query.scoreFilter;
 
     // Build query
     const query = { 
@@ -60,28 +65,129 @@ const getAllCandidates = async (req, res) => {
       });
     }
 
-    // Check if skip is beyond available candidates
-    if (skip >= totalCandidates) {
-      return res.status(404).json({
-        success: false,
-        message: 'No candidates found for this page'
-      });
-    }
-
-    // Calculate how many candidates to fetch
+    // Fetch all candidates (we need to calculate scores first, then filter and sort)
     // We only fetch up to (totalCandidatesAll - 7) to exclude the last 7
-    const fetchLimit = Math.min(skip + limit, totalCandidates);
-    
-    // Fetch candidates (sorted by newest first)
-    // Since we're limiting to totalCandidates, we won't fetch the excluded last 7
     const candidates = await User.find(query)
       .select('-password')
       .sort({ createdAt: -1 })
-      .limit(fetchLimit)
+      .limit(totalCandidates)
       .lean();
+
+    if (candidates.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No candidates found'
+      });
+    }
+
+    // Calculate highest score and collect interview skills for each candidate using Veloxhire API
+    const highestScoresMap = {};
+    const interviewSkillsMap = {};
     
-    // Apply pagination by slicing from skip position
-    const paginatedCandidates = candidates.slice(skip);
+    // Process each candidate to get their highest score and skills
+    for (const candidate of candidates) {
+      if (!candidate.assessmentsPaid || candidate.assessmentsPaid.length === 0) {
+        highestScoresMap[candidate._id.toString()] = null;
+        interviewSkillsMap[candidate._id.toString()] = [];
+        continue;
+      }
+
+      // Extract all assessmentIds from the candidate's paid assessments
+      const assessmentIds = candidate.assessmentsPaid.map(
+        (assessment) => assessment.assessmentId
+      );
+
+      // Fetch the corresponding assessments
+      const assessments = await Assessment.find({ _id: { $in: assessmentIds } });
+
+      // Get all interviewIds from assessmentsPaid
+      const interviewIds = candidate.assessmentsPaid
+        .map((assessment) => assessment.interviewId)
+        .filter((id) => id); // Filter out null/undefined
+
+      // Fetch scores and skills from Veloxhire API for each interviewId
+      const scores = [];
+      const allSkills = [];
+      for (const interviewId of interviewIds) {
+        // console.log('interviewId', interviewId);
+        try {
+          const result = await callVeloxhireApi(`/report/new/${interviewId}`);
+          // console.log('result', result);
+          if (result.success && result.data) {
+            // console.log('result.data', result.data);
+            // Check for score in different possible locations
+            // console.log('result.data.report', result.data.report);
+            const score = result.data.report?.score;
+            if (score !== undefined && score !== null) {
+              scores.push(Number(score));
+            }
+            
+            // Collect skills from reportSkills - extract only skill names
+            if (result.data.report?.reportSkills && Array.isArray(result.data.report.reportSkills)) {
+              result.data.report.reportSkills.forEach(skillObj => {
+                if (skillObj && skillObj.skill) {
+                  const skillName = skillObj.skill;
+                  if (!allSkills.includes(skillName)) {
+                    allSkills.push(skillName);
+                  }
+                }
+              });
+            }
+          }
+        } catch (error) {
+          console.error(`Error fetching score for interviewId ${interviewId}:`, error);
+          // Continue with other interviewIds even if one fails
+        }
+      }
+
+      // Find the highest score
+      const highestScore = scores.length > 0 ? Math.max(...scores) : 0;
+
+      console.log('highestScore', highestScore);
+      highestScoresMap[candidate._id.toString()] = highestScore;
+      interviewSkillsMap[candidate._id.toString()] = allSkills;
+      console.log('highestScoresMap', highestScoresMap);
+    }
+
+    // Add highestScore and interviewSkills to each candidate
+    let candidatesWithScores = candidates.map(candidate => {
+      const candidateId = candidate._id.toString();
+      return {
+        ...candidate,
+        highestScore: highestScoresMap[candidateId] || null,
+        interviewSkills: interviewSkillsMap[candidateId] || []
+      };
+    });
+
+    // Apply score filter if provided
+    if (scoreFilter) {
+      candidatesWithScores = candidatesWithScores.filter(candidate => {
+        const score = candidate.highestScore || 0;
+        switch (scoreFilter) {
+          case '1-3':
+            return score >= 1 && score <= 3;
+          case '4-6':
+            return score >= 4 && score <= 6;
+          case '7+':
+            return score >= 7;
+          default:
+            return true; // Invalid filter, return all
+        }
+      });
+    }
+
+    // Sort by highestScore (descending - highest first)
+    candidatesWithScores.sort((a, b) => {
+      const scoreA = a.highestScore || 0;
+      const scoreB = b.highestScore || 0;
+      return scoreB - scoreA; // Descending order
+    });
+
+    // Get total count after filtering
+    const totalAfterFilter = candidatesWithScores.length;
+
+    // Apply pagination after filtering and sorting
+    const paginatedCandidates = candidatesWithScores.slice(skip, skip + limit);
 
     if (paginatedCandidates.length === 0) {
       return res.status(404).json({
@@ -93,10 +199,10 @@ const getAllCandidates = async (req, res) => {
     res.status(200).json({
       success: true,
       count: paginatedCandidates.length,
-      total: totalCandidates,
+      total: totalAfterFilter,
       page: page,
       limit: limit,
-      totalPages: Math.ceil(totalCandidates / limit),
+      totalPages: Math.ceil(totalAfterFilter / limit),
       data: paginatedCandidates
     });
   } catch (error) {
@@ -108,6 +214,7 @@ const getAllCandidates = async (req, res) => {
     });
   }
 };
+
 const getUserIdByInterviewId = async (req, res) => {
   try {
     const { interviewId } = req.params;
