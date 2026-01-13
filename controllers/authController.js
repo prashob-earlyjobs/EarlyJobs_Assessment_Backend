@@ -364,9 +364,12 @@ const updateProfile = async (req, res) => {
     }
 
     // If profile is being updated, handle nested merging
+    let existingUser;
     if (updateData.profile) {
-      const existingUser = await User.findById(userId).lean();
+      existingUser = await User.findById(userId).lean();
 
+
+      const newRole = updateData.profile.preferredJobRole || "";
       const mergedProfile = {
         ...existingUser.profile,
         ...updateData.profile,
@@ -407,16 +410,32 @@ const updateProfile = async (req, res) => {
       runValidators: true,
     });
 
+
+    const existingRole = existingUser?.profile?.preferredJobRole || "";
+    const roleChanged = (existingRole !== updatedUser.profile.preferredJobRole);
+    let assessmentCreated = false;
+    let sessionID = null;
+    // Create assessment for updated profile if role changed
+    if (roleChanged) {
+      const assessment = await createAssessmentForProfile(updatedUser);
+      console.log("Assessment created:", assessment);
+      assessmentCreated = true;
+      sessionID = assessment;
+    }
+
+
+
     res.json({
       success: true,
       message: "Profile updated successfully for " + updatedUser.name,
-      data: { user: updatedUser },
+      data: { user: updatedUser, assessmentCreated, sessionID },
     });
   } catch (error) {
     console.error("Update profile error:", error);
     res.status(500).json({
       success: false,
       message: "Server error updating profile",
+
       error: error.message,
     });
   }
@@ -476,7 +495,7 @@ const completeProfile = async (req, res) => {
       dateOfBirth,
       gender,
       avatar
-      
+
     } = req.body;
 
     const updatedFields = {
@@ -489,7 +508,7 @@ const completeProfile = async (req, res) => {
       "profile.resume": resume || null,
       "profile.college": college || null,
       "profile.prefJobLocations": PrefJobLocations || [],
-      
+
     };
 
     const user = await User.findByIdAndUpdate(
@@ -717,6 +736,7 @@ const sendOtpMobileSms = async (phoneNumber, otp) => {
         params,
       }
     );
+    console.log("response", response.data);
 
     if (response.data.toLowerCase().includes("success")) {
       return { success: true, message: "SMS OTP sent successfully" };
@@ -730,7 +750,7 @@ const sendOtpMobileSms = async (phoneNumber, otp) => {
 
 const generateAndSendOtp = async (req, res) => {
 
-  const userAgent = req.headers["user-agent"]?.toLowerCase() || "";
+  // const userAgent = req.headers["user-agent"]?.toLowerCase() || "";
   // Check for mobile app: custom headers, mobile devices, or Flutter/Dart apps
   // const isMobileApp =
   //   req.headers["x-platform"]?.toLowerCase() === "mobile" ||
@@ -741,12 +761,13 @@ const generateAndSendOtp = async (req, res) => {
   
 
 
+  console.log("Request body for OTP generation:", req.body);
   let { phoneNumber, email, franchiseId = "", tochangePassword, toLogin } = req.body;
   const userExists = await User.findOne({
     $or: [{ mobile: phoneNumber }, { email }],
   });
-  
- 
+
+
 
   if (!toLogin) {
 
@@ -805,7 +826,7 @@ const generateAndSendOtp = async (req, res) => {
       }
     }
   } else {
-    if(!email && !phoneNumber){
+    if (!email && !phoneNumber) {
       return res
         .status(400)
         .json({ success: false, message: "Phone or email is required" });
@@ -838,8 +859,8 @@ const generateAndSendOtp = async (req, res) => {
       phoneNumber = userExists.mobile;
       email = userExists.email;
     }
-    
-    
+
+
   }
   const otp = generateOtp();
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
@@ -851,10 +872,13 @@ const generateAndSendOtp = async (req, res) => {
     otp,
     expiresAt,
   });
+  console.log(otp);
 
   const smsResponse = await sendOtpSms(phoneNumber, otp);
   const emailResponse = await sendOtpEmail(email, otp);
   const mobileResponse = await sendOtpMobileSms(phoneNumber, otp);
+
+  console.log("smsResponse", smsResponse);
   // console.log("emailResponse", emailResponse);
   // console.log("emailResponseMSG", emailResponse.message);
   console.log("mobileResponse", mobileResponse);
@@ -892,9 +916,9 @@ const generateAndSendOtp = async (req, res) => {
       // emailRes: emailResponse,
       user: userExistsforpasswordchange
         ? {
-            ...userExistsforpasswordchange.toObject(),
-            isDeleted: userExistsforpasswordchange.isDeleted ?? false,
-          }
+          ...userExistsforpasswordchange.toObject(),
+          isDeleted: userExistsforpasswordchange.isDeleted ?? false,
+        }
         : null,
     });
   } else {
@@ -910,6 +934,7 @@ const generateAndSendOtp = async (req, res) => {
 // Endpoint to verify OTP
 const verifyOtp = async (req, res) => {
   try {
+    
     const { phoneNumber, otp, toLogin, email } = req.body;
 
     // Check if request is from mobile app
@@ -921,81 +946,82 @@ const verifyOtp = async (req, res) => {
       /android|iphone|ipad|ipod|mobile|dart/.test(userAgent) ||
       (!/mozilla|chrome|safari|firefox|edge|opera/.test(userAgent) && userAgent.length > 0);
 
-  // Dummy OTP for development/testing (e.g., "123456" or "000000")
-  const DUMMY_OTP = "871450";
-  const isDummyOtp = otp === DUMMY_OTP;
+    // Dummy OTP for development/testing (e.g., "123456" or "000000")
+    const DUMMY_OTP = "871450";
+    const isDummyOtp = otp === DUMMY_OTP;
 
-  let storedOtp = null;
+    let storedOtp = null;
 
-  if (isDummyOtp) {
+    if (isDummyOtp) {
 
-    // Create a dummy storedOtp object for consistency
-    storedOtp = { _id: "dummy", otp: DUMMY_OTP };
-  } else {
-    const [foundOtp] = await OTP.aggregate([
-      { $match: {
-           $or: [
-          { phoneNumber: phoneNumber },
+      // Create a dummy storedOtp object for consistency
+      storedOtp = { _id: "dummy", otp: DUMMY_OTP };
+    } else {
+      const [foundOtp] = await OTP.aggregate([
+        {
+          $match: {
+            $or: [
+              { phoneNumber: phoneNumber },
+              { email: email }
+            ],
+            otp,
+            isUsed: false,
+            expiresAt: { $gt: new Date() },
+          }
+        },
+      ]);
+
+      storedOtp = foundOtp;
+    }
+
+    console.log("storedOtp", storedOtp);
+
+    if (!storedOtp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired OTP",
+      });
+    }
+
+    // Mark OTP as used (skip for dummy OTP)
+    if (!isDummyOtp && storedOtp._id !== "dummy") {
+      await OTP.updateOne(
+        { _id: storedOtp._id },
+        { $set: { isUsed: true } }
+      );
+    }
+
+    if (toLogin) {
+      console.log("Login flow OTP verified");
+      const user = await User.findOne({
+        $or: [
+          { mobile: phoneNumber },
           { email: email }
-        ],
-          otp,
-          isUsed: false,
-          expiresAt: { $gt: new Date() },
-        }
-      },
-    ]);
-
-    storedOtp = foundOtp;
-  }
-
-  console.log("storedOtp", storedOtp);
-
-  if (!storedOtp) {
-    return res.status(400).json({
-      success: false,
-      message: "Invalid or expired OTP",
-    });
-  }
-
-  // Mark OTP as used (skip for dummy OTP)
-  if (!isDummyOtp && storedOtp._id !== "dummy") {
-    await OTP.updateOne(
-      { _id: storedOtp._id },
-      { $set: { isUsed: true } }
-    );
-  }
-
-  if (toLogin) {
-    console.log("Login flow OTP verified");
-    const user = await User.findOne({
-      $or: [
-        { mobile: phoneNumber },
-        { email: email }
-      ]
-    });
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
+        ]
       });
-    }
-   
-    if (!user.isActive) {
-      return res.status(401).json({
-        success: false,
-        message: "Account is deactivated",
-      });
-    }
 
-    console.log("last login update");
-    await User.updateOne({
-      $or: [
-        { mobile: phoneNumber },
-        { email: email }
-      ]
-    },{ $set:{lastLogin: new Date()} });
-    console.log("last login updated");
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      if (!user.isActive) {
+        return res.status(401).json({
+          success: false,
+          message: "Account is deactivated",
+        });
+      }
+
+      console.log("last login update");
+      await User.updateOne({
+        $or: [
+          { mobile: phoneNumber },
+          { email: email }
+        ]
+      }, { $set: { lastLogin: new Date() } });
+      console.log("last login updated");
 
     // Update referral status via nominations API (only for mobile app requests)
     if (isMobileApp && user.mobile) {
@@ -1013,37 +1039,38 @@ const verifyOtp = async (req, res) => {
       }
     }
 
-    const accessToken = generateToken(user);
-    const refreshToken = generateRefreshToken(user._id);
+      const accessToken = generateToken(user);
+      const refreshToken = generateRefreshToken(user._id);
 
-    // Set refresh token in cookie
-    res.cookie("refreshToken", refreshToken, cookieOptions);
+      // Set refresh token in cookie
+      res.cookie("refreshToken", refreshToken, cookieOptions);
 
-    // Return success response
-    return res.json({
-      success: true,
-      message: "OTP verified successfully. Login successful.",
-      data: {
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          mobile: user.mobile,
-          role: user.role,
-          profile: user.profile,
-          isEmailVerified: user.isEmailVerified,
-          isPhoneVerified: user.isPhoneVerified,
+      // Return success response
+      return res.json({
+        success: true,
+        message: "OTP verified successfully. Login successful.",
+        data: {
+          user: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            mobile: user.mobile,
+            role: user.role,
+            profile: user.profile,
+            isEmailVerified: user.isEmailVerified,
+            isPhoneVerified: user.isPhoneVerified,
+          },
+          accessToken,
         },
-        accessToken,
-      },
-    });
+      });
 
+    }
+    res.json({ success: true, message: "OTP verified successfully" });
   }
-  res.json({ success: true, message: "OTP verified successfully" });}
-  catch(err){
+  catch (err) {
     console.error("OTP verification error:", err);
   }
-  
+
 };
 
 const getColleges = async (req, res) => {
@@ -1101,7 +1128,7 @@ const updateBankDetails = async (req, res) => {
 
     // Build update object with only provided fields
     const bankDetailsUpdate = {};
-    
+
     if (accountHolderName !== undefined) {
       bankDetailsUpdate["bankAccountDetails.accountHolderName"] = accountHolderName;
     }
@@ -1160,7 +1187,7 @@ const updateBankDetails = async (req, res) => {
     });
   } catch (error) {
     console.error("Update bank details error:", error);
-    
+
     // Handle validation errors
     if (error.name === "ValidationError") {
       const errors = Object.values(error.errors).map((err) => err.message);
@@ -1261,3 +1288,74 @@ module.exports = {
   updateBankDetails,
   deleteUser,
 };
+
+
+// Helper function to create assessment for profile completion
+async function createAssessmentForProfile(user) {
+  try {
+    console.log("Creating assessment for user:", user);
+    if (!user.profile) {
+      console.log("No profile found for user:", user._id);
+      return;
+    }
+
+    const { skills, preferredJobRole, professionalInformation } = user.profile;
+    const { _id } = user;
+    const ai_portel_url = process.env.INTERVIEW_PORTAL_URL;
+    let response;
+
+
+    axios.post(`${ai_portel_url}/api/public/create-assessment`, {
+      user: {
+        id: _id,
+        name: user.name,
+        email: user.email,
+        phone: user.mobile
+      },
+      skills: skills || [],
+      preferredJobRole: preferredJobRole || "",
+      experience: professionalInformation?.experience
+    }).then(async res => {
+      response = res?.data?.assessments.map(item => {
+        return {
+          sessionId: new mongoose.Types.ObjectId(item.sessionId),
+          role: item.role,
+          duration: item.duration,
+          jobDescription: item.jobDescription,
+          skills: item.skills,
+          status: item.status || "created"
+        };
+      });
+
+
+
+      console.log("Assessments to be added:", response);
+
+
+      // Update user's assessment status
+      await User.findByIdAndUpdate(
+        new mongoose.Types.ObjectId(_id),
+        {
+          $push: {
+            assessment: {
+              $each: response
+            }
+          }
+        },
+      ).then(() => {
+      }).catch(err => {
+        console.error("Error updating assessment status for user:", _id, err);
+      });
+
+    }).catch(err => {
+      console.error("Error calling AI portal for assessment:", err);
+    });
+
+    return response;
+
+  } catch (error) {
+    console.error("Error creating assessment for profile:", error);
+
+   
+  }
+}

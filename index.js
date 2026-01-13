@@ -20,6 +20,7 @@ const assessmentRoutes = require("./routes/assessmentRoutes");
 const resultRoutes = require("./routes/resultRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const webhookRoutes = require("./routes/webhook");
+const IwebhookRoutes = require("./routes/webhookRoute");
 const createOrder = require("./routes/payment");
 const authMiddleware = require("./middlewares/authMiddleware");
 const tranctions = require("./routes/transactions");
@@ -33,7 +34,8 @@ const certificateRoutes = require("./routes/certificateRoutes");
 const candidateRoutes= require("./routes/candidateRoutes");
 const zohoRoutes = require("./routes/zohoRoutes");
 const enquiryRoutes = require("./routes/enquiryRoutes");
-
+const staticRoutes = require("./routes/staticRoutes");
+const interviewRoutes = require("./routes/interviewRoutes");
 //const resumeRoutes =require("./routes/resumeRoutes");
 
 // const profileRoutes = require('./routes/profileRoutes');
@@ -64,7 +66,8 @@ app.use(
       "https://portal.earlyjobs.ai",
       "https://qa-portal.earlyjobs.ai",
       "http://localhost:3001",
-      "http://localhost:63306"
+      "http://localhost:63306",
+      "http://localhost:3002",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
@@ -74,6 +77,8 @@ app.use(
       "X-Requested-With",
       "Accept",
       "Origin",
+      "x-webhook-signature",
+      "x-webhook-timestamp"
     ],
     exposedHeaders: ["Content-Range", "X-Content-Range"],
     maxAge: 86400, // 24 hours in seconds
@@ -81,7 +86,7 @@ app.use(
 );
 
 // Security middleware
-app.use(helmet());
+// app.use(helmet());
 
 // Rate limiting
 const limiter = rateLimit({
@@ -94,6 +99,8 @@ app.use("/api/", limiter);
 // Body parsing middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+
 
 // Data sanitization
 app.use(xss());
@@ -127,6 +134,9 @@ app.use("/api/certificates", certificateRoutes);
 app.use("/api/candidate", candidateRoutes);
 app.use("/api/zoho", zohoRoutes);
 app.use("/api/enquiries", enquiryRoutes);
+app.use("/api/static", staticRoutes);
+app.use("/api/interviews", interviewRoutes);
+app.use("/api/webhook", express.raw({ type: "application/json" }), IwebhookRoutes);
 
 //app.use("/api/resume", resumeRoutes);
 // app.use('/api/results', resultRoutes);
