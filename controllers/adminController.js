@@ -2,7 +2,8 @@ const Assessment =require("../models/Assessment");
 const User = require("../models/User");
 const Transactions = require("../models/transactions");
 const Result = require("../models/Result");
-
+const CollegeTieup = require("../models/collegeTieups");
+const {uploadPublicFile} = require("../utils/gcpUpload");
 const { validationResult } = require("express-validator");
 
 
@@ -1297,6 +1298,164 @@ const getReferredTransactions = async (req, res) => {
   }
 };
 
+
+const addCollegeTieUps = async (req, res) => {
+  try {
+    // Support both JSON and multipart/form-data (file uploads handled by multer-s3)
+    // console.log("req.body", req.body);
+    const { collegeName, location, order } = req.body || {};
+    // `imagaeUrl` is expected by the schema (note the existing typo in model)
+    let imagaeUrl = req.body?.imagaeUrl;
+   
+
+    if (req.file && req.file.location) {
+      imagaeUrl = req.file.location;
+    }
+    console.log("imagaeUrl received:", req.body);
+    if (!collegeName || !location || order === undefined) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "collegeName, imagaeUrl (or file), location and order are required",
+      });
+    }
+    const url = await uploadPublicFile({
+      base64: req.body.logoUrl,
+      fileName: `${collegeName}_logo.png`,
+      folder: "college_tieups",
+    })
+
+    console.log("imagaeUrl", url);
+    const tieup = await CollegeTieup.create({
+      collegeName:collegeName,
+      logoUrl: url,
+      location,
+      order,
+    });
+
+    res.status(201).json({ success: true, data: { tieup } });
+  } catch (error) {
+    console.log("Error adding college tie-up:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching college tie-ups",
+      error: error.message,
+    });
+  }
+}
+
+
+const getCollegeTieUps = async (req, res) => {
+  try {
+    const tieups = await CollegeTieup.find().sort({ order: 1 });
+
+    res.json({ success: true, data: tieups  });
+  } catch (error) {
+    console.log("Error fetching college tie-ups:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching college tie-ups",
+      error: error.message,
+    });
+  }
+}
+
+
+const deleteCollegeTieUps = async (req, res) => {
+  try {
+    const { tieupId } = req.params;
+    console.log("tieupId to delete:", tieupId);
+    if (!tieupId) {
+      return res.status(400).json({
+        success: false,
+        message: "tieupId parameter is required",
+      });
+    }
+    const deletedTieup = await CollegeTieup.findByIdAndDelete(tieupId);
+
+    if (!deletedTieup) {
+      return res.status(404).json({
+        success: false,
+        message: "College tie-up not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "College tie-up deleted successfully",
+    });
+  } catch (error) {
+    console.log("Error deleting college tie-up:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error deleting college tie-up",
+      error: error.message,
+    });
+  }
+}
+
+const updateCollegeTieUp = async (req, res) => {
+  try {
+    const { tieupId } = req.params;
+    const { collegeName, location, order,logoUrl } = req.body || {};
+    let imagaeUrl = req.body?.imagaeUrl;
+
+    if (req.file && req.file.location) {
+      imagaeUrl = req.file.location;
+    }
+
+    if (!collegeName || !location || order === undefined) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "collegeName, imagaeUrl (or file), location and order are required",
+      });
+    }
+
+    const updatedData = {
+      collegeName,
+      location,
+      order,
+    };
+
+    if (imagaeUrl) {
+      updatedData.logoUrl = imagaeUrl;
+    }
+
+   
+    if(logoUrl){
+     let url = await uploadPublicFile({
+        base64: logoUrl,
+        fileName: `${collegeName}_${Date.now()}_logo.png`,
+        folder: "college_tieups",
+      })
+      updatedData.logoUrl = url;
+    }
+
+    const updatedTieup = await CollegeTieup.findByIdAndUpdate(
+      tieupId,
+      updatedData,
+      { new: true }
+    );
+
+    if (!updatedTieup) {
+      return res.status(404).json({
+        success: false,
+        message: "College tie-up not found",
+      });
+    }
+
+    res.json({ success: true, data: { tieup: updatedTieup } });
+  } catch (error) {
+    console.log("Error updating college tie-up:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating college tie-up",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createAssessment,
   updateAssessment,
@@ -1315,4 +1474,8 @@ module.exports = {
   addUser,
   getReferredUsers,
   getReferredTransactions,
+  addCollegeTieUps,
+  getCollegeTieUps,
+  deleteCollegeTieUps,
+  updateCollegeTieUp
 };
