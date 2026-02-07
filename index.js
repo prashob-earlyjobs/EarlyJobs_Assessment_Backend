@@ -36,6 +36,7 @@ const zohoRoutes = require("./routes/zohoRoutes");
 const enquiryRoutes = require("./routes/enquiryRoutes");
 const staticRoutes = require("./routes/staticRoutes");
 const interviewRoutes = require("./routes/interviewRoutes");
+const dynamicLinkRoutes = require("./routes/dynamicLinkRoutes");
 //const resumeRoutes =require("./routes/resumeRoutes");
 
 // const profileRoutes = require('./routes/profileRoutes');
@@ -136,6 +137,7 @@ app.use("/api/zoho", zohoRoutes);
 app.use("/api/enquiries", enquiryRoutes);
 app.use("/api/static", staticRoutes);
 app.use("/api/interviews", interviewRoutes);
+app.use("/api/dynamic-links", dynamicLinkRoutes);
 app.use("/api/webhook", express.raw({ type: "application/json" }), IwebhookRoutes);
 
 //app.use("/api/resume", resumeRoutes);
