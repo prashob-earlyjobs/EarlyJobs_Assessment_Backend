@@ -45,6 +45,23 @@ const getInterviewReport = async (req, res)=>{
   }
 }
 
+const getAllCandidates = async (req, res)=>{
+  try{
+    console.log("getAllCandidates",req.query.scoreFilter);
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 10;
+    const response = await axios.get(`${process.env.INTERVIEW_PORTAL_URL}/api/public/completed-interviews?page=${page}&limit=${limit}&search=${req?.query?.search || ''}&scoreFilter=${req?.query?.scoreFilter || ''}`);
+    console.log("response",response?.data);
+    return res.status(200).json(response?.data?.data);
+  }catch(error){
+    console.error("Error fetching all candidates:", error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error. Please try again later.'
+    });
+  }
+}
+
 
 const checkValidUser = async (req, res) => {
   try{
@@ -73,5 +90,6 @@ const checkValidUser = async (req, res) => {
 module.exports = {
   getUserInterviews,
   getInterviewReport,
-  checkValidUser
+  checkValidUser,
+  getAllCandidates
 };
