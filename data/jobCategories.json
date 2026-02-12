@@ -1,0 +1,12 @@
+[
+  { "id": 1, "name": "Information Technology", "slug": "information-technology" },
+  { "id": 2, "name": "Healthcare", "slug": "healthcare" },
+  { "id": 3, "name": "Finance", "slug": "finance" },
+  { "id": 4, "name": "Education", "slug": "education" },
+  { "id": 5, "name": "Sales & Marketing", "slug": "sales-marketing" },
+  { "id": 6, "name": "Engineering", "slug": "engineering" },
+  { "id": 7, "name": "Human Resources", "slug": "human-resources" },
+  { "id": 8, "name": "Customer Service", "slug": "customer-service" },
+  { "id": 9, "name": "Operations", "slug": "operations" },
+  { "id": 10, "name": "Design", "slug": "design" }
+]
