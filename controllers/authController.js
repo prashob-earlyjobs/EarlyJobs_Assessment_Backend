@@ -724,7 +724,7 @@ const sendOtpMobileSms = async (phoneNumber, otp) => {
     msg_type: "TEXT",
     userid: "2000258460",
     auth_scheme: "plain",
-    password: "$c9bZcmp",
+    password: "Early@2024",
     v: "1.1",
     format: "text",
   };
@@ -750,15 +750,6 @@ const sendOtpMobileSms = async (phoneNumber, otp) => {
 
 const generateAndSendOtp = async (req, res) => {
 
-  // const userAgent = req.headers["user-agent"]?.toLowerCase() || "";
-  // Check for mobile app: custom headers, mobile devices, or Flutter/Dart apps
-  // const isMobileApp =
-  //   req.headers["x-platform"]?.toLowerCase() === "mobile" ||
-  //   req.headers["x-source"]?.toLowerCase() === "mobile" ||
-  //   /android|iphone|ipad|ipod|mobile|dart/.test(userAgent) ||
-  //   (!/mozilla|chrome|safari|firefox|edge|opera/.test(userAgent) && userAgent.length > 0);
-
-  
 
 
   console.log("Request body for OTP generation:", req.body);
@@ -875,7 +866,7 @@ const generateAndSendOtp = async (req, res) => {
   console.log(otp);
 
   const smsResponse = await sendOtpSms(phoneNumber, otp);
-  const emailResponse = await sendOtpEmail(email, otp);
+
   const mobileResponse = await sendOtpMobileSms(phoneNumber, otp);
 
   console.log("smsResponse", smsResponse);
@@ -883,10 +874,10 @@ const generateAndSendOtp = async (req, res) => {
   // console.log("emailResponseMSG", emailResponse.message);
   console.log("mobileResponse", mobileResponse);
 
-  if (!mobileResponse.success) {
+  if (!mobileResponse.success && !smsResponse.success) {
     return res.status(500).json({
       success: false,
-      message: "Error sending OTP via SMS",
+      message: "Error sending OTP via SMS or Mobile",
       // message: smsResponse.message,
       // emailRes: emailResponse.message,
     });
