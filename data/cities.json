@@ -1,0 +1,12 @@
+[
+  { "id": 1, "name": "Bangalore", "state": "Karnataka" },
+  { "id": 2, "name": "Mumbai", "state": "Maharashtra" },
+  { "id": 3, "name": "Delhi", "state": "Delhi" },
+  { "id": 4, "name": "Hyderabad", "state": "Telangana" },
+  { "id": 5, "name": "Chennai", "state": "Tamil Nadu" },
+  { "id": 6, "name": "Pune", "state": "Maharashtra" },
+  { "id": 7, "name": "Kolkata", "state": "West Bengal" },
+  { "id": 8, "name": "Ahmedabad", "state": "Gujarat" },
+  { "id": 9, "name": "Jaipur", "state": "Rajasthan" },
+  { "id": 10, "name": "Surat", "state": "Gujarat" }
+]

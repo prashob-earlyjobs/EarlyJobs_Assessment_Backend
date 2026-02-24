@@ -9,9 +9,9 @@ const router = express.Router();
 
 router.get('/getUserInterviews/:id',authMiddleware, getUserInterviews);
 
-router.get('/getInterviewReport/:id',authMiddleware, getInterviewReport);
+router.get('/getInterviewReport/:id', getInterviewReport);
 
-router.get('/getAllCandidates',authMiddleware, getAllCandidates);
+router.get('/getAllCandidates', getAllCandidates);
 
 //check if the user is valid and present in db
 router.post('/isValidUser',checkValidUser);

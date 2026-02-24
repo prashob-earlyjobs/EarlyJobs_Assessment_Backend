@@ -135,7 +135,7 @@ const getAllCandidates = async (req, res) => {
             }
           }
         } catch (error) {
-          console.error(`Error fetching score for interviewId ${interviewId}:`, error);
+          console.error(`Error fetching score for interviewId ${interviewId}:`);
           // Continue with other interviewIds even if one fails
         }
       }
@@ -146,7 +146,7 @@ const getAllCandidates = async (req, res) => {
       console.log('highestScore', highestScore);
       highestScoresMap[candidate._id.toString()] = highestScore;
       interviewSkillsMap[candidate._id.toString()] = allSkills;
-      console.log('highestScoresMap', highestScoresMap);
+
     }
 
     // Add highestScore and interviewSkills to each candidate
