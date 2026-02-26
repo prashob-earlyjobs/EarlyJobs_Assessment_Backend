@@ -15,9 +15,12 @@ const getDashboardData = async (req, res) => {
     const recentJobs = await axios.get(`${process.env.JOB_PORTAL_URL}/api/public/jobs`);
     const companies = await axios.get(`${process.env.JOB_PORTAL_URL}/api/public/companies`);
     const candidates = await User.countDocuments({ role: 'candidate' });
+    const totalVacancies = await axios.get(`${process.env.JOB_PORTAL_URL}/api/public/jobvacancies`);
+
+    console.log("totalVacancies",totalVacancies?.data?.data?.vacancies);
 
     dashboardData.recentJobs = recentJobs?.data?.data?.jobs?.slice(0, 5) || [];
-   
+    dashboardData.totalVacancies = totalVacancies?.data?.data?.vacancies || 0;
     dashboardData.totalJobs = parseInt(recentJobs?.data?.totalResults || 9999)+4000;
     dashboardData.totalCompanies = parseInt(companies?.data?.length || 1000);
     dashboardData.totalCandidates = candidates || 9999;
