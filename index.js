@@ -38,6 +38,7 @@ const staticRoutes = require("./routes/staticRoutes");
 const interviewRoutes = require("./routes/interviewRoutes");
 const dynamicLinkRoutes = require("./routes/dynamicLinkRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const interviewBuddyRoutes = require("./routes/interviewBuddyRoutes");
 //const resumeRoutes =require("./routes/resumeRoutes");
 
 // const profileRoutes = require('./routes/profileRoutes');
@@ -141,6 +142,8 @@ app.use("/api/interviews", interviewRoutes);
 app.use("/api/dynamic-links", dynamicLinkRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/webhook", express.raw({ type: "application/json" }), IwebhookRoutes);
+app.use("/api/interview-buddy", interviewBuddyRoutes);
+
 
 //app.use("/api/resume", resumeRoutes);
 // app.use('/api/results', resultRoutes);
