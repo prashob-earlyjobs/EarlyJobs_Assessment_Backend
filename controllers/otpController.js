@@ -11,7 +11,7 @@ const sendOtpMobileSms = async (phoneNumber, otp) => {
     msg_type: "TEXT",
     userid: "2000258460",
     auth_scheme: "plain",
-    password: "$c9bZcmp",
+    password: "Early@2024",
     v: "1.1",
     format: "text",
   };
@@ -91,6 +91,7 @@ exports.sendOtpController = async (req, res) => {
       isUsed: false,
     });
 
+    console.log(`Generated OTP for ${mobile}: ${otp} (expires at ${expiresAt})`);
     // Send OTP via Gupshup
     const smsResponse = await sendOtpMobileSms(mobile, otp);
     const sentWhatsappResponse = await sendOtpwhatsapp(mobile, otp);
@@ -125,7 +126,7 @@ exports.submitInterestController = async (req, res) => {
   } = req.body;
 
   // Validate required fields
-  if (!name || !email || !companyName || !mobile || !mobileOtp || !interviewScheduleDate || !interviewMode || !candidateName) {
+  if (!name || !email || !companyName || !mobile || !mobileOtp ) {
     return res.status(400).json({ 
       success: false, 
       message: "All fields are required: name, email, companyName, companyAddress, mobile, mobileOtp, interviewScheduleDate, interviewMode, and candidateName" 
@@ -134,6 +135,7 @@ exports.submitInterestController = async (req, res) => {
 
   // Validate mobile number format
   if (!/^\+91\d{10}$/.test(mobile)) {
+    console.log("invalid mobile number format:");
     return res.status(400).json({ 
       success: false, 
       message: "Valid mobile number with +91 country code and 10 digits is required" 
@@ -149,46 +151,9 @@ exports.submitInterestController = async (req, res) => {
     });
   }
 
-  // Validate interview mode
-  const validInterviewModes = ['Offline', 'Online', 'Hybrid'];
-  if (!validInterviewModes.includes(interviewMode)) {
-    return res.status(400).json({ 
-      success: false, 
-      message: "Interview mode must be one of: Offline, Online, or Hybrid" 
-    });
-  }
 
   // Validate and parse interview schedule date
-  let parsedDate;
-  try {
-    // Handle dd/mm/yyyy format
-    if (interviewScheduleDate.includes('/')) {
-      const [day, month, year] = interviewScheduleDate.split('/');
-      parsedDate = new Date(`${year}-${month}-${day}`);
-    } else {
-      parsedDate = new Date(interviewScheduleDate);
-    }
-    
-    if (isNaN(parsedDate.getTime())) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Invalid interview schedule date format. Please use dd/mm/yyyy format" 
-      });
-    }
-
-    // Check if date is in the future
-    if (parsedDate < new Date()) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Interview schedule date cannot be in the past" 
-      });
-    }
-  } catch (dateError) {
-    return res.status(400).json({ 
-      success: false, 
-      message: "Invalid interview schedule date format. Please use dd/mm/yyyy format" 
-    });
-  }
+ 
 
   try {
     // Verify OTP
@@ -212,12 +177,9 @@ exports.submitInterestController = async (req, res) => {
       name: name.trim(),
       email: email.trim().toLowerCase(),
       companyName: companyName.trim(),
-      companyAddress: companyAddress.trim(),
       mobile: mobile.trim(),
-      interviewScheduleDate: parsedDate,
-      interviewMode: interviewMode.trim(),
-      candidateName: candidateName.trim(),
-      submittedAt: new Date(),
+      submittedAt: new Date(),  
+      candidateName: candidateName ? candidateName.trim() : undefined,
       status: 'pending'
     });
 
@@ -231,6 +193,7 @@ exports.submitInterestController = async (req, res) => {
         companyName: interest.companyName,
         interviewScheduleDate: interest.interviewScheduleDate,
         interviewMode: interest.interviewMode,
+        candidateName: interest?.candidateName,
         status: interest.status,
         submittedAt: interest.submittedAt
       }
