@@ -1,6 +1,6 @@
  const User =  require('../models/User');
  const axios = require('axios');
-
+ const category = require('../models/categories');
  const getUserInterviews = async (req, res) => {
   try {
 
@@ -87,9 +87,42 @@ const checkValidUser = async (req, res) => {
   }
  }
 
+
+
+ const getInterviewforAIBuddy = async (req, res) => {
+  try {
+    const {subCategory} = req.query;
+    console.log("getInterviewforAIBuddy",subCategory);
+    const validSubCategory = await category.findOne({name: subCategory, parentId: {$ne: null}});
+    if(!validSubCategory){
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid subCategory. Please provide a valid subCategory.'
+      });
+    }
+
+    if(!subCategory){
+      return res.status(400).json({
+        success: false,
+        message: 'subCategory query parameter is required'
+      });
+    }
+
+    const response = await axios.get(`${process.env.INTERVIEW_PORTAL_URL}/api/public/interviewsForAIBuddy?subCategory=${subCategory}`);
+    return res.status(200).json(response.data);
+  } catch (error) {
+    console.error("Error fetching interviews for AI Buddy:", error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error. Please try again later.'
+    });
+  }
+ }
+
 module.exports = {
   getUserInterviews,
   getInterviewReport,
   checkValidUser,
-  getAllCandidates
+  getAllCandidates,
+  getInterviewforAIBuddy
 };
