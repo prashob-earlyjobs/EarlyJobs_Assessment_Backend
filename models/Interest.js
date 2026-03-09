@@ -32,19 +32,9 @@ const interestSchema = new mongoose.Schema({
     trim: true,
     match: [/^\+91\d{10}$/, 'Mobile number must be in format +91XXXXXXXXXX']
   },
-  interviewScheduleDate: {
-    type: Date,
-    required: [true, 'Interview schedule date is required']
-  },
-  interviewMode: {
+
+    candidateName: {
     type: String,
-    required: [true, 'Interview mode is required'],
-    enum: ['Offline', 'Online', 'Hybrid'],
-    trim: true
-  },
-  candidateName: {
-    type: String,
-    required: [true, 'Candidate name is required'],
     trim: true,
     maxlength: [100, 'Candidate name cannot exceed 100 characters']
   },
