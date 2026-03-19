@@ -5,16 +5,15 @@
   try {
 
       const {id} = req.params;
+      const {page, pageSize} = req.query;
+
       console.log("Received request to get interviews for user ID:", id);  
   
       // const interviews = await User.findById(id).select('assessment');
         const user = await User.findById(id)
-        const response = await axios.get(`${process.env.INTERVIEW_PORTAL_URL}/api/interview/user/${user.mobile}`);
-
-      return res.status(200).json({
-        success: true,
-        interviews: response?.data?.data|| []
-      });
+        const response = await axios.get(`${process.env.INTERVIEW_PORTAL_URL}/api/interview/user/${user.mobile}?page=${page || 1}&pageSize=${pageSize || 10}`);
+        console.log("Response from interview portal:", response.data);
+      return res.status(200).json(response.data);
     
 
   } catch (error) {
