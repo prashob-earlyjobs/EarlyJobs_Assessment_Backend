@@ -58,8 +58,7 @@ const register = async (req, res) => {
       });
     }
 
-    const { name, email, mobile, experienceLevel, role, referrerId } = req.body;
-    console.log("referrerId", referrerId);
+    const { name, email, mobile, experienceLevel, role, referrerId, countryCode } = req.body;
 
     // Check if user exists
     const userExists = await User.findOne({
@@ -110,6 +109,7 @@ const register = async (req, res) => {
       generatedUserId = "EJU0001";
     }
 
+    console.log("countryCode: ", countryCode);
     // Create user
     const user = await User.create({
       name,
@@ -119,6 +119,7 @@ const register = async (req, res) => {
       referrerId,
       role: role || "candidate",
       userId: generatedUserId,
+      countryCode
     });
 
     // Update referral status via nominations API

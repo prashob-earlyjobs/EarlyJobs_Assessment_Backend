@@ -1,30 +1,26 @@
 const roles = require('../data/roles.json'); // load once
 const skills = require('../data/skills.json');
 const Categories = require('../models/categories');
-
+const Fuse = require("fuse.js");
 
 const getSkills = (req, res) => {
   try {
     const { searchQuery } = req.query;
-    const limit = parseInt(req.query.limit) || 30;
-
 
     let filteredSkills = skills;
 
-    if (searchQuery) {
-      const searchLower = searchQuery.trim().toLowerCase();
+     const fuse = new Fuse(filteredSkills, {
+      keys: ['label', 'value'],
+      threshold: 0.3
+    });
+    const result = searchQuery ? fuse.search(searchQuery).map(r => r.item) : filteredSkills.slice(0, 30);
 
-      filteredSkills = skills.filter(skill =>
-        skill.label.toLowerCase().includes(searchLower) ||
-        skill.value.toLowerCase().includes(searchLower)
-      );
-    }
-
-    res.json({
+   res.json({
       success: true,
-      data: filteredSkills.slice(0, limit)
+      data: result
     });
   } catch (error) {
+    console.error('Error fetching skills data:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to load skills data',
@@ -114,9 +110,52 @@ const getCategoriesForAIBuddy = async (req, res) => {
   }
 }
 
+const getCountries = (req, res) => {
+  try {
+    const countries = require('../data/countries.json');
+    res.json({
+      success: true,
+      data: countries
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to load countries data',
+      error: error.message
+    });
+  } 
+}
+
+const getTools = (req, res) => {
+  try {
+    const {searchQuery} = req.query;
+
+    const tools = require('../data/familiarTools.json');
+    const fuse = new Fuse(tools, {
+      keys: ['label', 'value'],
+      threshold: 0.3
+    });
+    const result = searchQuery ? fuse.search(searchQuery).map(r => r.item) : tools.slice(0, 30);
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error('Error fetching tools data:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to load tools data',
+      error: error.message
+    });
+  }
+}
+
 
 module.exports = {
   getSkills,
+  getTools,
   getRoles,
-  getCategoriesForAIBuddy
+  getCategoriesForAIBuddy,
+  getCountries,
+
 };

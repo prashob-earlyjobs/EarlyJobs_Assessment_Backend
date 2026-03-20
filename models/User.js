@@ -28,8 +28,12 @@ const userSchema = new mongoose.Schema(
       trim: true,
       minLength: [2, "Name must be at least 2 characters"],
       maxLength: [50, "Name cannot exceed 50 characters"],
-      match: [/^[a-zA-Z\s]+$/, "Name can only contain letters and spaces"],
+    
     },
+     countryCode: {
+        type: String,
+        trim: true,
+      },
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -252,6 +256,7 @@ const userSchema = new mongoose.Schema(
         type: String,
         enum: ["Male", "Female", "Other"],
       },
+     
       bio: {
         type: String,
         trim: true,
