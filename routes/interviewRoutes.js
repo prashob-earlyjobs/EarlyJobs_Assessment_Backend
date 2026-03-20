@@ -5,8 +5,6 @@ const { getUserInterviews,getInterviewReport,checkValidUser,getAllCandidates, ge
 
 const router = express.Router();
 
-
-
 router.get('/getUserInterviews/:id',authMiddleware, getUserInterviews);
 
 router.get('/getInterviewReport/:id', getInterviewReport);
