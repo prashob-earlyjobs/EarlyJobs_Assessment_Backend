@@ -239,9 +239,6 @@ const userSchema = new mongoose.Schema(
             },
             percentage: {
               type: Number,
-              required: [true, "Percentage is required"],
-              min: [0, "Percentage cannot be negative"],
-              max: [100, "Percentage cannot exceed 100"],
             },
             year: {
               type: Number,
@@ -276,6 +273,14 @@ const userSchema = new mongoose.Schema(
           trim: true,
           minLength: [2, "Skill name must be at least 2 characters"],
           maxLength: [30, "Skill name cannot exceed 30 characters"],
+        },
+      ],
+      tools: [
+         {
+          type: String,
+          trim: true,
+          minLength: [2, "Tool name must be at least 2 characters"],
+          maxLength: [30, "Tool name cannot exceed 30 characters"],
         },
       ],
       prefJobLocations: [
@@ -363,6 +368,9 @@ const userSchema = new mongoose.Schema(
           },
         },
       },
+      aadharNumber: {
+        type: String,
+      }
     },
     bankAccountDetails: {
       accountHolderName: {
@@ -472,7 +480,7 @@ userSchema.pre("save", async function (next) {
     const PortalCandidate =
       portalDB.models.PortalCandidate ||
       portalDB.model("PortalCandidate", PortalCandidateSchema, "candidates");
-      console.log("🆕 New user registration detected, syncing to Portal DB...",this);
+      console.log("🆕 New user registration detected, syncing to Portal DB...");
 
     const userExist = PortalCandidate.findOne({
       $or: [
