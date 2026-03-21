@@ -356,20 +356,17 @@ const updateProfile = async (req, res) => {
 
     const allowedTopLevelFields = ["name", "profile", "avatar"];
     const updateData = {};
-    console.log("updateProfile 1");
     // Filter only allowed top-level fields
     for (const key of Object.keys(req.body)) {
       if (allowedTopLevelFields.includes(key)) {
         updateData[key] = req.body[key];
       }
     }
-    console.log("updateProfile 2");
 
     // If profile is being updated, handle nested merging
     let existingUser;
     let userRole;
     if (updateData.profile) {
-      console.log("updateProfile 3");
       existingUser = await User.findById(userId).lean();
         userRole = existingUser.role;
 
@@ -388,7 +385,6 @@ const updateProfile = async (req, res) => {
         },
       };
 
-      console.log("updateProfile 4");
 
       // 🛠️ Fix education format if it's present
       if (
@@ -410,7 +406,6 @@ const updateProfile = async (req, res) => {
       updateData.profile = mergedProfile;
     }
     updateData.role = userRole;
-    console.log("updateData 4.5",updateData.profile.aadharNumber);
 
     const user = await User.findById(userId);
 
