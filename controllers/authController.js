@@ -356,19 +356,22 @@ const updateProfile = async (req, res) => {
 
     const allowedTopLevelFields = ["name", "profile", "avatar"];
     const updateData = {};
-
+    console.log("updateProfile 1");
     // Filter only allowed top-level fields
     for (const key of Object.keys(req.body)) {
       if (allowedTopLevelFields.includes(key)) {
         updateData[key] = req.body[key];
       }
     }
+    console.log("updateProfile 2");
 
     // If profile is being updated, handle nested merging
     let existingUser;
+    let userRole;
     if (updateData.profile) {
+      console.log("updateProfile 3");
       existingUser = await User.findById(userId).lean();
-
+        userRole = existingUser.role;
 
       const newRole = updateData.profile.preferredJobRole || "";
       const mergedProfile = {
@@ -385,6 +388,8 @@ const updateProfile = async (req, res) => {
         },
       };
 
+      console.log("updateProfile 4");
+
       // 🛠️ Fix education format if it's present
       if (
         updateData.profile?.professionalInformation?.education &&
@@ -398,20 +403,29 @@ const updateProfile = async (req, res) => {
             institution: entry.institution,
             degree: entry.degree,
             fieldOfStudy: entry.fieldOfStudy || "N/A", // Optional fallback
-            percentage: Number(entry.percentage),
             year: Number(entry.year),
           }));
       }
 
       updateData.profile = mergedProfile;
     }
+    updateData.role = userRole;
+    console.log("updateData 4.5",updateData.profile.aadharNumber);
 
-    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
-      new: true,
-      runValidators: true,
-    });
+    const user = await User.findById(userId);
+
+    if (!user) return null;
+
+    user.set(updateData);
+
+    await user.save();
+
+    const updatedUser = user;
 
 
+
+
+    console.log("updateProfile 5");
     const existingRole = existingUser?.profile?.preferredJobRole || "";
     const roleChanged = (existingRole !== updatedUser.profile.preferredJobRole);
     let assessmentCreated = false;
