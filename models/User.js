@@ -131,6 +131,12 @@ const userSchema = new mongoose.Schema(
       sparse: true,
     },
     profile: {
+      fatherName: {
+        type: String,
+        trim: true,
+        minLength: [2, "Father's name must be at least 2 characters"],
+        maxLength: [50, "Father's name cannot exceed 50 characters"],
+      },
       college: {
         university: { type: String },
         college: { type: String },
@@ -153,6 +159,12 @@ const userSchema = new mongoose.Schema(
         },
       },
       address: {
+        areaLocality: {
+          type: String,
+          trim: true,
+          minLength: [2, "Area/Locality must be at least 2 characters"],
+          maxLength: [100, "Area/Locality cannot exceed 100 characters"],
+        },
         street: {
           type: String,
           trim: true,
@@ -248,17 +260,30 @@ const userSchema = new mongoose.Schema(
             },
           },
         ],
+        howSoonReady:{
+          type: String,
+          trim: true,
+          maxLength: [100, "This field cannot exceed 100 characters"],
+        },
+        preferredEmploymentTypes:{
+          type: [String],
+          enum: ["Contract","Full-time","Internship","Freelance","Part-time"],
+        }
+
       },
       gender: {
         type: String,
         enum: ["Male", "Female", "Other"],
       },
-     
       bio: {
         type: String,
         trim: true,
       },
       preferredJobRole: {
+        type: String,
+        trim: true,
+      },
+      preferredIndustries: {
         type: String,
         trim: true,
       },
