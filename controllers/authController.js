@@ -41,7 +41,7 @@ const cookieOptions = {
   secure: false, // because localhost is not HTTPS
   sameSite: "lax",
   path: "/",
-  expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
 };
 
 // @desc    Register user
